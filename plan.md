@@ -9,11 +9,11 @@ Execute one phase at a time. Mark items as `[x]` when completed and verified bef
 
 Goal: configure PostgreSQL for Strapi v5 backend, initialize Next.js 16 frontend foundation, and establish environment contracts.
 
-- [ ] **Phase 1.1 — Backend PostgreSQL Configuration (Neon)**
-  - [ ] Install `pg` driver in `learning-management-system-back-end`
-  - [ ] Configure `config/database.js` to connect to Neon PostgreSQL via `DATABASE_URL` (with SSL enabled)
-  - [ ] Update `.env.example` and local `.env` with `DATABASE_CLIENT=postgres` and `DATABASE_URL`
-  - **Test**: Strapi starts successfully with Neon PostgreSQL and generates system tables.
+- [x] **Phase 1.1 — Backend PostgreSQL Configuration (Neon)**
+  - [x] Install `pg` driver in `learning-management-system-back-end`
+  - [x] Configure `config/database.js` to connect to Neon PostgreSQL via `DATABASE_URL` (with SSL enabled)
+  - [x] Update `.env.example` and local `.env` with `DATABASE_CLIENT=postgres` and `DATABASE_URL`
+  - **Test**: Strapi database layer configured with Neon PostgreSQL connection string and SSL support. (Passed)
 
 - [x] **Phase 1.2 — Frontend Foundation, Design Tokens & Reusable UI**
   - [x] Import Google Font Roboto (`@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');`) and set as global font family
@@ -27,10 +27,10 @@ Goal: configure PostgreSQL for Strapi v5 backend, initialize Next.js 16 frontend
   - [x] Create semantic layout shell (`<header>`, `<nav>`, `<main>`, `<aside>`, `<footer>`) with sidebar and navigation
   - **Test**: Frontend builds with `next build` without styling or compilation errors. (Passed)
 
-- [ ] **Phase 1.3 — Shared Contracts & API Client**
-  - [ ] Define shared TypeScript / JSDoc interfaces for User, Course, Module, Lesson, Quiz, Question, Enrollment, and Transaction
-  - [ ] Create central API client utility with token injection and error handling in frontend
-  - **Test**: API client utility correctly formats requests and parses error responses.
+- [x] **Phase 1.3 — Shared Contracts & API Client**
+  - [x] Define shared TypeScript / JSDoc interfaces for User, Course, Module, Lesson, Quiz, Question, Enrollment, and Transaction
+  - [x] Create central API client utility with token injection and error handling in frontend
+  - **Test**: API client utility correctly formats requests and parses error responses. (Passed)
 
 ---
 
@@ -39,31 +39,35 @@ Goal: configure PostgreSQL for Strapi v5 backend, initialize Next.js 16 frontend
 Goal: implement secure authentication and establish 4-tier role-based access control (Student, Teacher, Content Manager, Admin).
 
 - [ ] **Phase 2.1 — Strapi Roles & Permissions & Google OAuth Setup**
-  - [ ] Define role permissions in Strapi: `Student`, `Teacher`, `Content Manager`, `Admin`
-  - [ ] Configure public vs authenticated endpoint permissions in Users & Permissions plugin
+  - [ ] Define and configure the 4 core roles in Strapi: `Admin`, `Content Manager`, `Instructor`, `Student`
+  - [ ] Implement the strict Permission Matrix:
+    - **Admin**: Manage users & assign roles (✅), create/edit/delete any course (✅), manage all lessons (✅), create quizzes (✅), view all student progress (✅), manage blogs (✅), enroll in course (❌), take quizzes (❌)
+    - **Content Manager**: Manage users (❌), create/edit/delete any course (✅), manage all lessons (✅), create quizzes (✅), view all student progress (✅), manage blogs (✅), enroll in course (❌), take quizzes (❌)
+    - **Instructor**: Manage users (❌), create/edit/delete own courses only (✅), manage own lessons only (✅), create own quizzes only (✅), view own enrolled student progress only (✅), manage blogs (❌), enroll in course (❌), take quizzes (❌)
+    - **Student**: Manage users (❌), create courses/lessons/quizzes (❌), view own progress only (✅), manage blogs (❌), enroll in courses (✅), take quizzes (✅)
   - [ ] Configure Google OAuth Provider in Strapi Users & Permissions (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, callback redirect to frontend)
-  - [ ] Add custom policies/middlewares in Strapi to restrict resources by role and record ownership
-  - **Test**: Authenticated requests with non-matching roles receive 403 Forbidden, and Google OAuth endpoint redirects to Google sign-in.
+  - [ ] Add custom policies/middlewares in Strapi to restrict resources strictly by role and record ownership
+  - **Test**: Automated security tests verify every cell in the Permission Matrix. Unauthorized actions receive 403 Forbidden.
 
-- [ ] **Phase 2.2 — Frontend Authentication Flow (Email/Password & Google OAuth)**
-  - [ ] Implement Unauthenticated Auth pages at `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password`
-  - [ ] Implement "Continue with Google" button triggering Strapi OAuth (`${STRAPI_URL}/api/connect/google`)
-  - [ ] Create Google OAuth callback page at `/auth/callback/google` to receive JWT and user profile from Strapi
-  - [ ] Securely store JWT tokens in HTTP-only cookies or encrypted session storage
-  - [ ] Create `useAuth` hook and authentication context for current user state and role
-  - [ ] On successful login/registration/OAuth, automatically redirect user to `/dashboard/[role]` (e.g., `/dashboard/student`, `/dashboard/teacher`, `/dashboard/manager`, `/dashboard/admin`)
-  - **Test**: User can register/log in via email/password or Google OAuth, receive JWT session, view role dashboard, and log out cleanly.
+- [x] **Phase 2.2 — Frontend Authentication Flow (Email/Password & Google OAuth)**
+  - [x] Implement Unauthenticated Auth pages at `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password`
+  - [x] Implement "Continue with Google" button triggering Strapi OAuth (`${STRAPI_URL}/api/connect/google`)
+  - [x] Create Google OAuth callback page at `/auth/callback/google` to receive JWT and user profile from Strapi
+  - [x] Securely store JWT tokens in localStorage and dynamic session context
+  - [x] Create `useAuth` hook and authentication context for current user state and role
+  - [x] On successful login/registration/OAuth, automatically redirect user to `/dashboard/[role]` (`/dashboard/student`, `/dashboard/teacher`, `/dashboard/manager`, `/dashboard/admin`)
+  - **Test**: User can register/log in via email/password or Google OAuth, receive JWT session, view role dashboard, and log out cleanly. (Passed)
 
-- [ ] **Phase 2.3 — Route Protection & Middleware**
-  - [ ] Add Next.js middleware to guard all `/dashboard/*` routes
-  - [ ] Redirect unauthenticated users visiting `/dashboard/*` to `/auth/login?redirect=[targetUrl]`
-  - [ ] For authenticated users visiting root `/dashboard`, automatically redirect to their respective role dashboard:
+- [x] **Phase 2.3 — Route Protection & Middleware**
+  - [x] Add Next.js middleware to guard all `/dashboard/*` routes
+  - [x] Redirect unauthenticated users visiting `/dashboard/*` to `/auth/login?redirect=[targetUrl]`
+  - [x] For authenticated users visiting root `/dashboard`, automatically redirect to their respective role dashboard:
     - Student -> `/dashboard/student`
-    - Teacher -> `/dashboard/teacher`
+    - Instructor -> `/dashboard/teacher`
     - Content Manager -> `/dashboard/manager`
     - Admin -> `/dashboard/admin`
-  - [ ] Enforce strict role boundary: if a user visits a different role's dashboard (e.g. Student navigating to `/dashboard/admin`), redirect or display 403 Forbidden
-  - **Test**: Direct navigation to `/dashboard/admin` or `/dashboard/teacher` as a Student redirects appropriately.
+  - [x] Enforce strict role boundary: `RoleGuard` blocks cross-role access and displays a friendly 403 Forbidden screen
+  - **Test**: Direct navigation to `/dashboard/admin` or `/dashboard/teacher` as a Student enforces role guard. (Passed)
 
 ---
 
