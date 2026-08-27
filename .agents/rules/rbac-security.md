@@ -5,20 +5,37 @@
 - Every API endpoint that handles sensitive actions (course modification, quiz submission, role change, checkout session creation) must verify the caller's JWT and permissions on the server.
 - Never rely on frontend UI hiding or client-side checks for security.
 
-## 2. Role Boundaries & Scopes
-- **Student**:
-  - Can only access lesson content for courses they are actively enrolled in (except free preview lessons).
-  - Can only submit and view their own quiz attempts and orders.
-  - Cannot access teacher, content manager, or admin API endpoints.
-- **Teacher**:
-  - Can create and edit only their own courses, modules, lessons, and quizzes.
-  - Can view enrollments and quiz attempts only for their own courses.
-  - Cannot publish courses directly to the live catalog without Content Manager / Admin approval.
-- **Content Manager**:
-  - Can inspect, review, categorize, edit, approve, or reject any course draft.
-  - Cannot modify administrative user roles or financial transactions.
+## 2. Definitive Permission Matrix & Role Scopes
+
+| Action | Admin | Content Manager | Instructor | Student |
+|---|:---:|:---:|:---:|:---:|
+| **Manage users & assign roles** | ✅ | ❌ | ❌ | ❌ |
+| **Create / edit / delete any course** | ✅ | ✅ | Own only | ❌ |
+| **Add / edit / delete lessons** | ✅ | ✅ | Own courses | ❌ |
+| **Create quizzes** | ✅ | ✅ | Own courses | ❌ |
+| **View student progress** | ✅ | ✅ | Own courses | Own only |
+| **Write / manage blog posts** | ✅ | ✅ | ❌ | ❌ |
+| **Enroll in a course** | ❌ | ❌ | ❌ | ✅ |
+| **Take quizzes** | ❌ | ❌ | ❌ | ✅ |
+
+### Detailed Role Enforcements:
 - **Admin**:
-  - Full system authorization across all resources, users, roles, and billing logs.
+  - Only role permitted to manage users and assign/change user roles.
+  - Full CRUD authority across all courses, lessons, quizzes, blogs, orders, and system logs.
+  - Does not enroll in courses or take student quizzes.
+- **Content Manager**:
+  - Full authority to create, edit, organize, and delete any course, module, lesson, and quiz across the platform content library.
+  - Can author and publish blog posts / articles.
+  - Can view student progress across all courses.
+  - Strictly forbidden from managing user accounts or changing user roles.
+- **Instructor**:
+  - Can create, edit, and manage lessons and quizzes for **their own assigned courses only**.
+  - Can view learning progress and quiz submissions for students enrolled in **their own courses**.
+  - Cannot modify other instructors' courses, manage global users, or author blog posts.
+- **Student**:
+  - Can browse courses, enroll/buy courses via Stripe, stream lessons, and take quizzes.
+  - Can view **only their own** course progress, quiz scorecards, and purchase history.
+  - Has zero access to course authoring, question keys, blog management, or admin features.
 
 ## 3. Financial & Transaction Integrity
 - Never accept client-submitted prices or discount values. The server must look up the verified database price before initiating a Stripe checkout session.

@@ -14,28 +14,36 @@ CPS Academy is a comprehensive Learning Management System built for students, te
 
 ### Core Roles & Permission Matrix
 
-1. **Student**:
-   - Discover and search classes/courses by category, tags, difficulty, and price.
-   - Buy classes via Stripe checkout with automatic enrollment upon verified payment.
-   - Learn via interactive course player with YouTube video lessons, resource downloads, and progress tracking.
-   - Take quizzes linked to classes with timed attempts, immediate grading, detailed scorecards, and certificates.
-   - Manage student profile, enrolled courses, learning history, and invoice records.
+| Action | Admin | Content Manager | Instructor | Student |
+|---|:---:|:---:|:---:|:---:|
+| **Manage users & assign roles** | ✅ | ❌ | ❌ | ❌ |
+| **Create / edit / delete any course** | ✅ | ✅ | Own only | ❌ |
+| **Add / edit / delete lessons** | ✅ | ✅ | Own courses | ❌ |
+| **Create quizzes** | ✅ | ✅ | Own courses | ❌ |
+| **View student progress** | ✅ | ✅ | Own courses | Own only |
+| **Write / manage blog posts** | ✅ | ✅ | ❌ | ❌ |
+| **Enroll in a course** | ❌ | ❌ | ❌ | ✅ |
+| **Take quizzes** | ❌ | ❌ | ❌ | ✅ |
 
-2. **Teacher / Instructor**:
-   - Author, upload, and update courses, modules, and video lessons (YouTube unlisted URLs, resources, descriptions).
-   - Create and manage course-specific quizzes (multiple choice, true/false, questions bank, passing scores).
-   - Manage enrolled students, monitor student learning progress, and review quiz performance analytics.
+#### Role Scope Details:
+1. **Admin**:
+   - Full control of the platform.
+   - Manages all users and assigns/changes their roles (`Admin`, `Content Manager`, `Instructor`, `Student`).
+   - Can perform all content, billing, and system operations.
 
-3. **Content Manager**:
-   - Curate, review, and moderate all course content, descriptions, taxonomies, and video resources.
-   - Manage course categories, tags, promotional banners, and featured course catalogs.
-   - Approve teacher-submitted courses and publish them to the public catalog.
+2. **Content Manager**:
+   - Creates and manages all courses, modules, lessons, quizzes, and blogs (the content library).
+   - Can view student learning progress across all courses.
+   - Does **NOT** manage users or change user roles.
 
-4. **Admin**:
-   - Global platform administration and configuration.
-   - Manage user accounts, assign/change user roles (Student, Teacher, Content Manager, Admin), and enforce access policies.
-   - Manage financial transactions, monitor Stripe webhooks, reconcile orders, and view revenue analytics.
-   - Audit logs, system health checks, and global settings.
+3. **Instructor**:
+   - Manages courses, lessons, and quizzes for **their own assigned courses only**.
+   - Can monitor learning progress of students enrolled in **their own courses**.
+   - Cannot edit other instructors' courses, manage global users, or publish blog posts.
+
+4. **Student**:
+   - Discovers classes, buys/enrolls in courses via Stripe, streams video lessons, takes quizzes, and views **their own progress and scorecards**.
+   - Has strictly no access to authoring, grading, curation, or administration.
 
 ---
 
@@ -108,3 +116,7 @@ CPS Academy is a comprehensive Learning Management System built for students, te
 ### 2. Nested Git Repositories
 - **Issue**: Running `git add .` when sub-directories contain `.git` folders tracks them as mode `160000` gitlinks/submodules instead of tracking their source files.
 - **Prevention Rule**: Remove nested `.git` folders before staging and clear cached gitlinks via `git rm --cached -r <dir>`.
+
+### 3. Next.js 16 Proxy Convention
+- **Issue**: Using `src/middleware.js` triggers deprecation warnings in Next.js 16.
+- **Prevention Rule**: Use the Next.js 16 `src/proxy.js` convention (`export function proxy(request) { ... }`) for request interception and edge routing guards.
