@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Table, TableRow, TableCell } from "@/components/ui/Table";
 
@@ -134,15 +135,92 @@ const INITIAL_ENROLLED_STUDENTS = [
 
 export default function TeacherDashboardPage() {
   const { user } = useAuth();
-  const [courses] = useState(INITIAL_INSTRUCTOR_COURSES);
-  const [quizzes] = useState(INITIAL_QUIZZES);
+  const [courses, setCourses] = useState(INITIAL_INSTRUCTOR_COURSES);
+  const [quizzes, setQuizzes] = useState(INITIAL_QUIZZES);
   const [students] = useState(INITIAL_ENROLLED_STUDENTS);
   const [activeTab, setActiveTab] = useState("courses");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCourseId, setExpandedCourseId] = useState("c-1");
+
+  // Modals state
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+
+  // Form states
+  const [newCourse, setNewCourse] = useState({ title: "", category: "Computer Science", level: "Beginner", price: "" });
+  const [newLesson, setNewLesson] = useState({ courseId: "c-1", title: "", duration: "", youtubeUrl: "", isPreview: false });
+  const [newQuiz, setNewQuiz] = useState({ courseId: "c-1", title: "", passingScore: "80", timeLimitMinutes: "20" });
+
+  const handleCreateCourse = (e) => {
+    e.preventDefault();
+    if (!newCourse.title.trim()) return;
+
+    const created = {
+      id: `c-${Date.now()}`,
+      title: newCourse.title,
+      slug: newCourse.title.toLowerCase().replace(/\s+/g, "-"),
+      category: newCourse.category,
+      level: newCourse.level,
+      price: parseFloat(newCourse.price) || 0,
+      status: "Draft",
+      enrolledCount: 0,
+      modules: [],
+    };
+    setCourses([created, ...courses]);
+    setNewCourse({ title: "", category: "Computer Science", level: "Beginner", price: "" });
+    setIsCourseModalOpen(false);
+  };
+
+  const handleAddLesson = (e) => {
+    e.preventDefault();
+    if (!newLesson.title.trim()) return;
+
+    setCourses((prev) =>
+      prev.map((course) => {
+        if (course.id === newLesson.courseId) {
+          const mod = course.modules[0] || { id: `m-${Date.now()}`, title: "Module 1: Getting Started", lessons: [] };
+          const updatedLessons = [
+            ...mod.lessons,
+            {
+              id: `l-${Date.now()}`,
+              title: newLesson.title,
+              duration: newLesson.duration || "15:00",
+              isPreview: newLesson.isPreview,
+              youtubeUrl: newLesson.youtubeUrl || "https://youtube.com",
+            },
+          ];
+          return {
+            ...course,
+            modules: [{ ...mod, lessons: updatedLessons }, ...course.modules.slice(1)],
+          };
+        }
+        return course;
+      })
+    );
+    setNewLesson({ courseId: "c-1", title: "", duration: "", youtubeUrl: "", isPreview: false });
+    setIsLessonModalOpen(false);
+  };
+
+  const handleCreateQuiz = (e) => {
+    e.preventDefault();
+    if (!newQuiz.title.trim()) return;
+
+    const targetCourse = courses.find((c) => c.id === newQuiz.courseId);
+    const createdQuiz = {
+      id: `q-${Date.now()}`,
+      title: newQuiz.title,
+      courseTitle: targetCourse?.title || "Assigned Course",
+      passingScore: parseInt(newQuiz.passingScore, 10) || 80,
+      timeLimitMinutes: parseInt(newQuiz.timeLimitMinutes, 10) || 20,
+      questionsCount: 5,
+      attempts: 0,
+      passRate: "0%",
+    };
+    setQuizzes([createdQuiz, ...quizzes]);
+    setNewQuiz({ courseId: "c-1", title: "", passingScore: "80", timeLimitMinutes: "20" });
+    setIsQuizModalOpen(false);
+  };
 
   const filteredCourses = courses.filter((c) =>
     c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -240,7 +318,7 @@ export default function TeacherDashboardPage() {
             <CardHeader className="pb-2">
               <span className="text-xs font-semibold text-muted uppercase tracking-wider">Total Lessons</span>
               <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
-                7
+                {courses.reduce((acc, c) => acc + c.modules.reduce((mAcc, m) => mAcc + m.lessons.length, 0), 0)}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -490,6 +568,186 @@ export default function TeacherDashboardPage() {
             </Table>
           </div>
         )}
+
+        {/* MODAL 1: Create Course */}
+        <Modal
+          isOpen={isCourseModalOpen}
+          onClose={() => setIsCourseModalOpen(false)}
+          title="Create New Course"
+          description="Author a new course. You will be assigned as the course instructor."
+        >
+          <form onSubmit={handleCreateCourse} className="space-y-4">
+            <Input
+              label="Course Title"
+              placeholder="e.g. Advanced Dynamic Programming"
+              value={newCourse.title}
+              onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
+              required
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">Category</label>
+                <select
+                  value={newCourse.category}
+                  onChange={(e) => setNewCourse({ ...newCourse, category: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground"
+                >
+                  <option>Computer Science</option>
+                  <option>Algorithms</option>
+                  <option>Data Structures</option>
+                  <option>Web Development</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">Level</label>
+                <select
+                  value={newCourse.level}
+                  onChange={(e) => setNewCourse({ ...newCourse, level: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground"
+                >
+                  <option>Beginner</option>
+                  <option>Intermediate</option>
+                  <option>Advanced</option>
+                </select>
+              </div>
+            </div>
+            <Input
+              label="Price (USD)"
+              type="number"
+              step="0.01"
+              placeholder="49.99"
+              value={newCourse.price}
+              onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="surface" onClick={() => setIsCourseModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary">
+                Publish Course
+              </Button>
+            </div>
+          </form>
+        </Modal>
+
+        {/* MODAL 2: Add Video Lesson */}
+        <Modal
+          isOpen={isLessonModalOpen}
+          onClose={() => setIsLessonModalOpen(false)}
+          title="Add Video Lesson"
+          description="Embed a YouTube video lesson into your course curriculum."
+        >
+          <form onSubmit={handleAddLesson} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-foreground mb-1">Target Course</label>
+              <select
+                value={newLesson.courseId}
+                onChange={(e) => setNewLesson({ ...newLesson, courseId: e.target.value })}
+                className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground"
+              >
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Input
+              label="Lesson Title"
+              placeholder="e.g. Introduction to Dynamic Programming"
+              value={newLesson.title}
+              onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
+              required
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Duration (mm:ss)"
+                placeholder="20:00"
+                value={newLesson.duration}
+                onChange={(e) => setNewLesson({ ...newLesson, duration: e.target.value })}
+              />
+              <div className="flex items-center pt-6">
+                <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newLesson.isPreview}
+                    onChange={(e) => setNewLesson({ ...newLesson, isPreview: e.target.checked })}
+                    className="rounded border-border"
+                  />
+                  <span>Free Preview Lesson</span>
+                </label>
+              </div>
+            </div>
+            <Input
+              label="YouTube Video URL"
+              placeholder="https://www.youtube.com/watch?v=..."
+              value={newLesson.youtubeUrl}
+              onChange={(e) => setNewLesson({ ...newLesson, youtubeUrl: e.target.value })}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="surface" onClick={() => setIsLessonModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary">
+                Add Lesson
+              </Button>
+            </div>
+          </form>
+        </Modal>
+
+        {/* MODAL 3: Create Quiz */}
+        <Modal
+          isOpen={isQuizModalOpen}
+          onClose={() => setIsQuizModalOpen(false)}
+          title="Create Course Quiz"
+          description="Design a timed assessment checkpoint for enrolled students."
+        >
+          <form onSubmit={handleCreateQuiz} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-foreground mb-1">Target Course</label>
+              <select
+                value={newQuiz.courseId}
+                onChange={(e) => setNewQuiz({ ...newQuiz, courseId: e.target.value })}
+                className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground"
+              >
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Input
+              label="Quiz Title"
+              placeholder="e.g. Graph Algorithms Mastery Checkpoint"
+              value={newQuiz.title}
+              onChange={(e) => setNewQuiz({ ...newQuiz, title: e.target.value })}
+              required
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Passing Score (%)"
+                type="number"
+                value={newQuiz.passingScore}
+                onChange={(e) => setNewQuiz({ ...newQuiz, passingScore: e.target.value })}
+              />
+              <Input
+                label="Time Limit (Minutes)"
+                type="number"
+                value={newQuiz.timeLimitMinutes}
+                onChange={(e) => setNewQuiz({ ...newQuiz, timeLimitMinutes: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="surface" onClick={() => setIsQuizModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary">
+                Create Quiz
+              </Button>
+            </div>
+          </form>
+        </Modal>
       </div>
     </RoleGuard>
   );
