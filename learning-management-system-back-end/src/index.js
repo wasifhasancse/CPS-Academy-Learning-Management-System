@@ -46,5 +46,25 @@ const PUBLIC_ACTIONS = [
 
 module.exports = {
   register(/*{ strapi }*/) {},
-  async bootstrap(/*{ strapi }*/) {},
+  async bootstrap({ strapi }) {
+    try {
+      const allRoles = await strapi.db.query('plugin::users-permissions.role').findMany();
+      for (const role of allRoles) {
+        if (role.type !== 'public') {
+          for (const action of AUTHENTICATED_ACTIONS) {
+            const existing = await strapi.db.query('plugin::users-permissions.permission').findOne({
+              where: { action, role: role.id },
+            });
+            if (!existing) {
+              await strapi.db.query('plugin::users-permissions.permission').create({
+                data: { action, role: role.id },
+              });
+            }
+          }
+        }
+      }
+    } catch (err) {
+      strapi.log.error('Bootstrap error:', err);
+    }
+  },
 };
