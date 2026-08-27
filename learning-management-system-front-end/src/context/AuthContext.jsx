@@ -34,9 +34,71 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize authentication state from local storage and verify with backend
+  // Initialize authentication state and handle OAuth callback tokens from URL
   useEffect(() => {
     async function initAuth() {
+      if (typeof window === "undefined") {
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if redirected from Strapi Google OAuth with tokens in query params
+      const searchParams = new URLSearchParams(window.location.search);
+      const directJwt = searchParams.get("jwt");
+      const accessToken = searchParams.get("access_token") || searchParams.get("raw[access_token]");
+      const idToken = searchParams.get("id_token") || searchParams.get("raw[id_token]");
+
+      // Case 1: Direct JWT received from OAuth redirect
+      if (directJwt) {
+        try {
+          localStorage.setItem("cps_jwt", directJwt);
+          setToken(directJwt);
+          const fullUser = await api.get("/users/me?populate=role", { token: directJwt });
+          const resolvedUser = {
+            ...fullUser,
+            roleName: fullUser?.role?.name || "Student",
+          };
+          setUser(resolvedUser);
+          window.history.replaceState({}, document.title, window.location.pathname);
+          const target = getRoleDashboardPath(resolvedUser.roleName);
+          router.replace(target);
+          setIsLoading(false);
+          return;
+        } catch (err) {
+          console.error("Failed to process direct JWT:", err);
+        }
+      }
+
+      // Case 2: Google access_token or id_token returned by Strapi Provider redirect
+      if (accessToken || idToken) {
+        try {
+          const query = accessToken
+            ? `access_token=${encodeURIComponent(accessToken)}`
+            : `id_token=${encodeURIComponent(idToken)}`;
+          const res = await api.get(`/auth/google/callback?${query}`);
+
+          if (res?.jwt) {
+            const jwt = res.jwt;
+            localStorage.setItem("cps_jwt", jwt);
+            setToken(jwt);
+            const fullUser = await api.get("/users/me?populate=role", { token: jwt });
+            const resolvedUser = {
+              ...fullUser,
+              roleName: fullUser?.role?.name || "Student",
+            };
+            setUser(resolvedUser);
+            window.history.replaceState({}, document.title, window.location.pathname);
+            const target = getRoleDashboardPath(resolvedUser.roleName);
+            router.replace(target);
+            setIsLoading(false);
+            return;
+          }
+        } catch (err) {
+          console.error("Google OAuth token exchange failed:", err);
+        }
+      }
+
+      // Case 3: Regular existing session verification from localStorage
       const storedToken = localStorage.getItem("cps_jwt");
       if (!storedToken) {
         setIsLoading(false);
@@ -64,7 +126,7 @@ export function AuthProvider({ children }) {
     }
 
     initAuth();
-  }, []);
+  }, [router]);
 
   const login = useCallback(
     async (identifier, password) => {
@@ -78,7 +140,6 @@ export function AuthProvider({ children }) {
         localStorage.setItem("cps_jwt", jwt);
         setToken(jwt);
 
-        // Fetch user with role populated
         const fullUser = await api.get("/users/me?populate=role", { token: jwt });
         const resolvedUser = {
           ...fullUser,

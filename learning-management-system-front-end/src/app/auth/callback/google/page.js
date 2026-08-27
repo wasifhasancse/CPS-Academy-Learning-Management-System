@@ -15,34 +15,42 @@ function GoogleCallbackContent() {
 
   useEffect(() => {
     async function handleCallback() {
-      // Check for direct JWT in params or accessToken from Google exchange
-      const jwtParam = searchParams.get("jwt") || searchParams.get("access_token");
+      const directJwt = searchParams.get("jwt");
+      const accessToken = searchParams.get("access_token") || searchParams.get("raw[access_token]");
       const idToken = searchParams.get("id_token") || searchParams.get("raw[id_token]");
 
-      if (jwtParam) {
+      // Case 1: Direct JWT from backend
+      if (directJwt) {
         try {
-          await setAuthData(jwtParam);
+          await setAuthData(directJwt);
           return;
         } catch (err) {
           console.error("JWT exchange error:", err);
+          setError(err?.message || "Session initialization failed.");
+          return;
         }
       }
 
-      if (idToken) {
+      // Case 2: Exchange Google access_token or id_token for Strapi JWT
+      if (accessToken || idToken) {
         try {
-          const res = await api.get(`/auth/google/callback?id_token=${idToken}`);
+          const query = accessToken
+            ? `access_token=${encodeURIComponent(accessToken)}`
+            : `id_token=${encodeURIComponent(idToken)}`;
+          const res = await api.get(`/auth/google/callback?${query}`);
+
           if (res?.jwt) {
             await setAuthData(res.jwt);
             return;
           }
+          throw new Error("No session token returned from provider.");
         } catch (err) {
-          console.error("Google auth callback error:", err);
-          setError(err?.message || "Google authentication could not be completed.");
+          console.error("Google auth callback exchange error:", err);
+          setError(err?.message || "Google authentication exchange could not be completed.");
           return;
         }
       }
 
-      // If no token params are found
       setError("No authentication token received from Google provider.");
     }
 
