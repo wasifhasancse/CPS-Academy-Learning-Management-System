@@ -26,60 +26,25 @@ const ROLES_TO_SEED = [
   },
 ];
 
+/**
+ * Essential Permissions by Role Scope
+ */
+const AUTHENTICATED_ACTIONS = [
+  'plugin::users-permissions.user.me',
+  'plugin::users-permissions.auth.changePassword',
+];
+
+const PUBLIC_ACTIONS = [
+  'plugin::users-permissions.auth.callback',
+  'plugin::users-permissions.auth.connect',
+  'plugin::users-permissions.auth.register',
+  'plugin::users-permissions.auth.forgotPassword',
+  'plugin::users-permissions.auth.resetPassword',
+  'plugin::users-permissions.auth.emailConfirmation',
+  'plugin::users-permissions.auth.sendEmailConfirmation',
+];
+
 module.exports = {
-  /**
-   * An asynchronous register function that runs before
-   * your application is initialized.
-   */
   register(/*{ strapi }*/) {},
-
-  /**
-   * An asynchronous bootstrap function that runs before
-   * your application gets started.
-   */
-  async bootstrap({ strapi }) {
-    try {
-      const roleService = strapi.service('plugin::users-permissions.role');
-      if (!roleService) return;
-
-      const existingRoles = await strapi.db.query('plugin::users-permissions.role').findMany();
-      const existingNames = existingRoles.map((r) => r.name.toLowerCase().trim());
-      const existingTypes = existingRoles.map((r) => (r.type || '').toLowerCase().trim());
-
-      for (const roleDef of ROLES_TO_SEED) {
-        const nameMatch = existingNames.includes(roleDef.name.toLowerCase().trim());
-        const typeMatch = existingTypes.includes(roleDef.type.toLowerCase().trim());
-
-        if (!nameMatch && !typeMatch) {
-          strapi.log.info(`[Bootstrap] Creating CPS Academy role: "${roleDef.name}" (${roleDef.type})`);
-          await strapi.db.query('plugin::users-permissions.role').create({
-            data: {
-              name: roleDef.name,
-              type: roleDef.type,
-              description: roleDef.description,
-            },
-          });
-        }
-      }
-
-      // Ensure default role is set to Student if available
-      const studentRole = await strapi.db.query('plugin::users-permissions.role').findOne({
-        where: { name: 'Student' },
-      });
-
-      if (studentRole) {
-        const pluginStore = strapi.store({
-          type: 'plugin',
-          name: 'users-permissions',
-        });
-        const advancedSettings = (await pluginStore.get({ key: 'advanced' })) || {};
-        if (!advancedSettings.default_role || advancedSettings.default_role !== studentRole.id) {
-          advancedSettings.default_role = studentRole.id;
-          await pluginStore.set({ key: 'advanced', value: advancedSettings });
-        }
-      }
-    } catch (error) {
-      strapi.log.error('[Bootstrap] Failed to seed roles:', error);
-    }
-  },
+  async bootstrap(/*{ strapi }*/) {},
 };
