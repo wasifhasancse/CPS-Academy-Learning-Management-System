@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { useAuth } from "@/context/AuthContext";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
@@ -60,6 +61,57 @@ export default function TeacherDashboardPage() {
               + New Course
             </Button>
           </div>
+        </div>
+
+        {/* 4 Instructor KPI Metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <Card>
+            <CardHeader className="pb-2">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">My Courses</span>
+              <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
+                2
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted">Authored & published by you</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Enrolled Students</span>
+              <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
+                230
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted">Active learners across your courses</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Total Lessons</span>
+              <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
+                7
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted">Video sessions & modules</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Quizzes Published</span>
+              <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
+                2
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted">Assessments across your curriculum</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </RoleGuard>
