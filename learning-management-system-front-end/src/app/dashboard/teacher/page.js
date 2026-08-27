@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Table, TableRow, TableCell } from "@/components/ui/Table";
 
 const INITIAL_INSTRUCTOR_COURSES = [
@@ -84,10 +85,58 @@ const INITIAL_QUIZZES = [
   },
 ];
 
+const INITIAL_ENROLLED_STUDENTS = [
+  {
+    id: "st-1",
+    name: "Alex Rahman",
+    email: "alex.rahman@example.com",
+    courseTitle: "Data Structures & Competitive Algorithms",
+    progress: 80,
+    completedLessons: 4,
+    totalLessons: 5,
+    lastQuizScore: "90%",
+    status: "Active",
+  },
+  {
+    id: "st-2",
+    name: "Tanvir Ahmed",
+    email: "tanvir.ahmed@example.com",
+    courseTitle: "Data Structures & Competitive Algorithms",
+    progress: 40,
+    completedLessons: 2,
+    totalLessons: 5,
+    lastQuizScore: "75%",
+    status: "Active",
+  },
+  {
+    id: "st-3",
+    name: "Nusrat Jahan",
+    email: "nusrat.jahan@example.com",
+    courseTitle: "Graph Theory Mastery for ICPC Contenders",
+    progress: 100,
+    completedLessons: 2,
+    totalLessons: 2,
+    lastQuizScore: "100%",
+    status: "Completed",
+  },
+  {
+    id: "st-4",
+    name: "Sabbir Hossain",
+    email: "sabbir.hossain@example.com",
+    courseTitle: "Graph Theory Mastery for ICPC Contenders",
+    progress: 50,
+    completedLessons: 1,
+    totalLessons: 2,
+    lastQuizScore: "N/A",
+    status: "Active",
+  },
+];
+
 export default function TeacherDashboardPage() {
   const { user } = useAuth();
   const [courses] = useState(INITIAL_INSTRUCTOR_COURSES);
   const [quizzes] = useState(INITIAL_QUIZZES);
+  const [students] = useState(INITIAL_ENROLLED_STUDENTS);
   const [activeTab, setActiveTab] = useState("courses");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCourseId, setExpandedCourseId] = useState("c-1");
@@ -103,6 +152,12 @@ export default function TeacherDashboardPage() {
   const filteredQuizzes = quizzes.filter((q) =>
     q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     q.courseTitle.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredStudents = students.filter((s) =>
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.courseTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -173,7 +228,7 @@ export default function TeacherDashboardPage() {
             <CardHeader className="pb-2">
               <span className="text-xs font-semibold text-muted uppercase tracking-wider">Enrolled Students</span>
               <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
-                230
+                {students.length}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -240,7 +295,7 @@ export default function TeacherDashboardPage() {
                   : "text-muted hover:text-foreground hover:bg-surface"
               }`}
             >
-              Enrolled Student Progress (4)
+              Enrolled Student Progress ({students.length})
             </button>
           </nav>
 
@@ -383,6 +438,53 @@ export default function TeacherDashboardPage() {
                   <TableCell>{quiz.timeLimitMinutes} mins</TableCell>
                   <TableCell>{quiz.attempts}</TableCell>
                   <TableCell className="font-bold text-foreground">{quiz.passRate}</TableCell>
+                </TableRow>
+              ))}
+            </Table>
+          </div>
+        )}
+
+        {/* TAB 3: Student Progress */}
+        {activeTab === "students" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-foreground">Enrolled Students Learning Progress</h2>
+                <p className="text-xs text-muted">Tracking completion and assessment scores for students in your courses.</p>
+              </div>
+              <Badge variant="highlight" size="sm">
+                Real-Time Tracking
+              </Badge>
+            </div>
+
+            <Table headers={["Student", "Course Enrolled", "Lessons Completed", "Curriculum Progress", "Last Quiz Score", "Status"]}>
+              {filteredStudents.map((student) => (
+                <TableRow key={student.id}>
+                  <TableCell>
+                    <div className="space-y-0.5">
+                      <p className="font-semibold text-foreground">{student.name}</p>
+                      <p className="text-xs text-muted">{student.email}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted">{student.courseTitle}</TableCell>
+                  <TableCell>
+                    <span className="font-medium text-foreground">
+                      {student.completedLessons} of {student.totalLessons} lessons
+                    </span>
+                  </TableCell>
+                  <TableCell className="min-w-[140px]">
+                    <ProgressBar value={student.progress} size="sm" showLabel={true} />
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={student.lastQuizScore === "N/A" ? "surface" : "highlight"} size="sm">
+                      {student.lastQuizScore}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={student.status === "Completed" ? "highlight" : "surface"} size="sm">
+                      {student.status}
+                    </Badge>
+                  </TableCell>
                 </TableRow>
               ))}
             </Table>
