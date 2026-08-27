@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Table, TableRow, TableCell } from "@/components/ui/Table";
 
 const INITIAL_INSTRUCTOR_COURSES = [
   {
@@ -60,9 +61,33 @@ const INITIAL_INSTRUCTOR_COURSES = [
   },
 ];
 
+const INITIAL_QUIZZES = [
+  {
+    id: "q-1",
+    title: "Segment Tree Mastery Quiz",
+    courseTitle: "Data Structures & Competitive Algorithms",
+    passingScore: 80,
+    timeLimitMinutes: 25,
+    questionsCount: 5,
+    attempts: 98,
+    passRate: "84%",
+  },
+  {
+    id: "q-2",
+    title: "Graph Shortest Paths Checkpoint",
+    courseTitle: "Graph Theory Mastery for ICPC Contenders",
+    passingScore: 75,
+    timeLimitMinutes: 20,
+    questionsCount: 4,
+    attempts: 64,
+    passRate: "78%",
+  },
+];
+
 export default function TeacherDashboardPage() {
   const { user } = useAuth();
   const [courses] = useState(INITIAL_INSTRUCTOR_COURSES);
+  const [quizzes] = useState(INITIAL_QUIZZES);
   const [activeTab, setActiveTab] = useState("courses");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCourseId, setExpandedCourseId] = useState("c-1");
@@ -73,6 +98,11 @@ export default function TeacherDashboardPage() {
   const filteredCourses = courses.filter((c) =>
     c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredQuizzes = quizzes.filter((q) =>
+    q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    q.courseTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -167,7 +197,7 @@ export default function TeacherDashboardPage() {
             <CardHeader className="pb-2">
               <span className="text-xs font-semibold text-muted uppercase tracking-wider">Quizzes Published</span>
               <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
-                2
+                {quizzes.length}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -199,7 +229,7 @@ export default function TeacherDashboardPage() {
                   : "text-muted hover:text-foreground hover:bg-surface"
               }`}
             >
-              Course Quizzes (2)
+              Course Quizzes ({quizzes.length})
             </button>
             <button
               type="button"
@@ -318,6 +348,44 @@ export default function TeacherDashboardPage() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* TAB 2: Quizzes */}
+        {activeTab === "quizzes" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-foreground">Course Quizzes & Checkpoints</h2>
+                <p className="text-xs text-muted">Quizzes created for your authored courses.</p>
+              </div>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={() => setIsQuizModalOpen(true)}
+              >
+                + Add Quiz
+              </Button>
+            </div>
+
+            <Table headers={["Quiz Title", "Course", "Questions", "Passing Score", "Time Limit", "Attempts", "Pass Rate"]}>
+              {filteredQuizzes.map((quiz) => (
+                <TableRow key={quiz.id}>
+                  <TableCell className="font-semibold text-foreground">{quiz.title}</TableCell>
+                  <TableCell className="text-muted">{quiz.courseTitle}</TableCell>
+                  <TableCell>{quiz.questionsCount} Qs</TableCell>
+                  <TableCell>
+                    <Badge variant="surface" size="sm">
+                      {quiz.passingScore}%
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{quiz.timeLimitMinutes} mins</TableCell>
+                  <TableCell>{quiz.attempts}</TableCell>
+                  <TableCell className="font-bold text-foreground">{quiz.passRate}</TableCell>
+                </TableRow>
+              ))}
+            </Table>
           </div>
         )}
       </div>
