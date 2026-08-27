@@ -91,3 +91,20 @@ CPS Academy is a comprehensive Learning Management System built for students, te
 5. **Code Hygiene & Native Tooling**:
    - Do not use temporary modifying scripts to change project files; use native editing tools.
    - Ensure clean formatting without trailing whitespace or leftover debug console logs.
+   - Never attempt to run `git commit` automatically or commit a single line of code unless explicitly requested by the user.
+
+---
+
+## Known Issues, Bug Fixes & Prevention Guidelines
+
+### 1. Theme Variables & Dark Mode Color Invariants
+- **Issue**: Overriding constant brand color tokens (e.g. assigning `--primary: #EEEEEE` inside `.dark`) breaks utilities like `bg-primary`, causing dark mode footers, banners, and components to render with light backgrounds.
+- **Prevention Rule**:
+  - Keep brand palette variables constant in both light and dark modes: `--primary: #213C51;`, `--secondary: #6594B1;`, `--highlight: #DDAED3;`.
+  - Use dedicated semantic tokens for theming: `--background`, `--foreground`, `--surface`, `--card`, `--border`, `--muted`, `--footer-bg`, `--footer-fg`.
+  - Always provide explicit hover states for buttons and interactive elements across both modes (`hover:...` and `dark:hover:...`).
+  - For full-width callout banners, place dark cards (`bg-primary`) inside neutral section wrappers (`bg-surface` / `bg-background`) so they remain well-framed in light mode instead of creating full-width dark blocks.
+
+### 2. Nested Git Repositories
+- **Issue**: Running `git add .` when sub-directories contain `.git` folders tracks them as mode `160000` gitlinks/submodules instead of tracking their source files.
+- **Prevention Rule**: Remove nested `.git` folders before staging and clear cached gitlinks via `git rm --cached -r <dir>`.

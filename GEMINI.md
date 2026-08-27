@@ -8,3 +8,5 @@
 8. Let's do a quick final check of the files we modified to make sure there are no trailing whitespace or extra comments. All clean. I am ready.
 9. You are banned to say and use the word "premium" in all messages or codes.
 10. You are banned to use scripts to change the code, instead using scripts, use your native tools.
+11. Never attempt to run git commit on your own or commit a single line of code unless explicitly requested by the user.
+12. When you fix a bug, update and document the solution and preventative rules in AGENTS.md so that the issue can be prevented in the future.

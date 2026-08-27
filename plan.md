@@ -15,17 +15,17 @@ Goal: configure PostgreSQL for Strapi v5 backend, initialize Next.js 16 frontend
   - [ ] Update `.env.example` and local `.env` with `DATABASE_CLIENT=postgres` and `DATABASE_URL`
   - **Test**: Strapi starts successfully with Neon PostgreSQL and generates system tables.
 
-- [ ] **Phase 1.2 — Frontend Foundation, Design Tokens & Reusable UI**
-  - [ ] Import Google Font Roboto (`@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');`) and set as global font family
-  - [ ] Configure brand design tokens in `src/app/globals.css` with Tailwind CSS v4 `@theme inline`:
+- [x] **Phase 1.2 — Frontend Foundation, Design Tokens & Reusable UI**
+  - [x] Import Google Font Roboto (`@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');`) and set as global font family
+  - [x] Configure brand design tokens in `src/app/globals.css` with Tailwind CSS v4 `@theme inline`:
     - Primary: `#213C51`
     - Secondary: `#6594B1`
     - Highlight / Accent: `#DDAED3`
     - Neutral / Surface: `#EEEEEE`
-  - [ ] Strictly enforce flat solid color styling: **NO gradients** anywhere in the project
-  - [ ] Build atomic, reusable UI component library in `src/components/ui/` (`Button`, `Input`, `Card`, `Badge`, `Modal`, `Table`, `Dropdown`, `ProgressBar`, `Skeleton`) to avoid duplicate component types
-  - [ ] Create semantic layout shell (`<header>`, `<nav>`, `<main>`, `<aside>`, `<footer>`) with sidebar and navigation
-  - **Test**: Frontend builds with `next build` without styling or compilation errors.
+  - [x] Strictly enforce flat solid color styling: **NO gradients** anywhere in the project
+  - [x] Build atomic, reusable UI component library in `src/components/ui/` (`Button`, `Input`, `Card`, `Badge`, `Modal`, `Table`, `Dropdown`, `ProgressBar`, `Skeleton`) to avoid duplicate component types
+  - [x] Create semantic layout shell (`<header>`, `<nav>`, `<main>`, `<aside>`, `<footer>`) with sidebar and navigation
+  - **Test**: Frontend builds with `next build` without styling or compilation errors. (Passed)
 
 - [ ] **Phase 1.3 — Shared Contracts & API Client**
   - [ ] Define shared TypeScript / JSDoc interfaces for User, Course, Module, Lesson, Quiz, Question, Enrollment, and Transaction

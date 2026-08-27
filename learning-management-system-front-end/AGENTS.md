@@ -39,3 +39,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 6. **Code Standards**:
    - Strict TypeScript/JSDoc types; zero tolerance for `any`.
    - Reusable component architecture with clean state boundaries.
+7. **Theme Variables & Dark Mode Invariants**:
+   - Never override brand color variables (`--primary`, `--secondary`, `--highlight`) inside `.dark`.
+   - Use semantic variables (`--background`, `--foreground`, `--surface`, `--card`, `--border`, `--muted`, `--footer-bg`, `--footer-fg`) for dark/light mode adaptations.
+   - Always ensure interactive controls (`Button`, links, inputs) have defined hover and focus states for both modes.

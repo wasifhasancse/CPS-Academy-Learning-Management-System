@@ -1,26 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-roboto: 'Roboto', sans-serif;
+
+  /* Brand Palette (Constant) */
+  --primary: #213C51;
+  --secondary: #6594B1;
+  --highlight: #DDAED3;
+
+  /* Base Light Theme */
+  --background: #FFFFFF;
+  --foreground: #213C51;
+  --surface: #EEEEEE;
+  --card: #FFFFFF;
+  --card-foreground: #213C51;
+  --border: #DDE3EA;
+  --muted: #5A7184;
+
+  /* Footer Colors */
+  --footer-bg: #213C51;
+  --footer-fg: #FFFFFF;
+}
+
+.dark {
+  /* Base Dark Theme */
+  --background: #101F2B;
+  --foreground: #EEEEEE;
+  --surface: #162938;
+  --card: #162938;
+  --card-foreground: #EEEEEE;
+  --border: #243D50;
+  --muted: #9BB8CB;
+
+  /* Footer Colors (Dark Mode) */
+  --footer-bg: #0C1822;
+  --footer-fg: #EEEEEE;
 }
 
 @theme inline {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-highlight: var(--highlight);
+  --color-surface: var(--surface);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+
+  --color-footer-bg: var(--footer-bg);
+  --color-footer-fg: var(--footer-fg);
+
+  --font-sans: var(--font-roboto);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-roboto);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
