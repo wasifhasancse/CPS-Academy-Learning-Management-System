@@ -1,0 +1,40 @@
+{
+  "name": "learning-management-system-back-end",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Strapi application",
+  "scripts": {
+    "build": "strapi build",
+    "console": "strapi console",
+    "deploy": "strapi deploy",
+    "dev": "strapi develop",
+    "develop": "strapi develop",
+    "seed:example": "node ./scripts/seed.js",
+    "start": "strapi start",
+    "strapi": "strapi",
+    "upgrade": "npx @strapi/upgrade latest",
+    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+  },
+  "dependencies": {
+    "@strapi/database": "5.52.2",
+    "@strapi/plugin-cloud": "5.52.2",
+    "@strapi/plugin-users-permissions": "5.52.2",
+    "@strapi/strapi": "5.52.2",
+    "better-sqlite3": "12.8.0",
+    "fs-extra": "^10.0.0",
+    "mime-types": "^2.1.27",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.30.3",
+    "styled-components": "^6.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=20.0.0 <=26.x.x",
+    "npm": ">=6.0.0"
+  },
+  "strapi": {
+    "uuid": "c5c221a7-6d91-47f2-a5b5-82014b85aa86",
+    "installId": "247788764cc3f2fe0bcbe667b14e758aa1c0f74f62e1ef520c44ae878a4619ce"
+  }
+}
