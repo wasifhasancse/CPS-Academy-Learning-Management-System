@@ -18,7 +18,25 @@ const INITIAL_INSTRUCTOR_COURSES = [
     price: 49.99,
     status: "Published",
     enrolledCount: 142,
-    modules: [],
+    modules: [
+      {
+        id: "m-1",
+        title: "Module 1: Segment Trees & Fenwick Trees",
+        lessons: [
+          { id: "l-1", title: "Introduction to Range Queries", duration: "18:45", isPreview: true, youtubeUrl: "https://youtube.com/watch?v=demo1" },
+          { id: "l-2", title: "Building a Segment Tree from Scratch", duration: "24:10", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo2" },
+          { id: "l-3", title: "Lazy Propagation and Range Updates", duration: "31:05", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo3" },
+        ],
+      },
+      {
+        id: "m-2",
+        title: "Module 2: Graph Theory & Shortest Path",
+        lessons: [
+          { id: "l-4", title: "Dijkstra and 0-1 BFS Implementation", duration: "22:15", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo4" },
+          { id: "l-5", title: "Floyd-Warshall and Negative Cycle Detection", duration: "19:40", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo5" },
+        ],
+      },
+    ],
   },
   {
     id: "c-2",
@@ -29,7 +47,16 @@ const INITIAL_INSTRUCTOR_COURSES = [
     price: 69.99,
     status: "Published",
     enrolledCount: 88,
-    modules: [],
+    modules: [
+      {
+        id: "m-3",
+        title: "Module 1: Network Flows & Matching",
+        lessons: [
+          { id: "l-6", title: "Ford-Fulkerson and Edmonds-Karp Algorithm", duration: "28:30", isPreview: true, youtubeUrl: "https://youtube.com/watch?v=demo6" },
+          { id: "l-7", title: "Dinic's Maximum Flow Algorithm", duration: "34:50", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo7" },
+        ],
+      },
+    ],
   },
 ];
 
@@ -38,6 +65,7 @@ export default function TeacherDashboardPage() {
   const [courses] = useState(INITIAL_INSTRUCTOR_COURSES);
   const [activeTab, setActiveTab] = useState("courses");
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedCourseId, setExpandedCourseId] = useState("c-1");
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
@@ -208,26 +236,87 @@ export default function TeacherDashboardPage() {
             </div>
 
             <div className="space-y-4">
-              {filteredCourses.map((course) => (
-                <Card key={course.id} className="overflow-hidden">
-                  <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-bold text-foreground">{course.title}</span>
-                        <Badge variant="highlight" size="sm">
-                          {course.category}
-                        </Badge>
-                        <Badge variant="surface" size="sm">
-                          {course.level}
-                        </Badge>
+              {filteredCourses.map((course) => {
+                const isExpanded = expandedCourseId === course.id;
+                const courseLessonCount = course.modules.reduce((acc, m) => acc + m.lessons.length, 0);
+
+                return (
+                  <Card key={course.id} className="overflow-hidden">
+                    <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base font-bold text-foreground">{course.title}</span>
+                          <Badge variant="highlight" size="sm">
+                            {course.category}
+                          </Badge>
+                          <Badge variant="surface" size="sm">
+                            {course.level}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted">
+                          Price: <span className="font-semibold text-foreground">${course.price.toFixed(2)}</span> • {course.enrolledCount} Enrolled Students • {courseLessonCount} Lessons
+                        </p>
                       </div>
-                      <p className="text-xs text-muted">
-                        Price: <span className="font-semibold text-foreground">${course.price.toFixed(2)}</span> • {course.enrolledCount} Enrolled Students
-                      </p>
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="surface"
+                          size="sm"
+                          onClick={() => setExpandedCourseId(isExpanded ? null : course.id)}
+                          className="border border-border"
+                        >
+                          {isExpanded ? "Hide Curriculum ▲" : "View Curriculum ▼"}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+
+                    {/* Curriculum Accordion */}
+                    {isExpanded && (
+                      <div className="p-5 bg-surface/40 space-y-4">
+                        <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                          Curriculum & Video Lessons
+                        </h4>
+
+                        {course.modules.length === 0 || courseLessonCount === 0 ? (
+                          <p className="text-xs text-muted italic">No lessons added to this course yet.</p>
+                        ) : (
+                          course.modules.map((mod) => (
+                            <div key={mod.id} className="space-y-2">
+                              <div className="text-xs font-semibold text-foreground flex items-center justify-between bg-card p-2.5 rounded-lg border border-border">
+                                <span>{mod.title}</span>
+                                <span className="text-muted text-[11px]">{mod.lessons.length} lessons</span>
+                              </div>
+
+                              <div className="pl-3 space-y-1.5">
+                                {mod.lessons.map((lesson, idx) => (
+                                  <div
+                                    key={lesson.id}
+                                    className="flex items-center justify-between p-2 rounded-lg bg-card border border-border text-xs"
+                                  >
+                                    <div className="flex items-center gap-2.5">
+                                      <span className="w-5 h-5 rounded-full bg-surface flex items-center justify-center font-bold text-[10px] text-muted">
+                                        {idx + 1}
+                                      </span>
+                                      <span className="font-medium text-foreground">{lesson.title}</span>
+                                      {lesson.isPreview && (
+                                        <Badge variant="highlight" size="sm">
+                                          Free Preview
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <span className="text-muted text-[11px]">{lesson.duration}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
             </div>
           </div>
         )}
