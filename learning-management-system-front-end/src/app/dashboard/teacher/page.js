@@ -6,9 +6,12 @@ import { useAuth } from "@/context/AuthContext";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 export default function TeacherDashboardPage() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("courses");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
@@ -112,6 +115,55 @@ export default function TeacherDashboardPage() {
               <p className="text-xs text-muted">Assessments across your curriculum</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Tabs Bar */}
+        <div className="flex items-center justify-between border-b border-border gap-4 flex-wrap pb-2">
+          <nav className="flex space-x-2" aria-label="Tabs">
+            <button
+              type="button"
+              onClick={() => setActiveTab("courses")}
+              className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
+                activeTab === "courses"
+                  ? "bg-primary text-white dark:bg-secondary dark:text-white"
+                  : "text-muted hover:text-foreground hover:bg-surface"
+              }`}
+            >
+              My Courses & Lessons (2)
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("quizzes")}
+              className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
+                activeTab === "quizzes"
+                  ? "bg-primary text-white dark:bg-secondary dark:text-white"
+                  : "text-muted hover:text-foreground hover:bg-surface"
+              }`}
+            >
+              Course Quizzes (2)
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("students")}
+              className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
+                activeTab === "students"
+                  ? "bg-primary text-white dark:bg-secondary dark:text-white"
+                  : "text-muted hover:text-foreground hover:bg-surface"
+              }`}
+            >
+              Enrolled Student Progress (4)
+            </button>
+          </nav>
+
+          <div className="w-full sm:w-64">
+            <Input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="py-1.5 text-xs"
+            />
+          </div>
         </div>
       </div>
     </RoleGuard>
