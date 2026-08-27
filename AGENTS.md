@@ -120,3 +120,7 @@ CPS Academy is a comprehensive Learning Management System built for students, te
 ### 3. Next.js 16 Proxy Convention
 - **Issue**: Using `src/middleware.js` triggers deprecation warnings in Next.js 16.
 - **Prevention Rule**: Use the Next.js 16 `src/proxy.js` convention (`export function proxy(request) { ... }`) for request interception and edge routing guards.
+
+### 4. Strapi v5 Default Role Configuration
+- **Issue**: Setting `advanced.default_role` in `users-permissions` plugin to a numeric role ID causes registration to fail with `Impossible to find the default role` because Strapi queries `{ where: { type: settings.default_role } }`.
+- **Prevention Rule**: Always store the role `type` string (e.g. `'student'` or `'authenticated'`) in `advanced.default_role`. Provide role fallbacks in custom registration controllers.
