@@ -9,14 +9,14 @@
 
 | Action | Admin | Content Manager | Instructor | Student |
 |---|:---:|:---:|:---:|:---:|
-| **Manage users & assign roles** | ✅ | ❌ | ❌ | ❌ |
-| **Create / edit / delete any course** | ✅ | ✅ | Own only | ❌ |
-| **Add / edit / delete lessons** | ✅ | ✅ | Own courses | ❌ |
-| **Create quizzes** | ✅ | ✅ | Own courses | ❌ |
-| **View student progress** | ✅ | ✅ | Own courses | Own only |
-| **Write / manage blog posts** | ✅ | ✅ | ❌ | ❌ |
-| **Enroll in a course** | ❌ | ❌ | ❌ | ✅ |
-| **Take quizzes** | ❌ | ❌ | ❌ | ✅ |
+| **Manage users & assign roles** | Yes | No | No | No |
+| **Create / edit / delete any course** | Yes | Yes | Own only | No |
+| **Add / edit / delete lessons** | Yes | Yes | Own courses | No |
+| **Create quizzes** | Yes | Yes | Own courses | No |
+| **View student progress** | Yes | Yes | Own courses | Own only |
+| **Write / manage blog posts** | Yes | Yes | No | No |
+| **Enroll in a course** | No | No | No | Yes |
+| **Take quizzes** | No | No | No | Yes |
 
 ### Detailed Role Enforcements:
 - **Admin**:

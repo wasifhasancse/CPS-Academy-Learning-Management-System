@@ -41,10 +41,10 @@ Goal: implement secure authentication and establish 4-tier role-based access con
 - [ ] **Phase 2.1 — Strapi Roles & Permissions & Google OAuth Setup**
   - [ ] Define and configure the 4 core roles in Strapi: `Admin`, `Content Manager`, `Instructor`, `Student`
   - [ ] Implement the strict Permission Matrix:
-    - **Admin**: Manage users & assign roles (✅), create/edit/delete any course (✅), manage all lessons (✅), create quizzes (✅), view all student progress (✅), manage blogs (✅), enroll in course (❌), take quizzes (❌)
-    - **Content Manager**: Manage users (❌), create/edit/delete any course (✅), manage all lessons (✅), create quizzes (✅), view all student progress (✅), manage blogs (✅), enroll in course (❌), take quizzes (❌)
-    - **Instructor**: Manage users (❌), create/edit/delete own courses only (✅), manage own lessons only (✅), create own quizzes only (✅), view own enrolled student progress only (✅), manage blogs (❌), enroll in course (❌), take quizzes (❌)
-    - **Student**: Manage users (❌), create courses/lessons/quizzes (❌), view own progress only (✅), manage blogs (❌), enroll in courses (✅), take quizzes (✅)
+    - **Admin**: Manage users & assign roles (Yes), create/edit/delete any course (Yes), manage all lessons (Yes), create quizzes (Yes), view all student progress (Yes), manage blogs (Yes), enroll in course (No), take quizzes (No)
+    - **Content Manager**: Manage users (No), create/edit/delete any course (Yes), manage all lessons (Yes), create quizzes (Yes), view all student progress (Yes), manage blogs (Yes), enroll in course (No), take quizzes (No)
+    - **Instructor**: Manage users (No), create/edit/delete own courses only (Yes), manage own lessons only (Yes), create own quizzes only (Yes), view own enrolled student progress only (Yes), manage blogs (No), enroll in course (No), take quizzes (No)
+    - **Student**: Manage users (No), create courses/lessons/quizzes (No), view own progress only (Yes), manage blogs (No), enroll in courses (Yes), take quizzes (Yes)
   - [ ] Configure Google OAuth Provider in Strapi Users & Permissions (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, callback redirect to frontend)
   - [ ] Add custom policies/middlewares in Strapi to restrict resources strictly by role and record ownership
   - **Test**: Automated security tests verify every cell in the Permission Matrix. Unauthorized actions receive 403 Forbidden.
