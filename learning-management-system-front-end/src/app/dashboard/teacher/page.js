@@ -8,13 +8,44 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
+const INITIAL_INSTRUCTOR_COURSES = [
+  {
+    id: "c-1",
+    title: "Data Structures & Competitive Algorithms",
+    slug: "data-structures-competitive-algorithms",
+    category: "Computer Science",
+    level: "Intermediate",
+    price: 49.99,
+    status: "Published",
+    enrolledCount: 142,
+    modules: [],
+  },
+  {
+    id: "c-2",
+    title: "Graph Theory Mastery for ICPC Contenders",
+    slug: "graph-theory-mastery-icpc",
+    category: "Algorithms",
+    level: "Advanced",
+    price: 69.99,
+    status: "Published",
+    enrolledCount: 88,
+    modules: [],
+  },
+];
+
 export default function TeacherDashboardPage() {
   const { user } = useAuth();
+  const [courses] = useState(INITIAL_INSTRUCTOR_COURSES);
   const [activeTab, setActiveTab] = useState("courses");
   const [searchQuery, setSearchQuery] = useState("");
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+
+  const filteredCourses = courses.filter((c) =>
+    c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <RoleGuard allowedRoles={["Instructor", "Admin"]}>
@@ -72,7 +103,7 @@ export default function TeacherDashboardPage() {
             <CardHeader className="pb-2">
               <span className="text-xs font-semibold text-muted uppercase tracking-wider">My Courses</span>
               <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
-                2
+                {courses.length}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -129,7 +160,7 @@ export default function TeacherDashboardPage() {
                   : "text-muted hover:text-foreground hover:bg-surface"
               }`}
             >
-              My Courses & Lessons (2)
+              My Courses & Lessons ({courses.length})
             </button>
             <button
               type="button"
@@ -165,6 +196,41 @@ export default function TeacherDashboardPage() {
             />
           </div>
         </div>
+
+        {/* TAB 1: My Courses & Curriculum */}
+        {activeTab === "courses" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-foreground">Your Authored Courses</h2>
+              <Badge variant="surface" size="sm">
+                Own Courses Scope Only
+              </Badge>
+            </div>
+
+            <div className="space-y-4">
+              {filteredCourses.map((course) => (
+                <Card key={course.id} className="overflow-hidden">
+                  <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-bold text-foreground">{course.title}</span>
+                        <Badge variant="highlight" size="sm">
+                          {course.category}
+                        </Badge>
+                        <Badge variant="surface" size="sm">
+                          {course.level}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted">
+                        Price: <span className="font-semibold text-foreground">${course.price.toFixed(2)}</span> • {course.enrolledCount} Enrolled Students
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </RoleGuard>
   );
