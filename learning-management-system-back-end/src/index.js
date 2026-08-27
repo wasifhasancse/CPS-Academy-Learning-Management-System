@@ -48,24 +48,68 @@ module.exports = {
   register(/*{ strapi }*/) {},
   async bootstrap({ strapi }) {
     try {
+      const roleService = strapi.service('plugin::users-permissions.role');
+      if (!roleService) return;
+
+      const existingRoles = await strapi.db.query('plugin::users-permissions.role').findMany();
+      const existingNames = existingRoles.map((r) => r.name.toLowerCase().trim());
+      const existingTypes = existingRoles.map((r) => (r.type || '').toLowerCase().trim());
+
+      for (const roleDef of ROLES_TO_SEED) {
+        const nameMatch = existingNames.includes(roleDef.name.toLowerCase().trim());
+        const typeMatch = existingTypes.includes(roleDef.type.toLowerCase().trim());
+
+        if (!nameMatch && !typeMatch) {
+          strapi.log.info(`[Bootstrap] Creating CPS Academy role: "${roleDef.name}" (${roleDef.type})`);
+          await strapi.db.query('plugin::users-permissions.role').create({
+            data: {
+              name: roleDef.name,
+              type: roleDef.type,
+              description: roleDef.description,
+            },
+          });
+        }
+      }
+
       const allRoles = await strapi.db.query('plugin::users-permissions.role').findMany();
+      const studentRole = allRoles.find(
+        (r) => r.type === 'student' || r.name.toLowerCase() === 'student'
+      );
+
+      const pluginStore = strapi.store({
+        type: 'plugin',
+        name: 'users-permissions',
+      });
+      const advancedSettings = (await pluginStore.get({ key: 'advanced' })) || {};
+
+      const targetType = studentRole?.type || 'student';
+      if (advancedSettings.default_role !== targetType) {
+        advancedSettings.default_role = targetType;
+        advancedSettings.allow_register = true;
+        await pluginStore.set({ key: 'advanced', value: advancedSettings });
+        strapi.log.info(`[Bootstrap] Set default_role to: "${targetType}"`);
+      }
+
       for (const role of allRoles) {
         const isPublic = role.type === 'public' || role.name.toLowerCase() === 'public';
         const actionsToGrant = isPublic ? PUBLIC_ACTIONS : AUTHENTICATED_ACTIONS;
 
         for (const action of actionsToGrant) {
-          const existing = await strapi.db.query('plugin::users-permissions.permission').findOne({
+          const existingPerm = await strapi.db.query('plugin::users-permissions.permission').findOne({
             where: { action, role: role.id },
           });
-          if (!existing) {
+
+          if (!existingPerm) {
             await strapi.db.query('plugin::users-permissions.permission').create({
               data: { action, role: role.id },
             });
           }
         }
       }
-    } catch (err) {
-      strapi.log.error('Bootstrap error:', err);
+
+      strapi.log.info('[Bootstrap] Essential Users & Permissions verified and active.');
+    } catch (error) {
+      strapi.log.error('[Bootstrap] Failed to seed roles & permissions:', error);
     }
   },
 };
