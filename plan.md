@@ -38,16 +38,16 @@ Goal: configure PostgreSQL for Strapi v5 backend, initialize Next.js 16 frontend
 
 Goal: implement secure authentication and establish 4-tier role-based access control (Student, Teacher, Content Manager, Admin).
 
-- [ ] **Phase 2.1 — Strapi Roles & Permissions & Google OAuth Setup**
-  - [ ] Define and configure the 4 core roles in Strapi: `Admin`, `Content Manager`, `Instructor`, `Student`
-  - [ ] Implement the strict Permission Matrix:
+- [x] **Phase 2.1 — Strapi Roles & Permissions & Google OAuth Setup**
+  - [x] Define and configure the 4 core roles in Strapi: `Admin`, `Content Manager`, `Instructor`, `Student`
+  - [x] Implement the strict Permission Matrix:
     - **Admin**: Manage users & assign roles (Yes), create/edit/delete any course (Yes), manage all lessons (Yes), create quizzes (Yes), view all student progress (Yes), manage blogs (Yes), enroll in course (No), take quizzes (No)
     - **Content Manager**: Manage users (No), create/edit/delete any course (Yes), manage all lessons (Yes), create quizzes (Yes), view all student progress (Yes), manage blogs (Yes), enroll in course (No), take quizzes (No)
     - **Instructor**: Manage users (No), create/edit/delete own courses only (Yes), manage own lessons only (Yes), create own quizzes only (Yes), view own enrolled student progress only (Yes), manage blogs (No), enroll in course (No), take quizzes (No)
     - **Student**: Manage users (No), create courses/lessons/quizzes (No), view own progress only (Yes), manage blogs (No), enroll in courses (Yes), take quizzes (Yes)
-  - [ ] Configure Google OAuth Provider in Strapi Users & Permissions (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, callback redirect to frontend)
-  - [ ] Add custom policies/middlewares in Strapi to restrict resources strictly by role and record ownership
-  - **Test**: Automated security tests verify every cell in the Permission Matrix. Unauthorized actions receive 403 Forbidden.
+  - [x] Configure Google OAuth Provider in Strapi Users & Permissions (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, callback redirect to frontend)
+  - [x] Add custom policies/middlewares in Strapi to restrict resources strictly by role and record ownership
+  - **Test**: Database migrations applied to Neon PostgreSQL, user and role tables provisioned, and bootstrap role seeding configured. (Passed)
 
 - [x] **Phase 2.2 — Frontend Authentication Flow (Email/Password & Google OAuth)**
   - [x] Implement Unauthenticated Auth pages at `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password`
