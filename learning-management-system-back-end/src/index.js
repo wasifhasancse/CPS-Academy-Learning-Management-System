@@ -50,16 +50,17 @@ module.exports = {
     try {
       const allRoles = await strapi.db.query('plugin::users-permissions.role').findMany();
       for (const role of allRoles) {
-        if (role.type !== 'public') {
-          for (const action of AUTHENTICATED_ACTIONS) {
-            const existing = await strapi.db.query('plugin::users-permissions.permission').findOne({
-              where: { action, role: role.id },
+        const isPublic = role.type === 'public' || role.name.toLowerCase() === 'public';
+        const actionsToGrant = isPublic ? PUBLIC_ACTIONS : AUTHENTICATED_ACTIONS;
+
+        for (const action of actionsToGrant) {
+          const existing = await strapi.db.query('plugin::users-permissions.permission').findOne({
+            where: { action, role: role.id },
+          });
+          if (!existing) {
+            await strapi.db.query('plugin::users-permissions.permission').create({
+              data: { action, role: role.id },
             });
-            if (!existing) {
-              await strapi.db.query('plugin::users-permissions.permission').create({
-                data: { action, role: role.id },
-              });
-            }
           }
         }
       }
