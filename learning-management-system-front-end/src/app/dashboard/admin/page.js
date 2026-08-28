@@ -34,6 +34,25 @@ export default function AdminOverviewPage() {
     );
   }
 
+  // Transform activities into table rows with contextual subroute links
+  const tableRows = adminActivities.map((a) => {
+    let href = "/dashboard/admin/courses";
+    if (a.action === "USER_REGISTRATION") {
+      href = "/dashboard/admin/users";
+    } else if (a.action === "COURSE_PUBLISHED") {
+      href = "/dashboard/admin/curriculum";
+    }
+    return {
+      id: a.id,
+      item: a.title,
+      user: a.timestamp,
+      category: a.badgeText,
+      status: a.action === "USER_REGISTRATION" ? "Active" : "Published",
+      actionLabel: "View",
+      href,
+    };
+  });
+
   return (
     <div className="space-y-6">
       {/* Platform KPI Grid */}
@@ -68,11 +87,10 @@ export default function AdminOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <GrowthLineChart
-            title="Platform User Registrations Trend"
-            subtitle="Real-time cumulative account creation curve"
+            title="Platform Activity Trend"
+            subtitle="Cumulative user registrations and course publications"
             dataPoints={adminActivities}
-            metricLabel="Users"
-            color="primary"
+            metricLabel="Events"
           />
         </div>
         <div>
@@ -88,8 +106,10 @@ export default function AdminOverviewPage() {
       {/* Live Activity Feed */}
       <ActivityTable
         title="Recent Platform Activity"
-        subtitle="Live audit trail of user registrations, courses, and publications"
-        activities={adminActivities}
+        subtitle="Live audit trail of user registrations and course publications"
+        columns={["EVENT", "DATE", "TYPE", "STATUS", "ACTION"]}
+        data={tableRows}
+        emptyMessage="No platform activity recorded yet."
       />
     </div>
   );
