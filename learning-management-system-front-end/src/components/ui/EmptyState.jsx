@@ -1,3 +1,7 @@
+"use client";
+
+import React from "react";
+
 export function EmptyState({
   icon,
   title = "No Data Found",
@@ -7,13 +11,13 @@ export function EmptyState({
   size = "md",
 }) {
   const sizeStyles = {
-    sm: "py-6 px-4",
-    md: "py-10 px-6 sm:py-14 sm:px-8",
+    sm: "py-8 px-4 sm:py-10 sm:px-6",
+    md: "py-12 px-6 sm:py-16 sm:px-8",
     lg: "py-16 px-8 sm:py-20 sm:px-12",
   };
 
   const iconSizes = {
-    sm: "w-10 h-10 text-base",
+    sm: "w-11 h-11 text-lg",
     md: "w-14 h-14 text-xl",
     lg: "w-16 h-16 text-2xl",
   };
@@ -36,15 +40,15 @@ export function EmptyState({
 
   return (
     <div
-      className={`w-full flex flex-col items-center justify-center text-center bg-surface/60 border border-dashed border-border rounded-2xl ${sizeStyles[size] || sizeStyles.md} ${className}`}
+      className={`w-full flex flex-col items-center justify-center text-center bg-card dark:bg-[#0D1C19] border border-border rounded-2xl ${sizeStyles[size] || sizeStyles.md} ${className}`}
     >
       <div
-        className={`${iconSizes[size] || iconSizes.md} rounded-2xl bg-primary/10 dark:bg-primary/20 text-primary dark:text-highlight flex items-center justify-center mb-4 shrink-0 shadow-sm`}
+        className={`${iconSizes[size] || iconSizes.md} rounded-2xl bg-primary/10 dark:bg-primary/20 text-primary dark:text-highlight flex items-center justify-center mb-4 shrink-0 shadow-xs`}
       >
         {icon || defaultIcon}
       </div>
 
-      <h3 className="text-sm sm:text-base font-bold text-foreground mb-1">
+      <h3 className="text-sm sm:text-base font-bold text-foreground mb-1.5">
         {title}
       </h3>
 
@@ -54,7 +58,7 @@ export function EmptyState({
         </p>
       )}
 
-      {action && <div className="mt-4 sm:mt-5 flex items-center justify-center gap-3">{action}</div>}
+      {action && <div className="mt-5 flex items-center justify-center gap-3">{action}</div>}
     </div>
   );
 }
