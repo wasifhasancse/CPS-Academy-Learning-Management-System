@@ -4,6 +4,7 @@ const utils = require('@strapi/utils');
 const { ApplicationError, ValidationError } = utils.errors;
 
 module.exports = (plugin) => {
+  // 1. Custom Register Controller
   plugin.controllers.auth.register = async (ctx) => {
     const pluginStore = await strapi.store({ type: 'plugin', name: 'users-permissions' });
     const settings = await pluginStore.get({ key: 'advanced' });
@@ -72,7 +73,16 @@ module.exports = (plugin) => {
     };
 
     const user = await strapi.service('plugin::users-permissions.user').add(newUser);
-    const sanitizedUser = await strapi.service('plugin::users-permissions.user').sanitizeUser(user);
+
+    let sanitizedUser;
+    const userService = strapi.service('plugin::users-permissions.user');
+    if (userService?.sanitizeUser) {
+      sanitizedUser = await userService.sanitizeUser(user);
+    } else {
+      const { password: _, resetPasswordToken: __, confirmationToken: ___, ...rest } = user;
+      sanitizedUser = rest;
+    }
+
     const jwt = strapi.service('plugin::users-permissions.jwt').issue({ id: user.id });
 
     ctx.send({
@@ -86,6 +96,43 @@ module.exports = (plugin) => {
         },
       },
     });
+  };
+
+  // 2. Custom User Me Controller (Ensures role is always populated for frontend role checks)
+  plugin.controllers.user.me = async (ctx) => {
+    const user = ctx.state.user;
+    if (!user) {
+      return ctx.unauthorized();
+    }
+
+    const fullUser = await strapi.db.query('plugin::users-permissions.user').findOne({
+      where: { id: user.id },
+      populate: ['role'],
+    });
+
+    if (!fullUser) {
+      return ctx.notFound();
+    }
+
+    let sanitizedUser;
+    const userService = strapi.service('plugin::users-permissions.user');
+    if (userService?.sanitizeUser) {
+      sanitizedUser = await userService.sanitizeUser(fullUser);
+    } else {
+      const { password: _, resetPasswordToken: __, confirmationToken: ___, ...rest } = fullUser;
+      sanitizedUser = rest;
+    }
+
+    ctx.body = {
+      ...sanitizedUser,
+      role: fullUser.role
+        ? {
+            id: fullUser.role.id,
+            name: fullUser.role.name,
+            type: fullUser.role.type,
+          }
+        : null,
+    };
   };
 
   return plugin;
