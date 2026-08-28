@@ -44,7 +44,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-      className="w-9 h-9 rounded-lg border border-border bg-surface hover:bg-border/60 text-foreground flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+      className="w-8 h-8 sm:w-9 sm:h-9 rounded-full hover:bg-surface border border-transparent hover:border-border text-foreground flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none"
     >
       {theme === "light" ? (
         /* Moon Icon for Light -> Dark switch */
@@ -58,12 +58,12 @@ export function ThemeToggle() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-primary"
+          className="text-foreground/80 hover:text-foreground"
         >
           <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
         </svg>
       ) : (
-        /* Sun Icon for Dark -> Light switch */
+        /* Sun Icon for Dark -> Light switch (glowing amber) */
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="18"
@@ -71,12 +71,12 @@ export function ThemeToggle() {
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-highlight"
+          className="text-amber-400"
         >
-          <circle cx="12" cy="12" r="4" />
+          <circle cx="12" cy="12" r="4" fill="currentColor" fillOpacity="0.2" />
           <path d="M12 2v2" />
           <path d="M12 20v2" />
           <path d="m4.93 4.93 1.41 1.41" />

@@ -6,13 +6,13 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth, getRoleDashboardPath } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { ProfileDropdown } from "@/components/layout/ProfileDropdown";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function Header() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, role, isAuthenticated, isLoading, logout } = useAuth();
-  const dashboardPath = getRoleDashboardPath(role);
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -33,7 +33,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background border-b border-border transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Left: Brand Logo & Desktop Nav */}
         <div className="flex items-center gap-6 lg:gap-8">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
@@ -107,25 +107,9 @@ export function Header() {
           <ThemeToggle />
 
           {user ? (
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Link href={dashboardPath} className="hidden sm:flex items-center gap-2 group">
-                <Badge variant="highlight" size="sm">
-                  {role || "Student"}
-                </Badge>
-                <span className="text-xs font-semibold text-foreground group-hover:text-secondary transition-colors max-w-[100px] truncate">
-                  {user?.username}
-                </span>
-              </Link>
-
-              <Button href={dashboardPath} variant="primary" size="sm" className="text-xs">
-                Dashboard
-              </Button>
-              <Button onClick={logout} variant="ghost" size="sm" className="text-xs hidden sm:inline-flex">
-                Log Out
-              </Button>
-            </div>
+            <ProfileDropdown />
           ) : isLoading ? (
-            <div className="w-20 h-8 rounded-md bg-surface animate-pulse" />
+            <div className="w-20 h-8 rounded-full bg-surface animate-pulse" />
           ) : (
             <div className="flex items-center gap-1.5 sm:gap-2">
               <Button href="/auth/login" variant="ghost" size="sm" className="text-xs">
