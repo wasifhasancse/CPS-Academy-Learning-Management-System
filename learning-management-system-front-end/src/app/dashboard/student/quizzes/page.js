@@ -24,44 +24,39 @@ export default function StudentQuizzesPage() {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Quiz Name</TableHead>
-                <TableHead>Course Track</TableHead>
-                <TableHead>Score</TableHead>
-                <TableHead>Passing Criteria</TableHead>
-                <TableHead>Result</TableHead>
-                <TableHead>Date Taken</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {quizAttempts.length === 0 ? (
+      {quizAttempts.length === 0 ? (
+        <EmptyState
+          icon={
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          }
+          title="No Quiz Attempts Recorded"
+          description="Take checkpoint quizzes inside your enrolled courses to assess your progress and earn verified scores."
+          action={
+            <Link href="/dashboard/student/courses">
+              <Button variant="primary" size="sm">
+                Go to Enrolled Courses
+              </Button>
+            </Link>
+          }
+        />
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="p-0">
-                    <EmptyState
-                      size="sm"
-                      icon={
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      }
-                      title="No Quiz Attempts Recorded"
-                      description="Take checkpoint quizzes inside your enrolled courses to assess your progress and earn verified scores."
-                      action={
-                        <Link href="/dashboard/student/courses">
-                          <Button variant="primary" size="sm">
-                            Go to Enrolled Courses
-                          </Button>
-                        </Link>
-                      }
-                    />
-                  </TableCell>
+                  <TableHead>Quiz Name</TableHead>
+                  <TableHead>Course Track</TableHead>
+                  <TableHead>Score</TableHead>
+                  <TableHead>Passing Criteria</TableHead>
+                  <TableHead>Result</TableHead>
+                  <TableHead className="text-right">Date Taken</TableHead>
                 </TableRow>
-              ) : (
-                quizAttempts.map((attempt) => {
+              </TableHeader>
+              <TableBody>
+                {quizAttempts.map((attempt) => {
                   const quiz = attempt.quiz;
                   const course = attempt.course;
                   const passingScore = quiz?.passingScore || 80;
@@ -92,19 +87,19 @@ export default function StudentQuizzesPage() {
                           {isPassed ? "PASSED" : "FAILED"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-xs text-muted">
+                      <TableCell className="text-xs text-muted text-right">
                         {attempt.createdAt
                           ? new Date(attempt.createdAt).toLocaleDateString()
                           : "Recent"}
                       </TableCell>
                     </TableRow>
                   );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
