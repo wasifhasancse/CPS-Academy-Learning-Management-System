@@ -49,40 +49,35 @@ export default function InstructorProgressPage() {
       </div>
 
       {/* Progress Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Student</TableHead>
-                <TableHead>Course Track</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Enrolled Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredStudents.length === 0 ? (
+      {filteredStudents.length === 0 ? (
+        <EmptyState
+          icon={
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          }
+          title="No Enrolled Students"
+          description={
+            searchStudent || progressCourseFilter !== "all"
+              ? "No students match your active search or course filter."
+              : "No students have enrolled in your authored courses yet."
+          }
+        />
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={5} className="p-0">
-                    <EmptyState
-                      size="sm"
-                      icon={
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                      }
-                      title="No Enrolled Students"
-                      description={
-                        searchStudent || progressCourseFilter !== "all"
-                          ? "No students match your active search or course filter."
-                          : "No students have enrolled in your authored courses yet."
-                      }
-                    />
-                  </TableCell>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Course Track</TableHead>
+                  <TableHead>Progress</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Enrolled Date</TableHead>
                 </TableRow>
-              ) : (
-                filteredStudents.map((enrollment) => {
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.map((enrollment) => {
                   const student = enrollment.student;
                   const course = enrollment.course;
                   const progressPct = Number(enrollment.progressPercentage) || 0;
@@ -123,19 +118,19 @@ export default function InstructorProgressPage() {
                           {isCompleted ? "Completed" : "In Progress"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-xs text-muted">
+                      <TableCell className="text-xs text-muted text-right">
                         {enrollment.createdAt
                           ? new Date(enrollment.createdAt).toLocaleDateString()
                           : "Recent"}
                       </TableCell>
                     </TableRow>
                   );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
