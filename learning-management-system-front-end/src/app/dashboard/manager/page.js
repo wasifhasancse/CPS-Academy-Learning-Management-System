@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { api } from "@/lib/api";
 
 const DEFAULT_CATEGORIES = [
@@ -73,6 +74,7 @@ export default function ManagerDashboardPage() {
 
   // Course Form States
   const [courseTitle, setCourseTitle] = useState("");
+  const [courseThumbnailUrl, setCourseThumbnailUrl] = useState("");
   const [courseCategory, setCourseCategory] = useState("1");
   const [coursePrice, setCoursePrice] = useState("4500");
   const [courseDifficulty, setCourseDifficulty] = useState("Beginner");
@@ -203,6 +205,7 @@ export default function ManagerDashboardPage() {
   // --- Course CRUD Handlers ---
   const handleOpenAddCourse = () => {
     setCourseTitle("");
+    setCourseThumbnailUrl("");
     setCourseCategory(categories[0]?.documentId || categories[0]?.id || "1");
     setCoursePrice("4500");
     setCourseDifficulty("Beginner");
@@ -224,6 +227,7 @@ export default function ManagerDashboardPage() {
         data: {
           title: courseTitle.trim(),
           slug: courseTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+          thumbnailUrl: courseThumbnailUrl.trim() || undefined,
           price: Number(coursePrice) || 0,
           difficulty: courseDifficulty,
           description: courseDescription,
@@ -243,6 +247,7 @@ export default function ManagerDashboardPage() {
   const handleOpenEditCourse = (course) => {
     setCourseToEdit(course);
     setCourseTitle(course.title || "");
+    setCourseThumbnailUrl(course.thumbnailUrl || "");
     setCourseCategory(course.category?.documentId || course.category?.id || "");
     setCoursePrice(String(course.price || 0));
     setCourseDifficulty(course.difficulty || "Beginner");
@@ -261,6 +266,7 @@ export default function ManagerDashboardPage() {
       const payload = {
         data: {
           title: courseTitle.trim(),
+          thumbnailUrl: courseThumbnailUrl.trim() || null,
           price: Number(coursePrice) || 0,
           difficulty: courseDifficulty,
           description: courseDescription,
@@ -1503,6 +1509,12 @@ export default function ManagerDashboardPage() {
                 onChange={(e) => setCourseTitle(e.target.value)}
                 required
               />
+              <ImageUpload
+                value={courseThumbnailUrl}
+                onChange={setCourseThumbnailUrl}
+                label="Course Thumbnail Image"
+                description="Upload an image to ImgBB or enter direct image URL"
+              />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-foreground mb-1 block">Category</label>
@@ -1577,6 +1589,12 @@ export default function ManagerDashboardPage() {
                 value={courseTitle}
                 onChange={(e) => setCourseTitle(e.target.value)}
                 required
+              />
+              <ImageUpload
+                value={courseThumbnailUrl}
+                onChange={setCourseThumbnailUrl}
+                label="Course Thumbnail Image"
+                description="Upload an image to ImgBB or enter direct image URL"
               />
               <div className="grid grid-cols-2 gap-3">
                 <div>
