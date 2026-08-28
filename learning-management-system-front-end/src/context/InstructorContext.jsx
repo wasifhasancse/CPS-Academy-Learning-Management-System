@@ -9,12 +9,6 @@ import { QuizModal } from "@/components/dashboard/modals/QuizModal";
 import { ManageQuestionsModal } from "@/components/dashboard/modals/ManageQuestionsModal";
 import { ConfirmDeleteModal } from "@/components/dashboard/modals/ConfirmDeleteModal";
 
-const DEFAULT_CATEGORIES = [
-  { id: 1, name: "Competitive Programming", slug: "competitive-programming" },
-  { id: 2, name: "Software Engineering", slug: "software-engineering" },
-  { id: 3, name: "Data Structures & Algorithms", slug: "dsa" },
-  { id: 4, name: "System Design", slug: "system-design" },
-];
 
 const InstructorContext = createContext(null);
 
@@ -101,7 +95,7 @@ export function InstructorProvider({ children }) {
       ]);
 
       const allCourses = Array.isArray(coursesRes?.data) ? coursesRes.data : [];
-      const resolvedCats = Array.isArray(catsRes?.data) && catsRes.data.length > 0 ? catsRes.data : DEFAULT_CATEGORIES;
+      const resolvedCats = Array.isArray(catsRes?.data) ? catsRes.data : [];
       const allEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
 
       // Scoped only to instructor's own courses
