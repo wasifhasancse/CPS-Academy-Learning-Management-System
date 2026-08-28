@@ -8,35 +8,8 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { api } from "@/lib/api";
 
-const FALLBACK_BLOGS = [
-  {
-    id: 1,
-    title: "How to Reach Candidate Master on Codeforces in 6 Months",
-    slug: "how-to-reach-candidate-master-on-codeforces",
-    excerpt:
-      "A structured roadmap covering dynamic programming, graph theory, and contest strategies from CPS Academy coaches.",
-    coverImageUrl:
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200",
-    publishedAt: "2026-08-20",
-    category: { name: "Competitive Programming" },
-    author: { username: "CPS Editorial Team" },
-  },
-  {
-    id: 2,
-    title: "Building Resilient Microservices with Clean Architecture",
-    slug: "building-resilient-microservices-clean-architecture",
-    excerpt:
-      "Key architectural patterns for designing fault-tolerant, scalable distributed systems.",
-    coverImageUrl:
-      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200",
-    publishedAt: "2026-08-24",
-    category: { name: "Software Engineering" },
-    author: { username: "CPS Engineering" },
-  },
-];
-
 export default function BlogListPage() {
-  const [blogs, setBlogs] = useState(FALLBACK_BLOGS);
+  const [blogs, setBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -44,20 +17,29 @@ export default function BlogListPage() {
 
   useEffect(() => {
     async function loadBlogs() {
+      setIsLoading(true);
       try {
         const [blogRes, catRes] = await Promise.all([
           api.get("/blog-posts?populate=author&populate=category").catch(() => null),
           api.get("/categories").catch(() => null),
         ]);
 
-        if (Array.isArray(blogRes?.data) && blogRes.data.length > 0) {
+        if (Array.isArray(blogRes?.data)) {
           setBlogs(blogRes.data);
+        } else if (blogRes?.data) {
+          setBlogs([blogRes.data]);
+        } else {
+          setBlogs([]);
         }
-        if (Array.isArray(catRes?.data) && catRes.data.length > 0) {
+
+        if (Array.isArray(catRes?.data)) {
           setCategories(catRes.data);
+        } else {
+          setCategories([]);
         }
       } catch (err) {
         console.warn("Could not fetch published blogs from API:", err);
+        setBlogs([]);
       } finally {
         setIsLoading(false);
       }
@@ -73,7 +55,9 @@ export default function BlogListPage() {
     const catMatch =
       selectedCategory === "all" ||
       blog.category?.slug === selectedCategory ||
-      blog.category?.name === selectedCategory;
+      blog.category?.name === selectedCategory ||
+      blog.category?.documentId === selectedCategory ||
+      String(blog.category?.id) === selectedCategory;
     return titleMatch && catMatch;
   });
 
@@ -106,12 +90,12 @@ export default function BlogListPage() {
             onClick={() => setSelectedCategory("all")}
             className="text-xs flex-shrink-0"
           >
-            All Topics
+            All Topics ({blogs.length})
           </Button>
           {categories.map((cat) => (
             <Button
               key={cat.documentId || cat.id}
-              variant={selectedCategory === cat.slug ? "primary" : "outline"}
+              variant={selectedCategory === (cat.slug || cat.name) ? "primary" : "outline"}
               size="sm"
               onClick={() => setSelectedCategory(cat.slug || cat.name)}
               className="text-xs flex-shrink-0"
@@ -123,9 +107,28 @@ export default function BlogListPage() {
       </div>
 
       {/* Blog Cards Grid */}
-      {filteredBlogs.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between">
+              <div className="w-full h-44 bg-surface" />
+              <div className="p-5 space-y-3">
+                <div className="w-20 h-4 bg-surface rounded" />
+                <div className="w-full h-6 bg-surface rounded" />
+                <div className="w-3/4 h-4 bg-surface rounded" />
+                <div className="pt-4 border-t border-border flex justify-between">
+                  <div className="w-24 h-4 bg-surface rounded" />
+                  <div className="w-16 h-4 bg-surface rounded" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredBlogs.length === 0 ? (
         <div className="p-16 text-center text-muted text-sm border border-dashed border-border rounded-xl">
-          No published articles matching your search criteria.
+          {search || selectedCategory !== "all"
+            ? "No published articles matching your search criteria."
+            : "No blog articles published yet on the platform."}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

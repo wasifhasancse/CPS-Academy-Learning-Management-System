@@ -7,63 +7,73 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { api } from "@/lib/api";
 
-const FALLBACK_ARTICLE = {
-  title: "How to Reach Candidate Master on Codeforces in 6 Months",
-  excerpt:
-    "A structured roadmap covering dynamic programming, graph theory, and contest strategies from CPS Academy coaches.",
-  content: `## The Journey to Candidate Master
-
-Reaching **Candidate Master (1900+ rating)** on Codeforces requires moving beyond basic syntax to mastering advanced problem-solving techniques.
-
----
-
-### 1. Master Core Data Structures
-- **Segment Trees with Lazy Propagation**: Critical for range queries and range updates in $O(\\log N)$.
-- **Disjoint Set Union (DSU) with Rollbacks**: Indispensable for dynamic connectivity on graphs.
-- **Trie and Suffix Automaton**: String algorithms for rapid pattern matching.
-
----
-
-### 2. Deepen Dynamic Programming Intuition
-- **Digit DP and Tree DP**: Solving combinatorial and tree path optimization problems.
-- **Bitmask DP with SOS Optimizations**: Fast subsets sum computations.
-- **Matrix Exponentiation**: Evaluating high-degree linear recurrences in $O(K^3 \\log N)$.
-
----
-
-### 3. Practice Strategy
-1. **Target Rating Practice**: Solve 5 problems 100-200 points above your current rating every week.
-2. **Post-Contest Upsolving**: Always solve the first problem you failed to crack during the live contest before reading the official editorial.`,
-  coverImageUrl:
-    "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200",
-  publishedAt: "2026-08-20",
-  category: { name: "Competitive Programming" },
-  author: { username: "Wasif Hasan", email: "coach@cpsacademy.io" },
-};
-
 export default function SingleBlogPostPage({ params }) {
   const unwrappedParams = use(params);
   const slug = unwrappedParams.slug;
 
-  const [blog, setBlog] = useState(FALLBACK_ARTICLE);
+  const [blog, setBlog] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadArticle() {
       if (!slug) return;
+      setIsLoading(true);
       try {
-        const res = await api.get(`/blog-posts/${slug}?populate=author&populate=category`);
-        if (res?.data) {
-          setBlog(res.data);
+        // 1. Try finding by slug
+        let res = await api
+          .get(`/blog-posts?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=author&populate=category`)
+          .catch(() => null);
+
+        let foundBlog = res?.data?.[0];
+
+        // 2. If not found by slug, try by documentId/id
+        if (!foundBlog) {
+          const directRes = await api
+            .get(`/blog-posts/${slug}?populate=author&populate=category`)
+            .catch(() => null);
+          foundBlog = directRes?.data;
+        }
+
+        if (foundBlog) {
+          setBlog(foundBlog);
+        } else {
+          setBlog(null);
         }
       } catch (err) {
         console.warn("Could not load blog post from API:", err);
+        setBlog(null);
       } finally {
         setIsLoading(false);
       }
     }
     loadArticle();
   }, [slug]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-6 animate-pulse">
+        <div className="w-32 h-4 bg-surface rounded" />
+        <div className="w-24 h-6 bg-surface rounded" />
+        <div className="w-3/4 h-12 bg-surface rounded" />
+        <div className="w-full h-80 bg-surface rounded-2xl" />
+        <div className="w-full h-48 bg-surface rounded-xl" />
+      </div>
+    );
+  }
+
+  if (!blog) {
+    return (
+      <div className="w-full max-w-2xl mx-auto py-20 px-4 text-center space-y-4">
+        <h2 className="text-2xl font-bold text-foreground">Article Not Found</h2>
+        <p className="text-sm text-muted">
+          The blog article you are trying to view does not exist or has not been published.
+        </p>
+        <Button href="/blog" variant="primary" size="md">
+          ← Back to Blog
+        </Button>
+      </div>
+    );
+  }
 
   const publishDate = blog.publishedAt
     ? new Date(blog.publishedAt).toLocaleDateString("en-US", {
