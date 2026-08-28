@@ -3,752 +3,632 @@
 import { useState } from "react";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { useAuth } from "@/context/AuthContext";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { Table, TableRow, TableCell } from "@/components/ui/Table";
-
-const INITIAL_INSTRUCTOR_COURSES = [
-  {
-    id: "c-1",
-    title: "Data Structures & Competitive Algorithms",
-    slug: "data-structures-competitive-algorithms",
-    category: "Computer Science",
-    level: "Intermediate",
-    price: 49.99,
-    status: "Published",
-    enrolledCount: 142,
-    modules: [
-      {
-        id: "m-1",
-        title: "Module 1: Segment Trees & Fenwick Trees",
-        lessons: [
-          { id: "l-1", title: "Introduction to Range Queries", duration: "18:45", isPreview: true, youtubeUrl: "https://youtube.com/watch?v=demo1" },
-          { id: "l-2", title: "Building a Segment Tree from Scratch", duration: "24:10", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo2" },
-          { id: "l-3", title: "Lazy Propagation and Range Updates", duration: "31:05", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo3" },
-        ],
-      },
-      {
-        id: "m-2",
-        title: "Module 2: Graph Theory & Shortest Path",
-        lessons: [
-          { id: "l-4", title: "Dijkstra and 0-1 BFS Implementation", duration: "22:15", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo4" },
-          { id: "l-5", title: "Floyd-Warshall and Negative Cycle Detection", duration: "19:40", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo5" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "c-2",
-    title: "Graph Theory Mastery for ICPC Contenders",
-    slug: "graph-theory-mastery-icpc",
-    category: "Algorithms",
-    level: "Advanced",
-    price: 69.99,
-    status: "Published",
-    enrolledCount: 88,
-    modules: [
-      {
-        id: "m-3",
-        title: "Module 1: Network Flows & Matching",
-        lessons: [
-          { id: "l-6", title: "Ford-Fulkerson and Edmonds-Karp Algorithm", duration: "28:30", isPreview: true, youtubeUrl: "https://youtube.com/watch?v=demo6" },
-          { id: "l-7", title: "Dinic's Maximum Flow Algorithm", duration: "34:50", isPreview: false, youtubeUrl: "https://youtube.com/watch?v=demo7" },
-        ],
-      },
-    ],
-  },
-];
-
-const INITIAL_QUIZZES = [
-  {
-    id: "q-1",
-    title: "Segment Tree Mastery Quiz",
-    courseTitle: "Data Structures & Competitive Algorithms",
-    passingScore: 80,
-    timeLimitMinutes: 25,
-    questionsCount: 5,
-    attempts: 98,
-    passRate: "84%",
-  },
-  {
-    id: "q-2",
-    title: "Graph Shortest Paths Checkpoint",
-    courseTitle: "Graph Theory Mastery for ICPC Contenders",
-    passingScore: 75,
-    timeLimitMinutes: 20,
-    questionsCount: 4,
-    attempts: 64,
-    passRate: "78%",
-  },
-];
-
-const INITIAL_ENROLLED_STUDENTS = [
-  {
-    id: "st-1",
-    name: "Alex Rahman",
-    email: "alex.rahman@example.com",
-    courseTitle: "Data Structures & Competitive Algorithms",
-    progress: 80,
-    completedLessons: 4,
-    totalLessons: 5,
-    lastQuizScore: "90%",
-    status: "Active",
-  },
-  {
-    id: "st-2",
-    name: "Tanvir Ahmed",
-    email: "tanvir.ahmed@example.com",
-    courseTitle: "Data Structures & Competitive Algorithms",
-    progress: 40,
-    completedLessons: 2,
-    totalLessons: 5,
-    lastQuizScore: "75%",
-    status: "Active",
-  },
-  {
-    id: "st-3",
-    name: "Nusrat Jahan",
-    email: "nusrat.jahan@example.com",
-    courseTitle: "Graph Theory Mastery for ICPC Contenders",
-    progress: 100,
-    completedLessons: 2,
-    totalLessons: 2,
-    lastQuizScore: "100%",
-    status: "Completed",
-  },
-  {
-    id: "st-4",
-    name: "Sabbir Hossain",
-    email: "sabbir.hossain@example.com",
-    courseTitle: "Graph Theory Mastery for ICPC Contenders",
-    progress: 50,
-    completedLessons: 1,
-    totalLessons: 2,
-    lastQuizScore: "N/A",
-    status: "Active",
-  },
-];
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
 
 export default function TeacherDashboardPage() {
   const { user } = useAuth();
-  const [courses, setCourses] = useState(INITIAL_INSTRUCTOR_COURSES);
-  const [quizzes, setQuizzes] = useState(INITIAL_QUIZZES);
-  const [students] = useState(INITIAL_ENROLLED_STUDENTS);
-  const [activeTab, setActiveTab] = useState("courses");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [expandedCourseId, setExpandedCourseId] = useState("c-1");
+  const [activeTab, setActiveTab] = useState("overview");
+  const [searchStudent, setSearchStudent] = useState("");
 
-  // Modals state
-  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
-  const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
-  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  // Modals
+  const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false);
+  const [isAddQuizModalOpen, setIsAddQuizModalOpen] = useState(false);
+  const [isAddLessonModalOpen, setIsAddLessonModalOpen] = useState(false);
+  const [selectedCourseForLesson, setSelectedCourseForLesson] = useState(null);
 
-  // Form states
-  const [newCourse, setNewCourse] = useState({ title: "", category: "Computer Science", level: "Beginner", price: "" });
-  const [newLesson, setNewLesson] = useState({ courseId: "c-1", title: "", duration: "", youtubeUrl: "", isPreview: false });
-  const [newQuiz, setNewQuiz] = useState({ courseId: "c-1", title: "", passingScore: "80", timeLimitMinutes: "20" });
+  // Form States
+  const [newCourseTitle, setNewCourseTitle] = useState("");
+  const [newCoursePrice, setNewCoursePrice] = useState("4000");
+  const [newCourseCategory, setNewCourseCategory] = useState("Competitive Programming");
 
+  const [newLessonTitle, setNewLessonTitle] = useState("");
+  const [newLessonYoutube, setNewLessonYoutube] = useState("");
+  const [newLessonDuration, setNewLessonDuration] = useState("15:00");
+
+  const [newQuizTitle, setNewQuizTitle] = useState("");
+  const [newQuizPassScore, setNewQuizPassScore] = useState("80");
+  const [newQuizTimeLimit, setNewQuizTimeLimit] = useState("20");
+
+  // Mock State for Courses & Modules
+  const [courses, setCourses] = useState([
+    {
+      id: 1,
+      title: "Competitive Programming Complete Track",
+      category: "Competitive Programming",
+      price: 4000,
+      enrolledCount: 340,
+      modules: [
+        {
+          id: 101,
+          title: "Module 1: Time Complexity & Asymptotic Notation",
+          lessons: [
+            { id: 1001, title: "Big-O, Big-Omega, & Theta", duration: "18:24", isCompleted: true },
+            { id: 1002, title: "Analyzing Nested Loops & Recursion", duration: "24:10", isCompleted: true },
+          ],
+        },
+        {
+          id: 102,
+          title: "Module 2: Standard Template Library (STL)",
+          lessons: [
+            { id: 1003, title: "Vectors, Pairs, and Iterators", duration: "22:15", isCompleted: false },
+            { id: 1004, title: "Sets, Maps, and Priority Queues", duration: "31:00", isCompleted: false },
+          ],
+        },
+      ],
+    },
+    {
+      id: 2,
+      title: "Full-Stack ASP.NET 8 & Microservices",
+      category: "Software Engineering",
+      price: 5500,
+      enrolledCount: 180,
+      modules: [
+        {
+          id: 201,
+          title: "Module 1: Clean Architecture Principles",
+          lessons: [
+            { id: 2001, title: "Domain Entities & CQRS with MediatR", duration: "29:40", isCompleted: true },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  // Mock State for Quizzes
+  const [quizzes, setQuizzes] = useState([
+    {
+      id: 1,
+      title: "Asymptotic Complexity & STL Diagnostic",
+      courseTitle: "Competitive Programming Complete Track",
+      questionCount: 10,
+      passingScore: 80,
+      timeLimitMinutes: 20,
+    },
+    {
+      id: 2,
+      title: "Clean Architecture & CQRS Assessment",
+      courseTitle: "Full-Stack ASP.NET 8 & Microservices",
+      questionCount: 8,
+      passingScore: 75,
+      timeLimitMinutes: 15,
+    },
+  ]);
+
+  // Mock State for Student Progress
+  const [studentProgress, setStudentProgress] = useState([
+    { id: 1, name: "Aileen Anderson", email: "aileen@mailinator.com", course: "Competitive Programming Complete Track", completedLessons: 4, totalLessons: 4, score: "90%" },
+    { id: 2, name: "Arin Sarkar", email: "arin@gmail.com", course: "Competitive Programming Complete Track", completedLessons: 2, totalLessons: 4, score: "80%" },
+    { id: 3, name: "Tanvir Ahmed", email: "tanvir@gmail.com", course: "Full-Stack ASP.NET 8 & Microservices", completedLessons: 1, totalLessons: 1, score: "100%" },
+  ]);
+
+  // Actions
   const handleCreateCourse = (e) => {
     e.preventDefault();
-    if (!newCourse.title.trim()) return;
-
-    const created = {
-      id: `c-${Date.now()}`,
-      title: newCourse.title,
-      slug: newCourse.title.toLowerCase().replace(/\s+/g, "-"),
-      category: newCourse.category,
-      level: newCourse.level,
-      price: parseFloat(newCourse.price) || 0,
-      status: "Draft",
+    if (!newCourseTitle) return;
+    const newCourse = {
+      id: Date.now(),
+      title: newCourseTitle,
+      category: newCourseCategory,
+      price: Number(newCoursePrice) || 0,
       enrolledCount: 0,
       modules: [],
     };
-    setCourses([created, ...courses]);
-    setNewCourse({ title: "", category: "Computer Science", level: "Beginner", price: "" });
-    setIsCourseModalOpen(false);
+    setCourses([...courses, newCourse]);
+    setNewCourseTitle("");
+    setIsAddCourseModalOpen(false);
   };
 
   const handleAddLesson = (e) => {
     e.preventDefault();
-    if (!newLesson.title.trim()) return;
-
-    setCourses((prev) =>
-      prev.map((course) => {
-        if (course.id === newLesson.courseId) {
-          const mod = course.modules[0] || { id: `m-${Date.now()}`, title: "Module 1: Getting Started", lessons: [] };
-          const updatedLessons = [
-            ...mod.lessons,
-            {
-              id: `l-${Date.now()}`,
-              title: newLesson.title,
-              duration: newLesson.duration || "15:00",
-              isPreview: newLesson.isPreview,
-              youtubeUrl: newLesson.youtubeUrl || "https://youtube.com",
-            },
-          ];
-          return {
-            ...course,
-            modules: [{ ...mod, lessons: updatedLessons }, ...course.modules.slice(1)],
-          };
+    if (!newLessonTitle || !selectedCourseForLesson) return;
+    const updated = courses.map((c) => {
+      if (c.id === selectedCourseForLesson.id) {
+        const modules = [...c.modules];
+        if (modules.length === 0) {
+          modules.push({ id: Date.now(), title: "Module 1: Getting Started", lessons: [] });
         }
-        return course;
-      })
-    );
-    setNewLesson({ courseId: "c-1", title: "", duration: "", youtubeUrl: "", isPreview: false });
-    setIsLessonModalOpen(false);
+        modules[0].lessons.push({
+          id: Date.now(),
+          title: newLessonTitle,
+          duration: newLessonDuration || "10:00",
+          isCompleted: false,
+        });
+        return { ...c, modules };
+      }
+      return c;
+    });
+    setCourses(updated);
+    setNewLessonTitle("");
+    setNewLessonYoutube("");
+    setIsAddLessonModalOpen(false);
   };
 
   const handleCreateQuiz = (e) => {
     e.preventDefault();
-    if (!newQuiz.title.trim()) return;
-
-    const targetCourse = courses.find((c) => c.id === newQuiz.courseId);
-    const createdQuiz = {
-      id: `q-${Date.now()}`,
-      title: newQuiz.title,
-      courseTitle: targetCourse?.title || "Assigned Course",
-      passingScore: parseInt(newQuiz.passingScore, 10) || 80,
-      timeLimitMinutes: parseInt(newQuiz.timeLimitMinutes, 10) || 20,
-      questionsCount: 5,
-      attempts: 0,
-      passRate: "0%",
+    if (!newQuizTitle) return;
+    const newQ = {
+      id: Date.now(),
+      title: newQuizTitle,
+      courseTitle: courses[0]?.title || "Assigned Course",
+      questionCount: 5,
+      passingScore: Number(newQuizPassScore) || 80,
+      timeLimitMinutes: Number(newQuizTimeLimit) || 20,
     };
-    setQuizzes([createdQuiz, ...quizzes]);
-    setNewQuiz({ courseId: "c-1", title: "", passingScore: "80", timeLimitMinutes: "20" });
-    setIsQuizModalOpen(false);
+    setQuizzes([...quizzes, newQ]);
+    setNewQuizTitle("");
+    setIsAddQuizModalOpen(false);
   };
 
-  const filteredCourses = courses.filter((c) =>
-    c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const navItems = [
+    {
+      id: "overview",
+      label: "Overview",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+      ),
+    },
+    {
+      id: "courses",
+      label: "My Courses",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      ),
+    },
+    {
+      id: "quizzes",
+      label: "Course Quizzes",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+      ),
+    },
+    {
+      id: "progress",
+      label: "Student Progress",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+    },
+  ];
+
+  const totalLessons = courses.reduce(
+    (acc, c) => acc + c.modules.reduce((mAcc, m) => mAcc + m.lessons.length, 0),
+    0
   );
 
-  const filteredQuizzes = quizzes.filter((q) =>
-    q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    q.courseTitle.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const totalStudents = courses.reduce((acc, c) => acc + c.enrolledCount, 0);
 
-  const filteredStudents = students.filter((s) =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.courseTitle.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProgress = studentProgress.filter(
+    (s) =>
+      s.name.toLowerCase().includes(searchStudent.toLowerCase()) ||
+      s.course.toLowerCase().includes(searchStudent.toLowerCase())
   );
 
   return (
     <RoleGuard allowedRoles={["Instructor", "Admin"]}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 bg-background text-foreground">
-        {/* Workspace Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="highlight" size="sm">
-                Instructor Workspace
-              </Badge>
-              <span className="text-xs text-muted">Course, Lesson & Quiz Management</span>
+      <DashboardLayout
+        roleTitle="Instructor Dashboard"
+        subtitle="Welcome back"
+        navItems={navItems}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      >
+        {/* TAB 1: OVERVIEW */}
+        {activeTab === "overview" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-xl font-bold text-foreground">Teaching Overview</h2>
+              <div className="flex items-center gap-3">
+                <Button onClick={() => setIsAddCourseModalOpen(true)} variant="primary" size="sm">
+                  + Create Course
+                </Button>
+                <Button onClick={() => setIsAddQuizModalOpen(true)} variant="outline" size="sm">
+                  + Add Quiz
+                </Button>
+              </div>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              Instructor Dashboard
-            </h1>
-            <p className="text-sm text-muted mt-1">
-              Logged in as <strong className="text-foreground">{user?.username || "Instructor"}</strong>. Manage your assigned courses, video lessons, and student progress.
-            </p>
+
+            {/* Metric KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+              <Card className="p-5 flex items-center gap-4 bg-card border-border">
+                <div className="w-11 h-11 rounded-xl bg-[#285A48]/15 text-[#285A48] dark:bg-[#B0E4CC]/15 dark:text-[#B0E4CC] flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-extrabold text-foreground">{courses.length}</span>
+                  <span className="text-xs font-semibold text-muted block">Assigned Courses</span>
+                </div>
+              </Card>
+
+              <Card className="p-5 flex items-center gap-4 bg-card border-border">
+                <div className="w-11 h-11 rounded-xl bg-[#408A71]/15 text-[#408A71] dark:bg-[#408A71]/25 dark:text-[#B0E4CC] flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-extrabold text-foreground">{totalStudents}</span>
+                  <span className="text-xs font-semibold text-muted block">Enrolled Students</span>
+                </div>
+              </Card>
+
+              <Card className="p-5 flex items-center gap-4 bg-card border-border">
+                <div className="w-11 h-11 rounded-xl bg-[#285A48]/15 text-[#285A48] dark:bg-[#B0E4CC]/15 dark:text-[#B0E4CC] flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-extrabold text-foreground">{totalLessons}</span>
+                  <span className="text-xs font-semibold text-muted block">Video Lessons</span>
+                </div>
+              </Card>
+
+              <Card className="p-5 flex items-center gap-4 bg-card border-border">
+                <div className="w-11 h-11 rounded-xl bg-[#408A71]/15 text-[#408A71] dark:bg-[#408A71]/25 dark:text-[#B0E4CC] flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-extrabold text-foreground">{quizzes.length}</span>
+                  <span className="text-xs font-semibold text-muted block">Active Quizzes</span>
+                </div>
+              </Card>
+            </div>
+
+            {/* My Courses Preview List */}
+            <div className="space-y-4">
+              <h3 className="text-base font-bold text-foreground">Assigned Courses & Curricula</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {courses.map((c) => (
+                  <Card key={c.id} className="p-5 bg-card border-border flex flex-col justify-between gap-4">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <Badge variant="highlight" size="sm">
+                          {c.category}
+                        </Badge>
+                        <span className="font-extrabold text-sm text-[#285A48] dark:text-[#B0E4CC]">
+                          {c.price} BDT
+                        </span>
+                      </div>
+                      <h4 className="font-extrabold text-base text-foreground">{c.title}</h4>
+                      <p className="text-xs text-muted mt-1">
+                        {c.modules.length} Modules • {c.modules.reduce((acc, m) => acc + m.lessons.length, 0)} Lessons • {c.enrolledCount} Students Enrolled
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 pt-3 border-t border-border">
+                      <Button
+                        onClick={() => {
+                          setSelectedCourseForLesson(c);
+                          setIsAddLessonModalOpen(true);
+                        }}
+                        variant="primary"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        + Add Video Lesson
+                      </Button>
+                      <Button
+                        onClick={() => setActiveTab("courses")}
+                        variant="surface"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Manage Modules
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
+        )}
 
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <Button
-              type="button"
-              variant="surface"
-              size="sm"
-              onClick={() => setIsLessonModalOpen(true)}
-              className="border border-border"
-            >
-              + Add Lesson
-            </Button>
-            <Button
-              type="button"
-              variant="surface"
-              size="sm"
-              onClick={() => setIsQuizModalOpen(true)}
-              className="border border-border"
-            >
-              + Create Quiz
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              onClick={() => setIsCourseModalOpen(true)}
-            >
-              + New Course
-            </Button>
-          </div>
-        </div>
-
-        {/* 4 Instructor KPI Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <Card>
-            <CardHeader className="pb-2">
-              <span className="text-xs font-semibold text-muted uppercase tracking-wider">My Courses</span>
-              <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
-                {courses.length}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted">Authored & published by you</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Enrolled Students</span>
-              <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
-                {students.length}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted">Active learners across your courses</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Total Lessons</span>
-              <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
-                {courses.reduce((acc, c) => acc + c.modules.reduce((mAcc, m) => mAcc + m.lessons.length, 0), 0)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted">Video sessions & modules</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Quizzes Published</span>
-              <CardTitle as="h3" className="text-2xl font-bold mt-1 text-foreground">
-                {quizzes.length}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted">Assessments across your curriculum</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Tabs Bar */}
-        <div className="flex items-center justify-between border-b border-border gap-4 flex-wrap pb-2">
-          <nav className="flex space-x-2" aria-label="Tabs">
-            <button
-              type="button"
-              onClick={() => setActiveTab("courses")}
-              className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
-                activeTab === "courses"
-                  ? "bg-primary text-white dark:bg-secondary dark:text-white"
-                  : "text-muted hover:text-foreground hover:bg-surface"
-              }`}
-            >
-              My Courses & Lessons ({courses.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("quizzes")}
-              className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
-                activeTab === "quizzes"
-                  ? "bg-primary text-white dark:bg-secondary dark:text-white"
-                  : "text-muted hover:text-foreground hover:bg-surface"
-              }`}
-            >
-              Course Quizzes ({quizzes.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("students")}
-              className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
-                activeTab === "students"
-                  ? "bg-primary text-white dark:bg-secondary dark:text-white"
-                  : "text-muted hover:text-foreground hover:bg-surface"
-              }`}
-            >
-              Enrolled Student Progress ({students.length})
-            </button>
-          </nav>
-
-          <div className="w-full sm:w-64">
-            <Input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="py-1.5 text-xs"
-            />
-          </div>
-        </div>
-
-        {/* TAB 1: My Courses & Curriculum */}
+        {/* TAB 2: MY COURSES */}
         {activeTab === "courses" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-foreground">Your Authored Courses</h2>
-              <Badge variant="surface" size="sm">
-                Own Courses Scope Only
-              </Badge>
+              <h2 className="text-xl font-bold text-foreground">My Courses & Curriculum Builder</h2>
+              <Button onClick={() => setIsAddCourseModalOpen(true)} variant="primary" size="sm">
+                + Create Course
+              </Button>
             </div>
 
-            <div className="space-y-4">
-              {filteredCourses.map((course) => {
-                const isExpanded = expandedCourseId === course.id;
-                const courseLessonCount = course.modules.reduce((acc, m) => acc + m.lessons.length, 0);
-
-                return (
-                  <Card key={course.id} className="overflow-hidden">
-                    <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border">
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-base font-bold text-foreground">{course.title}</span>
-                          <Badge variant="highlight" size="sm">
-                            {course.category}
-                          </Badge>
-                          <Badge variant="surface" size="sm">
-                            {course.level}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted">
-                          Price: <span className="font-semibold text-foreground">${course.price.toFixed(2)}</span> • {course.enrolledCount} Enrolled Students • {courseLessonCount} Lessons
-                        </p>
-                      </div>
-
+            <div className="space-y-6">
+              {courses.map((c) => (
+                <Card key={c.id} className="p-6 bg-card border-border space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-4">
+                    <div>
                       <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="surface"
-                          size="sm"
-                          onClick={() => setExpandedCourseId(isExpanded ? null : course.id)}
-                          className="border border-border"
-                        >
-                          {isExpanded ? "Hide Curriculum ▲" : "View Curriculum ▼"}
-                        </Button>
+                        <h3 className="font-extrabold text-base text-foreground">{c.title}</h3>
+                        <Badge variant="surface" size="sm">
+                          {c.category}
+                        </Badge>
                       </div>
+                      <span className="text-xs text-muted">{c.enrolledCount} Enrolled Learners</span>
                     </div>
+                    <Button
+                      onClick={() => {
+                        setSelectedCourseForLesson(c);
+                        setIsAddLessonModalOpen(true);
+                      }}
+                      variant="primary"
+                      size="sm"
+                    >
+                      + Add Lesson
+                    </Button>
+                  </div>
 
-                    {/* Curriculum Accordion */}
-                    {isExpanded && (
-                      <div className="p-5 bg-surface/40 space-y-4">
-                        <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
-                          Curriculum & Video Lessons
+                  {/* Modules Accordion */}
+                  <div className="space-y-3">
+                    {c.modules.map((m) => (
+                      <div key={m.id} className="p-4 rounded-xl bg-surface border border-border space-y-3">
+                        <h4 className="font-bold text-xs text-foreground uppercase tracking-wide">
+                          {m.title}
                         </h4>
-
-                        {course.modules.length === 0 || courseLessonCount === 0 ? (
-                          <p className="text-xs text-muted italic">No lessons added to this course yet.</p>
-                        ) : (
-                          course.modules.map((mod) => (
-                            <div key={mod.id} className="space-y-2">
-                              <div className="text-xs font-semibold text-foreground flex items-center justify-between bg-card p-2.5 rounded-lg border border-border">
-                                <span>{mod.title}</span>
-                                <span className="text-muted text-[11px]">{mod.lessons.length} lessons</span>
+                        <div className="space-y-2">
+                          {m.lessons.map((l) => (
+                            <div
+                              key={l.id}
+                              className="flex items-center justify-between p-2.5 rounded-lg bg-card border border-border text-xs"
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <span className="w-5 h-5 rounded-full bg-[#285A48]/15 text-[#285A48] dark:text-[#B0E4CC] flex items-center justify-center font-bold text-[10px]">
+                                  ▶
+                                </span>
+                                <span className="font-bold text-foreground">{l.title}</span>
                               </div>
-
-                              <div className="pl-3 space-y-1.5">
-                                {mod.lessons.map((lesson, idx) => (
-                                  <div
-                                    key={lesson.id}
-                                    className="flex items-center justify-between p-2 rounded-lg bg-card border border-border text-xs"
-                                  >
-                                    <div className="flex items-center gap-2.5">
-                                      <span className="w-5 h-5 rounded-full bg-surface flex items-center justify-center font-bold text-[10px] text-muted">
-                                        {idx + 1}
-                                      </span>
-                                      <span className="font-medium text-foreground">{lesson.title}</span>
-                                      {lesson.isPreview && (
-                                        <Badge variant="highlight" size="sm">
-                                          Free Preview
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    <span className="text-muted text-[11px]">{lesson.duration}</span>
-                                  </div>
-                                ))}
-                              </div>
+                              <span className="text-muted font-mono">{l.duration}</span>
                             </div>
-                          ))
-                        )}
+                          ))}
+                        </div>
                       </div>
-                    )}
-                  </Card>
-                );
-              })}
+                    ))}
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
         )}
 
-        {/* TAB 2: Quizzes */}
+        {/* TAB 3: QUIZZES */}
         {activeTab === "quizzes" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-bold text-foreground">Course Quizzes & Checkpoints</h2>
-                <p className="text-xs text-muted">Quizzes created for your authored courses.</p>
-              </div>
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={() => setIsQuizModalOpen(true)}
-              >
-                + Add Quiz
+              <h2 className="text-xl font-bold text-foreground">Course Quizzes & Assessments</h2>
+              <Button onClick={() => setIsAddQuizModalOpen(true)} variant="primary" size="sm">
+                + Create Quiz
               </Button>
             </div>
 
-            <Table headers={["Quiz Title", "Course", "Questions", "Passing Score", "Time Limit", "Attempts", "Pass Rate"]}>
-              {filteredQuizzes.map((quiz) => (
-                <TableRow key={quiz.id}>
-                  <TableCell className="font-semibold text-foreground">{quiz.title}</TableCell>
-                  <TableCell className="text-muted">{quiz.courseTitle}</TableCell>
-                  <TableCell>{quiz.questionsCount} Qs</TableCell>
-                  <TableCell>
-                    <Badge variant="surface" size="sm">
-                      {quiz.passingScore}%
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{quiz.timeLimitMinutes} mins</TableCell>
-                  <TableCell>{quiz.attempts}</TableCell>
-                  <TableCell className="font-bold text-foreground">{quiz.passRate}</TableCell>
-                </TableRow>
-              ))}
-            </Table>
+            <Card className="overflow-hidden border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Quiz Title</TableHead>
+                    <TableHead>Course</TableHead>
+                    <TableHead>Questions</TableHead>
+                    <TableHead>Passing Score</TableHead>
+                    <TableHead>Time Limit</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {quizzes.map((q) => (
+                    <TableRow key={q.id}>
+                      <TableCell className="font-bold text-xs text-foreground">{q.title}</TableCell>
+                      <TableCell className="text-xs text-muted">{q.courseTitle}</TableCell>
+                      <TableCell className="text-xs font-semibold text-foreground">{q.questionCount} MCQs</TableCell>
+                      <TableCell>
+                        <Badge variant="highlight" size="sm">
+                          {q.passingScore}%
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted">{q.timeLimitMinutes} mins</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
           </div>
         )}
 
-        {/* TAB 3: Student Progress */}
-        {activeTab === "students" && (
+        {/* TAB 4: STUDENT PROGRESS */}
+        {activeTab === "progress" && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-bold text-foreground">Enrolled Students Learning Progress</h2>
-                <p className="text-xs text-muted">Tracking completion and assessment scores for students in your courses.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-xl font-bold text-foreground">Enrolled Students Learning Progress</h2>
+              <div className="w-full sm:w-80">
+                <Input
+                  type="text"
+                  placeholder="Search student or course..."
+                  value={searchStudent}
+                  onChange={(e) => setSearchStudent(e.target.value)}
+                  className="text-xs"
+                />
               </div>
-              <Badge variant="highlight" size="sm">
-                Real-Time Tracking
-              </Badge>
             </div>
 
-            <Table headers={["Student", "Course Enrolled", "Lessons Completed", "Curriculum Progress", "Last Quiz Score", "Status"]}>
-              {filteredStudents.map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell>
-                    <div className="space-y-0.5">
-                      <p className="font-semibold text-foreground">{student.name}</p>
-                      <p className="text-xs text-muted">{student.email}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted">{student.courseTitle}</TableCell>
-                  <TableCell>
-                    <span className="font-medium text-foreground">
-                      {student.completedLessons} of {student.totalLessons} lessons
-                    </span>
-                  </TableCell>
-                  <TableCell className="min-w-[140px]">
-                    <ProgressBar value={student.progress} size="sm" showLabel={true} />
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={student.lastQuizScore === "N/A" ? "surface" : "highlight"} size="sm">
-                      {student.lastQuizScore}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={student.status === "Completed" ? "highlight" : "surface"} size="sm">
-                      {student.status}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </Table>
+            <Card className="overflow-hidden border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Student</TableHead>
+                    <TableHead>Course</TableHead>
+                    <TableHead>Lessons Completed</TableHead>
+                    <TableHead>Course Progress</TableHead>
+                    <TableHead className="text-right">Quiz Score</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredProgress.map((s) => {
+                    const percent = Math.round((s.completedLessons / s.totalLessons) * 100);
+                    return (
+                      <TableRow key={s.id}>
+                        <TableCell>
+                          <div>
+                            <span className="font-bold text-xs text-foreground block">{s.name}</span>
+                            <span className="text-[11px] text-muted block">{s.email}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted">{s.course}</TableCell>
+                        <TableCell className="text-xs font-semibold text-foreground">
+                          {s.completedLessons} / {s.totalLessons}
+                        </TableCell>
+                        <TableCell>
+                          <div className="w-36">
+                            <ProgressBar value={percent} size="sm" showLabel={true} />
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-extrabold text-xs text-[#285A48] dark:text-[#B0E4CC]">
+                          {s.score}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </Card>
           </div>
         )}
 
-        {/* MODAL 1: Create Course */}
-        <Modal
-          isOpen={isCourseModalOpen}
-          onClose={() => setIsCourseModalOpen(false)}
-          title="Create New Course"
-          description="Author a new course. You will be assigned as the course instructor."
-        >
-          <form onSubmit={handleCreateCourse} className="space-y-4">
-            <Input
-              label="Course Title"
-              placeholder="e.g. Advanced Dynamic Programming"
-              value={newCourse.title}
-              onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
-              required
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1">Category</label>
-                <select
-                  value={newCourse.category}
-                  onChange={(e) => setNewCourse({ ...newCourse, category: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground"
-                >
-                  <option>Computer Science</option>
-                  <option>Algorithms</option>
-                  <option>Data Structures</option>
-                  <option>Web Development</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1">Level</label>
-                <select
-                  value={newCourse.level}
-                  onChange={(e) => setNewCourse({ ...newCourse, level: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground"
-                >
-                  <option>Beginner</option>
-                  <option>Intermediate</option>
-                  <option>Advanced</option>
-                </select>
-              </div>
-            </div>
-            <Input
-              label="Price (USD)"
-              type="number"
-              step="0.01"
-              placeholder="49.99"
-              value={newCourse.price}
-              onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="surface" onClick={() => setIsCourseModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary">
-                Publish Course
-              </Button>
-            </div>
-          </form>
-        </Modal>
-
-        {/* MODAL 2: Add Video Lesson */}
-        <Modal
-          isOpen={isLessonModalOpen}
-          onClose={() => setIsLessonModalOpen(false)}
-          title="Add Video Lesson"
-          description="Embed a YouTube video lesson into your course curriculum."
-        >
-          <form onSubmit={handleAddLesson} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">Target Course</label>
-              <select
-                value={newLesson.courseId}
-                onChange={(e) => setNewLesson({ ...newLesson, courseId: e.target.value })}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground"
-              >
-                {courses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Input
-              label="Lesson Title"
-              placeholder="e.g. Introduction to Dynamic Programming"
-              value={newLesson.title}
-              onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
-              required
-            />
-            <div className="grid grid-cols-2 gap-4">
+        {/* MODAL: ADD COURSE */}
+        {isAddCourseModalOpen && (
+          <Modal
+            isOpen={isAddCourseModalOpen}
+            onClose={() => setIsAddCourseModalOpen(false)}
+            title="Create New Course"
+          >
+            <form onSubmit={handleCreateCourse} className="space-y-4">
               <Input
-                label="Duration (mm:ss)"
-                placeholder="20:00"
-                value={newLesson.duration}
-                onChange={(e) => setNewLesson({ ...newLesson, duration: e.target.value })}
+                label="Course Title"
+                placeholder="e.g. Dynamic Programming Masterclass"
+                value={newCourseTitle}
+                onChange={(e) => setNewCourseTitle(e.target.value)}
+                required
               />
-              <div className="flex items-center pt-6">
-                <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={newLesson.isPreview}
-                    onChange={(e) => setNewLesson({ ...newLesson, isPreview: e.target.checked })}
-                    className="rounded border-border"
-                  />
-                  <span>Free Preview Lesson</span>
+              <Input
+                label="Price (BDT)"
+                type="number"
+                value={newCoursePrice}
+                onChange={(e) => setNewCoursePrice(e.target.value)}
+                required
+              />
+              <div>
+                <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                  Category
                 </label>
+                <select
+                  value={newCourseCategory}
+                  onChange={(e) => setNewCourseCategory(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-card text-foreground text-xs focus:ring-2 focus:ring-primary/40 focus:outline-none"
+                >
+                  <option value="Competitive Programming">Competitive Programming</option>
+                  <option value="Software Engineering">Software Engineering</option>
+                  <option value="Job Interview Prep">Job Interview Prep</option>
+                </select>
               </div>
-            </div>
-            <Input
-              label="YouTube Video URL"
-              placeholder="https://www.youtube.com/watch?v=..."
-              value={newLesson.youtubeUrl}
-              onChange={(e) => setNewLesson({ ...newLesson, youtubeUrl: e.target.value })}
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="surface" onClick={() => setIsLessonModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary">
-                Add Lesson
-              </Button>
-            </div>
-          </form>
-        </Modal>
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <Button type="submit" variant="primary" size="md">
+                  Create Course
+                </Button>
+              </div>
+            </form>
+          </Modal>
+        )}
 
-        {/* MODAL 3: Create Quiz */}
-        <Modal
-          isOpen={isQuizModalOpen}
-          onClose={() => setIsQuizModalOpen(false)}
-          title="Create Course Quiz"
-          description="Design a timed assessment checkpoint for enrolled students."
-        >
-          <form onSubmit={handleCreateQuiz} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">Target Course</label>
-              <select
-                value={newQuiz.courseId}
-                onChange={(e) => setNewQuiz({ ...newQuiz, courseId: e.target.value })}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground"
-              >
-                {courses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Input
-              label="Quiz Title"
-              placeholder="e.g. Graph Algorithms Mastery Checkpoint"
-              value={newQuiz.title}
-              onChange={(e) => setNewQuiz({ ...newQuiz, title: e.target.value })}
-              required
-            />
-            <div className="grid grid-cols-2 gap-4">
+        {/* MODAL: ADD VIDEO LESSON */}
+        {isAddLessonModalOpen && (
+          <Modal
+            isOpen={isAddLessonModalOpen}
+            onClose={() => setIsAddLessonModalOpen(false)}
+            title={`Add Lesson to ${selectedCourseForLesson?.title}`}
+          >
+            <form onSubmit={handleAddLesson} className="space-y-4">
               <Input
-                label="Passing Score (%)"
-                type="number"
-                value={newQuiz.passingScore}
-                onChange={(e) => setNewQuiz({ ...newQuiz, passingScore: e.target.value })}
+                label="Lesson Title"
+                placeholder="e.g. Graph Traversal: BFS and DFS"
+                value={newLessonTitle}
+                onChange={(e) => setNewLessonTitle(e.target.value)}
+                required
               />
               <Input
-                label="Time Limit (Minutes)"
-                type="number"
-                value={newQuiz.timeLimitMinutes}
-                onChange={(e) => setNewQuiz({ ...newQuiz, timeLimitMinutes: e.target.value })}
+                label="YouTube Embed URL"
+                placeholder="https://www.youtube.com/watch?v=..."
+                value={newLessonYoutube}
+                onChange={(e) => setNewLessonYoutube(e.target.value)}
+                required
               />
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="surface" onClick={() => setIsQuizModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary">
-                Create Quiz
-              </Button>
-            </div>
-          </form>
-        </Modal>
-      </div>
+              <Input
+                label="Duration (e.g. 15:30)"
+                value={newLessonDuration}
+                onChange={(e) => setNewLessonDuration(e.target.value)}
+              />
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <Button type="submit" variant="primary" size="md">
+                  Save Lesson
+                </Button>
+              </div>
+            </form>
+          </Modal>
+        )}
+
+        {/* MODAL: ADD QUIZ */}
+        {isAddQuizModalOpen && (
+          <Modal
+            isOpen={isAddQuizModalOpen}
+            onClose={() => setIsAddQuizModalOpen(false)}
+            title="Create Assessment Quiz"
+          >
+            <form onSubmit={handleCreateQuiz} className="space-y-4">
+              <Input
+                label="Quiz Title"
+                placeholder="e.g. Segment Tree Quiz"
+                value={newQuizTitle}
+                onChange={(e) => setNewQuizTitle(e.target.value)}
+                required
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Passing Score (%)"
+                  type="number"
+                  value={newQuizPassScore}
+                  onChange={(e) => setNewQuizPassScore(e.target.value)}
+                  required
+                />
+                <Input
+                  label="Time Limit (Minutes)"
+                  type="number"
+                  value={newQuizTimeLimit}
+                  onChange={(e) => setNewQuizTimeLimit(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <Button type="submit" variant="primary" size="md">
+                  Publish Quiz
+                </Button>
+              </div>
+            </form>
+          </Modal>
+        )}
+      </DashboardLayout>
     </RoleGuard>
   );
 }
