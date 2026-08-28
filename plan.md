@@ -116,10 +116,11 @@ Goal: build responsive public navigation, course catalog discovery with real-tim
 
 - [x] **Phase 4.2 — Course Catalog & Discovery (`/courses`)**
   - [x] Built public Course Catalog with query parameter support (`?search=...`, `useSearchParams` inside `<Suspense>`)
+  - [x] Removed all mock/fixed fallback data: renders live database courses with clean animated skeleton loading state
   - [x] Added Category Filter Pills (`All Tracks`, `CP`, `DSA`, `Web Dev`, `System Design`)
   - [x] Added Difficulty dropdown (`Beginner`, `Intermediate`, `Advanced`) and Sorting (`Popularity`, `Price`, `Lesson count`)
   - [x] Rendered course cards with lesson count, quiz count, student enrollment count, and enrollment CTA
-  - **Test**: Catalog loads courses from Strapi and filters in real time. (Passed)
+  - **Test**: Catalog loads live courses from Strapi without flashing default/mock data. (Passed)
 
 - [x] **Phase 4.3 — Public Engineering Blog (`/blog` & `/blog/[slug]`)**
   - [x] Built public article catalog with category filtering and search
@@ -140,11 +141,23 @@ Goal: build responsive public navigation, course catalog discovery with real-tim
   - **Test**: Filter tabs switch story categories interactively. (Passed)
 
 - [x] **Phase 4.6 — Standardized Course Card & ImgBB Media Upload Engine**
-  - [x] Built reusable `CourseCard` component (`src/components/courses/CourseCard.jsx`) with image banner, prominent category typography, difficulty/lesson counter, instructor attribution, tuition, and CTA
-  - [x] Updated Home page (`src/app/page.js`) and Courses catalog page (`src/app/courses/page.js`) to use the unified `CourseCard`
+  - [x] Built reusable `CourseCard` component (`src/components/courses/CourseCard.jsx`) with image banner, top-right category badge, difficulty/lesson/quiz counters, borderless dynamic creator instructor attribution, tuition, and CTA
+  - [x] Updated Home page (`src/app/page.js`) and Courses catalog page (`src/app/courses/page.js`) to use the unified `CourseCard` with live data fetching
   - [x] Built ImgBB upload utility (`src/lib/imgbb.js`) and `ImageUpload` component (`src/components/ui/ImageUpload.jsx`) using API key `07e805fdc8a1c6855e37aa4218e8f967`
-  - [x] Integrated image upload/edit into Admin, Content Manager, and Instructor course creation & editing modals with database URL persistence (`thumbnailUrl`)
+  - [x] Integrated image upload/edit into Admin, Content Manager, and Instructor course creation & editing modals with database URL persistence (`thumbnailUrl`) and creator instructor relation linkage (`instructor: user.id`)
   - **Test**: Direct image upload to ImgBB stores image URL in Strapi and renders thumbnails on cards. (Passed)
+
+- [x] **Phase 4.7 — Universal Public Access & Course Detail View (`/courses/[slug]`)**
+  - [x] All navigation tabs (`Home`, `Courses`, `Blog`, `About`, `Success Story`) remain universally open to everyone with any role (or unauthenticated guests)
+  - [x] Built single course overview page (`/courses/[slug]`) with curriculum syllabus, module lessons with preview indicators, and quiz list
+  - [x] Fixed module and lesson read permissions (`api::module.module.find`, `api::module.module.findOne`) in backend bootstrap for Public and Student roles, ensuring curriculum renders consistently across student preview, instructor view, and public visitors
+  - [x] Instant synchronous session hydration via cached `cps_user` in `AuthContext`, eliminating sign-in and header dashboard button loading delays
+  - [x] Added spinners to authentication submit buttons and skeleton shimmers for catalog/course loading states
+  - [x] Strict Role-Guarded Enrollment enforcement:
+    - **Students**: Can directly enroll (`POST /api/enrollments`) or launch course player if already enrolled
+    - **Guests/Unauthenticated**: Prompted to Log In or Register
+    - **Admin / Content Manager / Instructor**: Access course in staff inspection mode with direct management and preview links
+  - **Test**: All user roles can freely navigate navbar and explore courses, with curriculum modules rendering accurately and fast responsive auth flows. (Passed)
 
 ---
 
@@ -181,6 +194,12 @@ Goal: deliver complete, production-grade dashboards for Students, Instructors, C
   - [x] `Enrollment.create`: Enforces that only users with role `Student` can enroll in courses (Admin, Content Manager, and Instructor rejected with `403 Forbidden`)
   - [x] `QuizAttempt.create`: Enforces that only users with role `Student` can submit quiz attempts (Admin, Content Manager, and Instructor rejected with `403 Forbidden`)
   - **Test**: Backend rejects enrollment and quiz attempts from non-student roles. (Passed)
+
+- [x] **Phase 5.5 — Pure Live Data Architecture & Student Dashboard Integration**
+  - [x] Eliminated all static/mock data across the platform (`FALLBACK_BLOGS`, `FALLBACK_ARTICLE`, mock student enrollments, mock quiz scorecards)
+  - [x] Connected Student Dashboard (`/dashboard/student`) to live database enrollments (`GET /api/enrollments`), quiz scorecards (`GET /api/quiz-attempts`), and platform catalog (`GET /api/courses`)
+  - [x] Separated public `/courses` catalog queries from instructor dashboard scoped queries (`myCourses=true`), enabling instructors and all roles to browse all platform courses
+  - **Test**: Full platform operates purely on live PostgreSQL database records with zero mock fixtures. (Passed)
 
 ---
 
