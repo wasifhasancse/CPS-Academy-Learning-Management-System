@@ -57,41 +57,36 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Users Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Assigned Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers.length === 0 ? (
+      {filteredUsers.length === 0 ? (
+        <EmptyState
+          icon={
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          }
+          title="No Users Found"
+          description={
+            userSearch || userRoleFilter !== "all"
+              ? "No platform accounts match your active search or role filter."
+              : "No platform user accounts found."
+          }
+        />
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="p-0">
-                    <EmptyState
-                      size="sm"
-                      icon={
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                      }
-                      title="No Users Found"
-                      description={
-                        userSearch || userRoleFilter !== "all"
-                          ? "No platform accounts match your active search or role filter."
-                          : "No platform user accounts found."
-                      }
-                    />
-                  </TableCell>
+                  <TableHead>User</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Assigned Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Joined Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                filteredUsers.map((u) => {
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((u) => {
                   const roleName = u.role?.name || "Student";
                   const isBlocked = Boolean(u.blocked);
                   const isCurrentUser = String(u.id) === String(currentAdmin?.id);
@@ -169,12 +164,12 @@ export default function AdminUsersPage() {
                       </TableCell>
                     </TableRow>
                   );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
