@@ -1,6 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function Footer() {
+  const pathname = usePathname();
+
+  // Do not render footer on dashboard pages
+  if (pathname?.startsWith("/dashboard")) {
+    return null;
+  }
+
   return (
     <footer className="bg-footer-bg text-footer-fg border-t border-border transition-colors">
       <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8 py-12">
