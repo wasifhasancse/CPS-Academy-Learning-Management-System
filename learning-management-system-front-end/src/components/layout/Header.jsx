@@ -12,7 +12,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 export function Header() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, mounted, logout } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -106,7 +106,9 @@ export function Header() {
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
 
-          {user ? (
+          {!mounted ? (
+            <div className="w-20 h-8 rounded-full bg-surface animate-pulse" />
+          ) : user ? (
             <ProfileDropdown />
           ) : isLoading ? (
             <div className="w-20 h-8 rounded-full bg-surface animate-pulse" />
