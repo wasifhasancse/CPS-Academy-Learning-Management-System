@@ -138,5 +138,18 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 - **Issue**: Populating nested relations (e.g., `modules.lessons` on `course`) strips `modules` for `Student` and `Public` roles when `api::module.module.find` and `api::module.module.findOne` are not explicitly enabled in `PUBLIC_ACTIONS` / `STUDENT_ACTIONS`.
 - **Prevention Rule**: Always grant `api::module.module.find`, `api::module.module.findOne`, `api::lesson.lesson.find`, `api::lesson.lesson.findOne`, `api::quiz.quiz.find`, and `api::quiz.quiz.findOne` to both `Public` and `Student` role scopes in Strapi bootstrap (`src/index.js`). Additionally, in custom controllers (`course.js`), explicitly preserve nested `modules` on `sanitizedOutput` so curriculum data is never stripped.
 
+### 8. React/Next.js Client Storage Hydration Consistency
+- **Issue**: Reading browser `localStorage` directly in `useState` lazy initializers causes server-side rendered HTML (`null` / skeleton state) to mismatch client initial hydration, triggering React Hydration Failed errors.
+- **Prevention Rule**: Keep initial SSR and client state deterministic (`user: null`, `mounted: false`), and only synchronize browser storage inside `useEffect` with a `mounted` check before rendering client-specific authentication widgets.
 
+### 9. Custom Props DOM Element Forwarding in React 19
+- **Issue**: Passing custom component props such as `isLoading` through `<Button {...props}>` without explicit destructuring forwards `isLoading={true}` directly to native DOM `<button>` or `<Link>` elements, causing React 19 console warnings (`React does not recognize the 'isLoading' prop on a DOM element`).
+- **Prevention Rule**: Always explicitly destructure custom control props (e.g. `isLoading = false`, `variant`, `size`) in primitive UI wrappers (`src/components/ui/Button.jsx`) and prevent spreading non-standard attributes onto DOM tags.
 
+### 10. Form Select Dropdown Empty State Guarding
+- **Issue**: Rendering an HTML `<select>` over an empty options array causes the input to collapse into an unusable narrow box with no placeholder option, visually breaking responsive layout.
+- **Prevention Rule**: Always enforce a min-width on `<select>` elements (`min-w-[200px] sm:min-w-[280px]`), provide a fallback `<option value="">No items available</option>` when the source array is empty, and set `disabled={items.length === 0}`.
+
+### 11. Structured UI Empty States Across Dashboards and Catalogs
+- **Issue**: Using bare plain text for empty lists or searches degrades user experience and leaves users without next-step guidance.
+- **Prevention Rule**: Use the standardized `<EmptyState>` component with relevant icons, explanatory titles, contextual descriptions, and actionable creation or filter-reset buttons across all dashboard tabs, table views, and catalog pages.
