@@ -10,12 +10,6 @@ import { ManageQuestionsModal } from "@/components/dashboard/modals/ManageQuesti
 import { BlogModal } from "@/components/dashboard/modals/BlogModal";
 import { ConfirmDeleteModal } from "@/components/dashboard/modals/ConfirmDeleteModal";
 
-const DEFAULT_CATEGORIES = [
-  { id: 1, name: "Competitive Programming", slug: "competitive-programming" },
-  { id: 2, name: "Software Engineering", slug: "software-engineering" },
-  { id: 3, name: "Data Structures & Algorithms", slug: "dsa" },
-  { id: 4, name: "System Design", slug: "system-design" },
-];
 
 const ManagerContext = createContext(null);
 
@@ -123,7 +117,7 @@ export function ManagerProvider({ children }) {
       ]);
 
       const resolvedCourses = Array.isArray(coursesRes?.data) ? coursesRes.data : [];
-      const resolvedCats = Array.isArray(catsRes?.data) && catsRes.data.length > 0 ? catsRes.data : DEFAULT_CATEGORIES;
+      const resolvedCats = Array.isArray(catsRes?.data) ? catsRes.data : [];
       const resolvedBlogs = Array.isArray(blogsRes?.data) ? blogsRes.data : [];
       const resolvedEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
 
