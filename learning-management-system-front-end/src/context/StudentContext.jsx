@@ -4,12 +4,6 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 
-const DEFAULT_CATEGORIES = [
-  { id: 1, name: "Competitive Programming", slug: "competitive-programming" },
-  { id: 2, name: "Software Engineering", slug: "software-engineering" },
-  { id: 3, name: "Data Structures & Algorithms", slug: "dsa" },
-  { id: 4, name: "System Design", slug: "system-design" },
-];
 
 const StudentContext = createContext(null);
 
@@ -37,7 +31,7 @@ export function StudentProvider({ children }) {
 
       const resolvedEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
       const resolvedCourses = Array.isArray(coursesRes?.data) ? coursesRes.data : [];
-      const resolvedCats = Array.isArray(catsRes?.data) && catsRes.data.length > 0 ? catsRes.data : DEFAULT_CATEGORIES;
+      const resolvedCats = Array.isArray(catsRes?.data) ? catsRes.data : [];
       const resolvedQuizzes = Array.isArray(quizzesRes?.data) ? quizzesRes.data : [];
 
       setEnrollments(resolvedEnrolls);
@@ -88,7 +82,7 @@ export function StudentProvider({ children }) {
     { title: "Enrolled Tracks", value: enrolledCourses.length, subtitle: `${completedCoursesCount} Tracks Fully Completed` },
     { title: "Curriculum Units", value: totalLessonsCount, subtitle: "Video Lessons in Active Syllabus" },
     { title: "Quiz Evaluations", value: quizAttempts.length, subtitle: `${passedQuizzesCount} Checkpoints Passed` },
-    { title: "Learning Score", value: `${passedQuizzesCount > 0 ? "92%" : "0%"}`, subtitle: "Average Verified Score" },
+    { title: "Learning Score", value: quizAttempts.length > 0 ? `${Math.round(quizAttempts.reduce((acc, q) => acc + (q.score || 0), 0) / quizAttempts.length)}%` : "N/A", subtitle: quizAttempts.length > 0 ? "Average Verified Score" : "Complete a quiz to see your score" },
   ];
 
   const studentActivities = [
