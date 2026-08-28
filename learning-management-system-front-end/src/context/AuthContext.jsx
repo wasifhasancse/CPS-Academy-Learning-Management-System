@@ -20,8 +20,7 @@ export function getRoleDashboardPath(roleName) {
     case "manager":
       return "/dashboard/manager";
     case "instructor":
-    case "teacher":
-      return "/dashboard/teacher";
+      return "/dashboard/instructor";
     case "student":
     default:
       return "/dashboard/student";
