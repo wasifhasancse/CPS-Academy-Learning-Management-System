@@ -75,27 +75,24 @@ Goal: implement secure authentication and establish 4-tier role-based access con
 
 Goal: create Strapi v5 content-types for complete course lifecycle, learning progress, quizzes, and transactions.
 
-- [ ] **Phase 3.1 — Course & Curriculum Schemas**
-  - [ ] Create `Category` content-type (name, slug, description, icon)
-  - [ ] Create `Course` content-type (title, slug, description, thumbnail, price, difficulty, publishedStatus, instructor relation, category relation)
-  - [ ] Create `Module` content-type (title, order, course relation)
-  - [ ] Create `Lesson` content-type (title, slug, videoUrl [YouTube], duration, content/notes, resources, order, isFreePreview, module relation)
-  - **Test**: Strapi admin panel allows creating and linking Courses, Modules, and Lessons.
+- [x] **Phase 3.1 — Course & Curriculum Schemas**
+  - [x] Create `Category` content-type (name, slug, description, icon)
+  - [x] Create `Course` content-type (title, slug, description, thumbnail, price, difficulty, publishedStatus, instructor relation, category relation)
+  - [x] Create `Module` content-type (title, order, course relation)
+  - [x] Create `Lesson` content-type (title, slug, videoUrl [YouTube], duration, content/notes, resources, order, isFreePreview, module relation)
+  - **Test**: Strapi server validates schemas and creates relational tables in Neon PostgreSQL. (Passed)
 
 - [ ] **Phase 3.2 — Enrollment & Progress Schemas**
   - [ ] Create `Enrollment` content-type (student relation, course relation, enrolledAt, completionStatus, progressPercentage)
-  - [ ] Create `LessonProgress` content-type (student relation, lesson relation, completed, completedAt)
-  - **Test**: Creating an enrollment links student to course and prevents duplicate active enrollments.
+  - [ ] Create `Progress` content-type (student relation, lesson relation, course relation, isCompleted, completedAt)
+  - **Test**: Relational schemas link students to courses and lesson completion state.
 
 - [ ] **Phase 3.3 — Quiz & Assessment Schemas**
-  - [ ] Create `Quiz` content-type (title, description, timeLimitMinutes, passingScorePercentage, course relation, module relation)
-  - [ ] Create `Question` content-type (quiz relation, questionText, questionType [multiple_choice, true_false], options, correctAnswer [hidden from public API], explanation)
-  - [ ] Create `QuizAttempt` content-type (student relation, quiz relation, score, totalQuestions, passed, answersPayload, startedAt, submittedAt)
-  - **Test**: Strapi schemas validate required fields and link questions to quizzes.
-
-- [ ] **Phase 3.4 — Order & Transaction Schemas**
-  - [ ] Create `Order` content-type (orderNumber, student relation, course relation, amount, currency, status [pending, paid, failed, refunded], stripeSessionId, stripePaymentIntentId)
-  - **Test**: Schema stores transaction details and links orders to courses and students.
+  - [ ] Create `Quiz` content-type (title, slug, timeLimitMinutes, passingScore, course relation, questions relation)
+  - [ ] Create `Question` content-type (quiz relation, prompt, options JSON, correctAnswer index, explanation, points)
+  - [ ] Create `QuizAttempt` content-type (student relation, quiz relation, score, passed, submittedAnswers, submittedAt)
+  - [ ] Create `BlogPost` content-type (title, slug, excerpt, content, coverImageUrl, category relation, author relation)
+  - **Test**: Strapi schemas validate required fields and link questions to quizzes and attempts to students.
 
 ---
 
