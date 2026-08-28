@@ -33,6 +33,23 @@ export default function ManagerOverviewPage() {
     );
   }
 
+  // Transform activities into table rows with contextual subroute links
+  const tableRows = managerActivities.map((a) => {
+    let href = "/dashboard/manager/curriculum";
+    if (a.action === "BLOG_SAVED") {
+      href = "/dashboard/manager/blogs";
+    }
+    return {
+      id: a.id,
+      item: a.title,
+      user: a.timestamp,
+      category: a.badgeText,
+      status: a.action === "COURSE_PUBLISHED" ? "Published" : "Updated",
+      actionLabel: "View",
+      href,
+    };
+  });
+
   return (
     <div className="space-y-6">
       {/* Studio KPI Grid */}
@@ -62,11 +79,10 @@ export default function ManagerOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <GrowthLineChart
-            title="Curriculum & Content Publishing Activity"
-            subtitle="Recent course and knowledge publication history"
+            title="Content Publishing Trend"
+            subtitle="Recent course and article publication activity"
             dataPoints={managerActivities}
-            metricLabel="Updates"
-            color="primary"
+            metricLabel="Publications"
           />
         </div>
         <div>
@@ -83,7 +99,9 @@ export default function ManagerOverviewPage() {
       <ActivityTable
         title="Content Management Activity"
         subtitle="Recent syllabus modifications, quiz additions, and article publishing"
-        activities={managerActivities}
+        columns={["EVENT", "DATE", "TYPE", "STATUS", "ACTION"]}
+        data={tableRows}
+        emptyMessage="No content activity recorded yet."
       />
     </div>
   );
