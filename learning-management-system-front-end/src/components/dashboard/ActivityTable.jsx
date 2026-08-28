@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 
 export function ActivityTable({
   title = "Recent Activity",
@@ -132,13 +133,20 @@ export function ActivityTable({
                   <td className="py-3.5 px-4 text-right">
                     {row.actionButton ? (
                       row.actionButton
+                    ) : row.href ? (
+                      <Link
+                        href={row.href}
+                        className="px-3 py-1 rounded-md bg-surface dark:bg-[#122421] hover:bg-border text-foreground dark:text-white text-[11px] font-semibold border border-border transition-colors inline-block cursor-pointer"
+                      >
+                        {row.actionLabel || "View"}
+                      </Link>
                     ) : (
                       <button
                         type="button"
                         onClick={row.onAction}
                         className="px-3 py-1 rounded-md bg-surface dark:bg-[#122421] hover:bg-border text-foreground dark:text-white text-[11px] font-semibold border border-border transition-colors cursor-pointer"
                       >
-                        {row.actionLabel || "Review"}
+                        {row.actionLabel || "View"}
                       </button>
                     )}
                   </td>
