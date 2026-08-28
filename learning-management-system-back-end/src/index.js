@@ -315,6 +315,63 @@ module.exports = {
         strapi.log.info(`[Bootstrap] Set default_role to: "${targetType}", registration enabled.`);
       }
 
+      // 5.1 Seed Quick Login Demo Accounts if missing
+      const DEMO_ACCOUNTS = [
+        {
+          username: 'admin_demo',
+          email: 'admin@gmail.com',
+          password: 'abc12345',
+          roleType: 'admin',
+        },
+        {
+          username: 'manager_demo',
+          email: 'contentmanager@gmail.com',
+          password: 'abc12345',
+          roleType: 'content_manager',
+        },
+        {
+          username: 'instructor_demo',
+          email: 'instractor@gmail.com',
+          password: 'abc12345',
+          roleType: 'instructor',
+        },
+        {
+          username: 'student_demo',
+          email: 'student@gmail.com',
+          password: 'abc12345',
+          roleType: 'student',
+        },
+      ];
+
+      for (const demo of DEMO_ACCOUNTS) {
+        const existing = await strapi.db.query('plugin::users-permissions.user').findOne({
+          where: { email: demo.email.toLowerCase() },
+          populate: ['role'],
+        });
+
+        const targetRole = allRoles.find(
+          (r) =>
+            (r.type || '').toLowerCase() === demo.roleType ||
+            (r.name || '').toLowerCase().replace(/\s+/g, '_') === demo.roleType
+        );
+
+        if (!existing && targetRole) {
+          try {
+            await strapi.plugin('users-permissions').service('user').add({
+              username: demo.username,
+              email: demo.email.toLowerCase(),
+              password: demo.password,
+              confirmed: true,
+              blocked: false,
+              role: targetRole.id,
+            });
+            strapi.log.info(`[Bootstrap] Created demo user: ${demo.email} (${demo.roleType})`);
+          } catch (e) {
+            strapi.log.warn(`[Bootstrap] Could not create demo user ${demo.email}:`, e.message);
+          }
+        }
+      }
+
       // 6. Configure & Enable Providers strictly via environment variables
       const grantConfig = (await pluginStore.get({ key: 'grant' })) || {};
       const serverUrl =
