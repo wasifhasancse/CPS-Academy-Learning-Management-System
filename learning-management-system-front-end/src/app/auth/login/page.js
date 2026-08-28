@@ -59,6 +59,33 @@ export default function LoginPage() {
     window.location.href = `${strapiUrl}/api/connect/google`;
   };
 
+  const demoAccounts = [
+    {
+      role: "Admin",
+      email: "admin@gmail.com",
+      pass: "abc12345",
+      badgeVariant: "danger",
+    },
+    {
+      role: "Content Manager",
+      email: "contentmanager@gmail.com",
+      pass: "abc12345",
+      badgeVariant: "secondary",
+    },
+    {
+      role: "Instructor",
+      email: "instractor@gmail.com",
+      pass: "abc12345",
+      badgeVariant: "highlight",
+    },
+    {
+      role: "Student",
+      email: "student@gmail.com",
+      pass: "abc12345",
+      badgeVariant: "surface",
+    },
+  ];
+
   return (
     <div className="min-h-[calc(100vh-8rem)] py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-background">
       <div className="w-full max-w-md space-y-6">
@@ -191,6 +218,42 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
+
+            {/* Quick Demo Credentials Panel */}
+            <div className="mt-6 pt-5 border-t border-border space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-muted uppercase tracking-wider">
+                  Demo Accounts (Quick Fill)
+                </span>
+                <span className="text-[10px] text-muted">Click to auto-fill</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {demoAccounts.map((demo) => (
+                  <button
+                    key={demo.role}
+                    type="button"
+                    onClick={() => {
+                      setIdentifier(demo.email);
+                      setPassword(demo.pass);
+                      setErrors({ identifier: "", password: "", general: "" });
+                    }}
+                    className="p-2.5 rounded-xl bg-surface/80 hover:bg-surface border border-border hover:border-primary/40 text-left transition-all group cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <span className="text-[11px] font-bold text-foreground group-hover:text-primary dark:group-hover:text-highlight transition-colors">
+                        {demo.role}
+                      </span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-muted/20 text-muted font-mono">
+                        Fill
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-muted truncate block font-mono">
+                      {demo.email}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </CardContent>
 
           <CardFooter className="justify-center text-xs text-muted">
