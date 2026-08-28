@@ -1,100 +1,152 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { useAuth } from "@/context/AuthContext";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 
 export default function StudentDashboardPage() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const [enrolledCourses, setEnrolledCourses] = useState([
+    {
+      id: 1,
+      slug: "competitive-programming-complete-track",
+      title: "কম্পিটিটিভ প্রোগ্রামিং পূর্ণাঙ্গ কোর্স",
+      category: "Competitive Programming",
+      duration: "সময়ঃ ১২ মাস",
+      instructor: "Mohaimin",
+      completedLessons: 6,
+      totalLessons: 10,
+      currentLesson: "Binary Search & Monotonic Predicates",
+      fee: "৪,০০০ টাকা",
+    },
+    {
+      id: 2,
+      slug: "full-stack-asp-net-8",
+      title: "ফুল-স্ট্যাক ASP.NET 8 ও মাইক্রোসার্ভিস",
+      category: "Software Engineering",
+      duration: "সময়ঃ ৮ মাস",
+      instructor: "Arafat",
+      completedLessons: 3,
+      totalLessons: 8,
+      currentLesson: "Clean Architecture: CQRS & MediatR",
+      fee: "৫,৫০০ টাকা",
+    },
+  ]);
+
+  const totalCompletedLessons = enrolledCourses.reduce((acc, c) => acc + c.completedLessons, 0);
+  const totalCourseLessons = enrolledCourses.reduce((acc, c) => acc + c.totalLessons, 0);
+  const overallProgressPercent = totalCourseLessons > 0 ? Math.round((totalCompletedLessons / totalCourseLessons) * 100) : 0;
+
+  const navItems = [
+    {
+      id: "overview",
+      label: "Overview",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+      ),
+    },
+  ];
 
   return (
     <RoleGuard allowedRoles={["Student", "Admin"]}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="highlight" size="sm">
-                Student Portal
-              </Badge>
-              <span className="text-xs text-muted">Learner Workspace</span>
+      <DashboardLayout
+        roleTitle="Student Learning Portal"
+        subtitle="Welcome back"
+        navItems={navItems}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      >
+        {activeTab === "overview" && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-foreground">Learner Overview</h2>
+
+            {/* Metric KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+              <Card className="p-5 flex items-center gap-4 bg-card border-border">
+                <div className="w-11 h-11 rounded-xl bg-[#285A48]/15 text-[#285A48] dark:bg-[#B0E4CC]/15 dark:text-[#B0E4CC] flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-extrabold text-foreground">{enrolledCourses.length}</span>
+                  <span className="text-xs font-semibold text-muted block">Enrolled Classes</span>
+                </div>
+              </Card>
+
+              <Card className="p-5 flex items-center gap-4 bg-card border-border">
+                <div className="w-11 h-11 rounded-xl bg-[#408A71]/15 text-[#408A71] dark:bg-[#408A71]/25 dark:text-[#B0E4CC] flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-extrabold text-foreground">{totalCompletedLessons}</span>
+                  <span className="text-xs font-semibold text-muted block">Lessons Finished</span>
+                </div>
+              </Card>
+
+              <Card className="p-5 flex items-center gap-4 bg-card border-border">
+                <div className="w-11 h-11 rounded-xl bg-[#285A48]/15 text-[#285A48] dark:bg-[#B0E4CC]/15 dark:text-[#B0E4CC] flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-extrabold text-foreground">{overallProgressPercent}%</span>
+                  <span className="text-xs font-semibold text-muted block">Overall Progress</span>
+                </div>
+              </Card>
+
+              <Card className="p-5 flex items-center gap-4 bg-card border-border">
+                <div className="w-11 h-11 rounded-xl bg-[#408A71]/15 text-[#408A71] dark:bg-[#408A71]/25 dark:text-[#B0E4CC] flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-extrabold text-foreground">85%</span>
+                  <span className="text-xs font-semibold text-muted block">Avg Quiz Score</span>
+                </div>
+              </Card>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              Welcome back, {user?.username || "Student"}
-            </h1>
-            <p className="text-sm text-muted">
-              Continue your courses, track your progress, and practice for upcoming contest quizzes.
-            </p>
+
+            {/* Continue Learning Callout */}
+            {enrolledCourses.length > 0 && (
+              <Card className="p-6 bg-card border-border border-l-4 border-l-[#285A48] dark:border-l-[#B0E4CC]">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold text-[#285A48] dark:text-[#B0E4CC] uppercase tracking-wide">
+                      Continue Learning
+                    </span>
+                    <h3 className="font-extrabold text-lg text-foreground">
+                      {enrolledCourses[0].title}
+                    </h3>
+                    <p className="text-xs text-muted">
+                      Next Lesson: <strong className="text-foreground">{enrolledCourses[0].currentLesson}</strong>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Button href={`/learn/${enrolledCourses[0].slug}`} variant="primary" size="md">
+                      ▶ Resume Lesson
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            )}
           </div>
-          <div className="flex items-center gap-3">
-            <Button href="/courses" variant="primary" size="md">
-              Browse More Courses
-            </Button>
-          </div>
-        </div>
-
-        {/* Learning Overview Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <span className="text-xs font-semibold text-muted uppercase">Enrolled Courses</span>
-              <CardTitle as="h3" className="text-2xl font-bold mt-1">
-                0
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted">Active classes you are currently studying</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <span className="text-xs font-semibold text-muted uppercase">Quizzes Completed</span>
-              <CardTitle as="h3" className="text-2xl font-bold mt-1">
-                0
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted">Evaluated assessments and submissions</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <span className="text-xs font-semibold text-muted uppercase">Avg Passing Score</span>
-              <CardTitle as="h3" className="text-2xl font-bold mt-1">
-                --
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted">Overall performance across quiz attempts</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Active Enrolled Courses */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-bold text-foreground">My Enrolled Courses</h2>
-          <Card className="p-10 text-center border-dashed border-2">
-            <div className="max-w-sm mx-auto space-y-3">
-              <div className="w-12 h-12 rounded-full bg-surface text-muted flex items-center justify-center mx-auto">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h3 className="text-base font-bold text-foreground">No active enrollments yet</h3>
-              <p className="text-xs text-muted">
-                Explore our catalog of structured competitive programming and software engineering courses.
-              </p>
-              <Button href="/courses" variant="primary" size="sm">
-                Explore Catalog
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </div>
+        )}
+      </DashboardLayout>
     </RoleGuard>
   );
 }
