@@ -2,19 +2,21 @@ import Link from "next/link";
 
 const variantStyles = {
   primary:
-    "bg-primary text-white hover:bg-[#182C3C] dark:bg-[#6594B1] dark:text-[#101F2B] dark:hover:bg-[#7BA7C4] dark:font-semibold focus-visible:ring-primary/40",
+    "bg-primary text-white hover:bg-[#1E4336] dark:bg-[#408A71] dark:text-white dark:hover:bg-[#285A48] focus-visible:ring-primary/40",
   secondary:
-    "bg-secondary text-white hover:bg-[#527D99] dark:bg-secondary dark:hover:bg-[#527D99] focus-visible:ring-secondary/40",
+    "bg-secondary text-white hover:bg-[#285A48] dark:bg-secondary dark:hover:bg-[#1E4336] focus-visible:ring-secondary/40",
   highlight:
-    "bg-highlight text-[#213C51] hover:bg-[#CE9EC4] dark:bg-highlight dark:text-[#101F2B] dark:hover:bg-[#CE9EC4] focus-visible:ring-highlight/50 font-semibold",
+    "bg-highlight text-[#091413] hover:bg-[#97D4B8] dark:bg-highlight dark:text-[#091413] dark:hover:bg-[#97D4B8] focus-visible:ring-highlight/50 font-bold",
   outline:
-    "border border-primary text-primary hover:bg-surface dark:border-[#9BB8CB] dark:text-foreground dark:hover:bg-surface focus-visible:ring-primary/30",
+    "border border-primary text-primary hover:bg-surface dark:border-[#408A71] dark:text-[#B0E4CC] dark:hover:bg-surface focus-visible:ring-primary/30",
   outlineSecondary:
     "border border-secondary text-secondary hover:bg-surface dark:border-secondary dark:text-secondary dark:hover:bg-surface focus-visible:ring-secondary/30",
   ghost:
     "text-foreground hover:bg-surface dark:text-foreground dark:hover:bg-surface focus-visible:ring-primary/20",
   surface:
     "bg-surface text-foreground hover:bg-border/60 dark:bg-surface dark:text-foreground dark:hover:bg-border/60 focus-visible:ring-primary/20",
+  danger:
+    "bg-red-600/10 text-red-500 hover:bg-red-600/20 border border-red-500/20 focus-visible:ring-red-500/30",
 };
 
 const sizeStyles = {
