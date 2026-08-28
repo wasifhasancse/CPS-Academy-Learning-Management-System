@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "quizzes",
+  "info": {
+    "singularName": "quiz",
+    "pluralName": "quizzes",
+    "displayName": "Quiz",
+    "description": "LMS Course MCQ Quiz Schema"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "passingScore": {
+      "type": "integer",
+      "default": 80
+    },
+    "timeLimitMinutes": {
+      "type": "integer",
+      "default": 20
+    }
+  }
+}
