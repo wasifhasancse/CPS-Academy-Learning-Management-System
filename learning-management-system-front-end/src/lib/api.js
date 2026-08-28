@@ -35,7 +35,7 @@ export function getClientToken() {
  * Core fetch wrapper with Strapi headers and token injection
  * @param {string} endpoint - API path (e.g. '/api/courses' or 'courses')
  * @param {RequestInit & { token?: string }} [options]
- * @returns {Promise<any>}
+ * @returns {Promise<unknown>}
  */
 export async function fetchApi(endpoint, options = {}) {
   const { token, headers = {}, ...customConfig } = options;
