@@ -18,7 +18,6 @@ module.exports = (plugin) => {
       throw new ValidationError('Please provide username, email and password');
     }
 
-    // Determine target role (Instructor or Student only)
     let targetRoleType = 'student';
     if (requestedRole && typeof requestedRole === 'string') {
       const normalized = requestedRole.toLowerCase().trim();
@@ -31,14 +30,12 @@ module.exports = (plugin) => {
       where: { type: targetRoleType },
     });
 
-    // Fallback if role is stored by name or falls back to default
     if (!targetRole) {
       targetRole = await strapi.db.query('plugin::users-permissions.role').findOne({
         where: { name: targetRoleType === 'instructor' ? 'Instructor' : 'Student' },
       });
     }
 
-    // Fallback to authenticated role if custom roles aren't queried
     if (!targetRole) {
       targetRole = await strapi.db.query('plugin::users-permissions.role').findOne({
         where: { type: 'authenticated' },
@@ -49,7 +46,6 @@ module.exports = (plugin) => {
       throw new ApplicationError('Impossible to find the default role');
     }
 
-    // Check if user already exists
     const existingUser = await strapi.db.query('plugin::users-permissions.user').findOne({
       where: {
         $or: [{ email: email.toLowerCase() }, { username }],
@@ -63,12 +59,14 @@ module.exports = (plugin) => {
       throw new ApplicationError('Username is already taken');
     }
 
+    const isConfirmed = !settings.email_confirmation;
+
     const newUser = {
       username: username.trim(),
       email: email.toLowerCase().trim(),
       password,
       provider: 'local',
-      confirmed: true,
+      confirmed: isConfirmed,
       blocked: false,
       role: targetRole.id,
     };
