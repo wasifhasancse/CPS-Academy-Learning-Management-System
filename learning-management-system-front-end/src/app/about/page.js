@@ -58,7 +58,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-16">
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-11/12 mx-auto space-y-16">
       {/* Hero Section */}
       <section className="text-center max-w-3xl mx-auto space-y-4">
         <Badge variant="highlight">About CPS Academy</Badge>

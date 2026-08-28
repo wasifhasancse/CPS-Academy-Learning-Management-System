@@ -52,7 +52,7 @@ export default function Home() {
     <div className="w-full flex flex-col transition-colors duration-200">
       {/* 1. HERO SECTION */}
       <section className="bg-surface py-16 md:py-24 border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl space-y-6">
             <div className="inline-flex items-center gap-2">
               <Badge variant="highlight" size="sm">
@@ -106,7 +106,7 @@ export default function Home() {
       {/* 2. FEATURED CATEGORIES */}
       {categories.length > 0 && (
         <section className="py-16 bg-background border-b border-border">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
               <div>
                 <Badge variant="surface" size="sm" className="mb-2">
@@ -154,7 +154,7 @@ export default function Home() {
 
       {/* 3. FEATURED COURSES */}
       <section className="py-16 bg-surface border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
             <div>
               <Badge variant="highlight" size="sm" className="mb-2">
@@ -207,7 +207,7 @@ export default function Home() {
 
       {/* 4. HOW CPS ACADEMY WORKS */}
       <section className="py-16 bg-background border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <Badge variant="surface" size="sm" className="mb-2">
               Learning Journey
@@ -258,7 +258,7 @@ export default function Home() {
 
       {/* 5. INSTRUCTOR INVITATION CTA */}
       <section className="py-16 bg-surface border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-primary text-white border border-secondary/30 rounded-2xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
             <div className="max-w-xl space-y-3">
               <Badge variant="highlight" size="sm">

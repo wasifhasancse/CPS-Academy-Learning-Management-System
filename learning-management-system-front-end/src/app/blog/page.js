@@ -62,7 +62,7 @@ export default function BlogListPage() {
   });
 
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-11/12 mx-auto space-y-8">
       {/* Header Banner */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <Badge variant="highlight">CPS Academy Engineering Blog</Badge>

@@ -147,9 +147,12 @@ Goal: build responsive public navigation, course catalog discovery with real-tim
   - [x] Integrated image upload/edit into Admin, Content Manager, and Instructor course creation & editing modals with database URL persistence (`thumbnailUrl`) and creator instructor relation linkage (`instructor: user.id`)
   - **Test**: Direct image upload to ImgBB stores image URL in Strapi and renders thumbnails on cards. (Passed)
 
-- [x] **Phase 4.7 — Universal Public Access & Course Detail View (`/courses/[slug]`)**
+- [x] **Phase 4.7 — Universal Public Access, Course Detail View & Navbar Profile Dropdown**
   - [x] All navigation tabs (`Home`, `Courses`, `Blog`, `About`, `Success Story`) remain universally open to everyone with any role (or unauthenticated guests)
+  - [x] Standardized platform container width across all public and authenticated pages to `max-w-11/12 mx-auto` (`Header`, `Footer`, `Home`, `Courses`, `Course Detail`, `Blog`, `About`, `Success Story`)
   - [x] Built single course overview page (`/courses/[slug]`) with curriculum syllabus, module lessons with preview indicators, and quiz list
+  - [x] Built interactive capsule Profile Dropdown (`ProfileDropdown.jsx`) with user avatar, name, chevron indicator, user metadata header, quick navigation links (Dashboard, My Courses, Scorecards, Settings), and direct Sign Out trigger
+  - [x] Updated `ThemeToggle.jsx` with sleek amber sun and clean minimal button aesthetic
   - [x] Fixed module and lesson read permissions (`api::module.module.find`, `api::module.module.findOne`) in backend bootstrap for Public and Student roles, ensuring curriculum renders consistently across student preview, instructor view, and public visitors
   - [x] Instant synchronous session hydration via cached `cps_user` in `AuthContext`, eliminating sign-in and header dashboard button loading delays
   - [x] Added spinners to authentication submit buttons and skeleton shimmers for catalog/course loading states

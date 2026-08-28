@@ -111,7 +111,7 @@ export default function CourseDetailPage({ params }) {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 space-y-8 animate-pulse">
+      <div className="w-full max-w-11/12 mx-auto py-16 px-4 sm:px-6 lg:px-8 space-y-8 animate-pulse">
         <div className="w-48 h-6 bg-surface rounded" />
         <div className="w-3/4 h-12 bg-surface rounded" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -158,7 +158,7 @@ export default function CourseDetailPage({ params }) {
     <div className="w-full pb-20">
       {/* Course Hero Banner */}
       <section className="bg-surface border-b border-border py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div className="max-w-3xl space-y-4">
               <div className="flex flex-wrap items-center gap-2.5">
@@ -210,7 +210,7 @@ export default function CourseDetailPage({ params }) {
       </section>
 
       {/* Main Content & Sticky Enrollment Sidebar */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+      <section className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Syllabus & Learning Content */}
           <div className="lg:col-span-2 space-y-8">
