@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/Card";
+import { CourseCard } from "@/components/courses/CourseCard";
 
 const CATEGORIES = [
   {
@@ -206,48 +207,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {FEATURED_COURSES.map((course) => (
-              <Card key={course.id} hoverable className="flex flex-col justify-between">
-                <div>
-                  {/* Thumbnail Placeholder */}
-                  <div className="aspect-video w-full bg-surface border-b border-border flex items-center justify-center relative p-4">
-                    <span className="text-xs font-bold text-muted uppercase tracking-wider">
-                      {course.category}
-                    </span>
-                    {course.isPopular && (
-                      <div className="absolute top-2.5 right-2.5">
-                        <Badge variant="highlight" size="sm">
-                          Featured
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-
-                  <CardHeader>
-                    <div className="flex items-center justify-between text-xs text-muted mb-1.5">
-                      <span>{course.difficulty}</span>
-                      <span>{course.lessonsCount} Lessons</span>
-                    </div>
-                    <CardTitle as="h3" className="text-base leading-snug">
-                      {course.title}
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                      Instructor: <strong className="text-foreground">{course.instructor}</strong>
-                    </CardDescription>
-                  </CardHeader>
-                </div>
-
-                <CardFooter className="justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-xs text-muted">Price</span>
-                    <span className="text-base font-bold text-foreground">
-                      ${course.price.toFixed(2)}
-                    </span>
-                  </div>
-                  <Button href={`/courses/${course.slug}`} variant="secondary" size="sm">
-                    View Course
-                  </Button>
-                </CardFooter>
-              </Card>
+              <CourseCard key={course.id} course={course} />
             ))}
           </div>
         </div>
