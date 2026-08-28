@@ -2,11 +2,10 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { CourseCard } from "@/components/courses/CourseCard";
 import { api } from "@/lib/api";
 
 const FALLBACK_COURSES = [
@@ -17,6 +16,7 @@ const FALLBACK_COURSES = [
     description: "Master C++, STL, Number Theory, Dynamic Programming, and Graph Algorithms for ICPC & Codeforces.",
     price: 4500,
     difficulty: "Intermediate",
+    thumbnailUrl: "https://images.unsplash.com/photo-1516116211227-bbc2416b2505?w=600",
     category: { name: "Competitive Programming", slug: "competitive-programming" },
     instructor: { username: "Wasif Hasan" },
     modules: [{ lessons: [1, 2, 3, 4, 5, 6, 7, 8] }],
@@ -30,6 +30,7 @@ const FALLBACK_COURSES = [
     description: "In-depth intuition and implementation for Trees, Graphs, Sorting, Searching, and Complexity Analysis.",
     price: 3800,
     difficulty: "Beginner",
+    thumbnailUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600",
     category: { name: "Data Structures & Algorithms", slug: "dsa" },
     instructor: { username: "Sharif Ahmed" },
     modules: [{ lessons: [1, 2, 3, 4, 5, 6] }],
@@ -43,6 +44,7 @@ const FALLBACK_COURSES = [
     description: "Production-ready full-stack web applications with React 19, Server Components, Neon PostgreSQL, and Stripe.",
     price: 5200,
     difficulty: "Advanced",
+    thumbnailUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600",
     category: { name: "Web Development", slug: "web-development" },
     instructor: { username: "CPS Engineering" },
     modules: [{ lessons: [1, 2, 3, 4, 5, 6, 7] }],
@@ -56,6 +58,7 @@ const FALLBACK_COURSES = [
     description: "Architect scalable, fault-tolerant backend systems, microservices, and event-driven architectures.",
     price: 6000,
     difficulty: "Advanced",
+    thumbnailUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600",
     category: { name: "System Design & Architecture", slug: "system-design" },
     instructor: { username: "Wasif Hasan" },
     modules: [{ lessons: [1, 2, 3, 4, 5] }],
@@ -232,72 +235,9 @@ function CoursesCatalogContent() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map((course) => {
-            const lessonsCount =
-              course.modules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) || 0;
-            const quizzesCount = course.quizzes?.length || 0;
-            const enrolledCount = course.enrollments?.length || 0;
-
-            return (
-              <Card
-                key={course.documentId || course.id}
-                className="flex flex-col justify-between hover:border-primary/50 transition-all group"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <Badge variant="outline" className="text-[10px]">
-                      {course.category?.name || "General"}
-                    </Badge>
-                    <Badge variant="secondary" className="text-[10px]">
-                      {course.difficulty || "Beginner"}
-                    </Badge>
-                  </div>
-
-                  <CardTitle className="text-base line-clamp-2 group-hover:text-primary transition-colors">
-                    {course.title}
-                  </CardTitle>
-
-                  <CardDescription className="line-clamp-2 text-xs mt-1">
-                    {course.description || "Comprehensive syllabus and problem solving tracks."}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="pt-0 space-y-4">
-                  {/* Meta stats */}
-                  <div className="grid grid-cols-3 gap-2 p-2.5 rounded-lg bg-surface border border-border text-center text-xs">
-                    <div>
-                      <span className="block font-bold text-foreground">{lessonsCount}</span>
-                      <span className="text-[10px] text-muted">Lessons</span>
-                    </div>
-                    <div>
-                      <span className="block font-bold text-foreground">{quizzesCount}</span>
-                      <span className="text-[10px] text-muted">Quizzes</span>
-                    </div>
-                    <div>
-                      <span className="block font-bold text-foreground">{enrolledCount}</span>
-                      <span className="text-[10px] text-muted">Students</span>
-                    </div>
-                  </div>
-
-                  {/* Pricing & CTA */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
-                    <div>
-                      <span className="text-[10px] text-muted block uppercase font-semibold">Tuition</span>
-                      <span className="text-lg font-extrabold text-foreground">
-                        ৳{course.price || 0}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button href="/auth/register" variant="primary" size="sm" className="text-xs">
-                        Enroll Now →
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {filteredCourses.map((course) => (
+            <CourseCard key={course.documentId || course.id} course={course} />
+          ))}
         </div>
       )}
     </div>
