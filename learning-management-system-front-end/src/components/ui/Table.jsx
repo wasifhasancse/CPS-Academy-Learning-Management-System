@@ -17,10 +17,26 @@ export function Table({ headers, children, className = "" }) {
             </tr>
           </thead>
         )}
-        <tbody className="divide-y divide-border text-foreground">{children}</tbody>
+        {children}
       </table>
     </div>
   );
+}
+
+export function TableHeader({ children, className = "" }) {
+  return (
+    <thead className={`bg-surface text-xs font-semibold text-foreground uppercase tracking-wider border-b border-border ${className}`}>
+      {children}
+    </thead>
+  );
+}
+
+export function TableBody({ children, className = "" }) {
+  return <tbody className={`divide-y divide-border text-foreground ${className}`}>{children}</tbody>;
+}
+
+export function TableHead({ children, className = "" }) {
+  return <th className={`px-4 py-3 sm:px-6 font-bold text-xs text-muted uppercase ${className}`}>{children}</th>;
 }
 
 export function TableRow({ children, className = "" }) {
