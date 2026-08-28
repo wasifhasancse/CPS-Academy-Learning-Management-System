@@ -25,18 +25,23 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
+                <Link href="/" className="text-footer-fg/80 hover:text-highlight transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
                 <Link href="/courses" className="text-footer-fg/80 hover:text-highlight transition-colors">
                   All Courses
                 </Link>
               </li>
               <li>
-                <Link href="/categories" className="text-footer-fg/80 hover:text-highlight transition-colors">
-                  Categories
+                <Link href="/blog" className="text-footer-fg/80 hover:text-highlight transition-colors">
+                  Engineering Blog
                 </Link>
               </li>
               <li>
-                <Link href="/quizzes" className="text-footer-fg/80 hover:text-highlight transition-colors">
-                  Practice Quizzes
+                <Link href="/success-story" className="text-footer-fg/80 hover:text-highlight transition-colors">
+                  Success Stories
                 </Link>
               </li>
             </ul>
