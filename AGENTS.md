@@ -130,3 +130,13 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 - **Issue**: Visiting `/api/connect/google` fails with `400: This provider is disabled` when `grant.google.enabled` is false in the core store.
 - **Prevention Rule**: Automatically configure and enable `grant.google` and `grant.email` in Strapi bootstrap (`src/index.js`). Ensure custom `auth.callback` controller seamlessly redirects browser requests to the frontend OAuth callback route (`/auth/callback/google?jwt=...`).
 
+### 6. Strapi v5 User-Permissions Relation Sanitization
+- **Issue**: Standard `this.sanitizeOutput(courses, ctx)` in Strapi v5 can strip `instructor` user relation attributes for unauthenticated/student requests due to Users-Permissions field restrictions, causing `course.instructor` to lose `username`.
+- **Prevention Rule**: In Strapi custom controllers (`find`, `findOne`), explicitly preserve safe public profile fields (`id`, `username`, `name`) on author/instructor relations after sanitization, and ensure frontend components (`CourseCard.jsx`) safely resolve the username and render with consistent spacing.
+
+### 7. Strapi v5 Nested Module & Lesson Read Permissions
+- **Issue**: Populating nested relations (e.g., `modules.lessons` on `course`) strips `modules` for `Student` and `Public` roles when `api::module.module.find` and `api::module.module.findOne` are not explicitly enabled in `PUBLIC_ACTIONS` / `STUDENT_ACTIONS`.
+- **Prevention Rule**: Always grant `api::module.module.find`, `api::module.module.findOne`, `api::lesson.lesson.find`, `api::lesson.lesson.findOne`, `api::quiz.quiz.find`, and `api::quiz.quiz.findOne` to both `Public` and `Student` role scopes in Strapi bootstrap (`src/index.js`). Additionally, in custom controllers (`course.js`), explicitly preserve nested `modules` on `sanitizedOutput` so curriculum data is never stripped.
+
+
+
