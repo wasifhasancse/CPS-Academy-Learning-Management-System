@@ -7,13 +7,29 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-
+import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
 
 export default function ManagerDashboardPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Modals
+  const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
+  const [isAddBlogOpen, setIsAddBlogOpen] = useState(false);
+
+  // Form States
+  const [courseTitle, setCourseTitle] = useState("");
+  const [coursePrice, setCoursePrice] = useState("4500");
+  const [courseCategory, setCourseCategory] = useState("Competitive Programming");
+
+  const [blogTitle, setBlogTitle] = useState("");
+  const [blogExcerpt, setBlogExcerpt] = useState("");
+  const [blogCategory, setBlogCategory] = useState("Engineering");
+
+  // Mock State
   const [courses, setCourses] = useState([
     { id: 1, title: "Competitive Programming Complete Track", instructor: "Mohaimin", category: "CP", price: 4000, lessonsCount: 14, status: "Published" },
     { id: 2, title: "Job Interview Preparation & FAANG Cracking", instructor: "Arafat", category: "Interview", price: 6000, lessonsCount: 10, status: "Published" },
@@ -37,6 +53,44 @@ export default function ManagerDashboardPage() {
     setBlogs((prev) =>
       prev.map((b) => (b.id === id ? { ...b, status: b.status === "Published" ? "Draft" : "Published" } : b))
     );
+  };
+
+  const handleCreateCourse = (e) => {
+    e.preventDefault();
+    if (!courseTitle) return;
+    setCourses([
+      ...courses,
+      {
+        id: Date.now(),
+        title: courseTitle,
+        instructor: "Assigned Staff",
+        category: courseCategory,
+        price: Number(coursePrice) || 0,
+        lessonsCount: 0,
+        status: "Draft",
+      },
+    ]);
+    setCourseTitle("");
+    setIsAddCourseOpen(false);
+  };
+
+  const handleCreateBlog = (e) => {
+    e.preventDefault();
+    if (!blogTitle) return;
+    setBlogs([
+      ...blogs,
+      {
+        id: Date.now(),
+        title: blogTitle,
+        author: user?.username || "Content Manager",
+        category: blogCategory,
+        status: "Draft",
+        date: new Date().toISOString().split("T")[0],
+      },
+    ]);
+    setBlogTitle("");
+    setBlogExcerpt("");
+    setIsAddBlogOpen(false);
   };
 
   const navItems = [
@@ -67,7 +121,18 @@ export default function ManagerDashboardPage() {
         </svg>
       ),
     },
+    {
+      id: "progress",
+      label: "Student Progress",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+    },
   ];
+
+  const totalLessons = courses.reduce((acc, c) => acc + c.lessonsCount, 0);
 
   return (
     <RoleGuard allowedRoles={["Content Manager", "Admin"]}>
@@ -78,9 +143,20 @@ export default function ManagerDashboardPage() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       >
+        {/* TAB 1: OVERVIEW */}
         {activeTab === "overview" && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-foreground">Content Library Overview</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-xl font-bold text-foreground">Content Library Overview</h2>
+              <div className="flex items-center gap-3">
+                <Button onClick={() => setIsAddCourseOpen(true)} variant="primary" size="sm">
+                  + Add Course
+                </Button>
+                <Button onClick={() => setIsAddBlogOpen(true)} variant="outline" size="sm">
+                  + Write Blog Post
+                </Button>
+              </div>
+            </div>
 
             {/* Metric KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
@@ -91,7 +167,7 @@ export default function ManagerDashboardPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="text-2xl font-extrabold text-foreground">4</span>
+                  <span className="text-2xl font-extrabold text-foreground">{courses.length}</span>
                   <span className="text-xs font-semibold text-muted block">Catalog Courses</span>
                 </div>
               </Card>
@@ -103,7 +179,7 @@ export default function ManagerDashboardPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="text-2xl font-extrabold text-foreground">44</span>
+                  <span className="text-2xl font-extrabold text-foreground">{totalLessons}</span>
                   <span className="text-xs font-semibold text-muted block">Video Lessons</span>
                 </div>
               </Card>
@@ -115,7 +191,7 @@ export default function ManagerDashboardPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="text-2xl font-extrabold text-foreground">3</span>
+                  <span className="text-2xl font-extrabold text-foreground">{blogs.length}</span>
                   <span className="text-xs font-semibold text-muted block">Blog Articles</span>
                 </div>
               </Card>
@@ -140,6 +216,9 @@ export default function ManagerDashboardPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-foreground">All Platform Courses</h2>
+              <Button onClick={() => setIsAddCourseOpen(true)} variant="primary" size="sm">
+                + Create Course
+              </Button>
             </div>
 
             <Card className="overflow-hidden border-border bg-card">
@@ -189,6 +268,9 @@ export default function ManagerDashboardPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-foreground">Blog Articles & Editorial Posts</h2>
+              <Button onClick={() => setIsAddBlogOpen(true)} variant="primary" size="sm">
+                + Write Blog Post
+              </Button>
             </div>
 
             <Card className="overflow-hidden border-border bg-card">
@@ -231,6 +313,119 @@ export default function ManagerDashboardPage() {
               </Table>
             </Card>
           </div>
+        )}
+
+        {/* TAB 4: STUDENT PROGRESS */}
+        {activeTab === "progress" && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-foreground">Global Student Learning Progress</h2>
+            <Card className="p-6 bg-card border-border space-y-4">
+              <p className="text-xs text-muted">
+                As a Content Manager, you have visibility over student completion metrics across all courses in the platform library.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-surface border border-border space-y-2">
+                  <span className="text-xs font-bold text-foreground">Competitive Programming Complete Track</span>
+                  <ProgressBar value={75} size="sm" showLabel={true} />
+                  <span className="text-[11px] text-muted block">340 active students • 75% average completion</span>
+                </div>
+                <div className="p-4 rounded-xl bg-surface border border-border space-y-2">
+                  <span className="text-xs font-bold text-foreground">Full-Stack ASP.NET 8 & Microservices</span>
+                  <ProgressBar value={60} size="sm" showLabel={true} />
+                  <span className="text-[11px] text-muted block">180 active students • 60% average completion</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* MODAL: ADD COURSE */}
+        {isAddCourseOpen && (
+          <Modal
+            isOpen={isAddCourseOpen}
+            onClose={() => setIsAddCourseOpen(false)}
+            title="Add Platform Course"
+          >
+            <form onSubmit={handleCreateCourse} className="space-y-4">
+              <Input
+                label="Course Title"
+                placeholder="e.g. Graph Theory & Shortest Paths"
+                value={courseTitle}
+                onChange={(e) => setCourseTitle(e.target.value)}
+                required
+              />
+              <Input
+                label="Price (BDT)"
+                type="number"
+                value={coursePrice}
+                onChange={(e) => setCoursePrice(e.target.value)}
+                required
+              />
+              <div>
+                <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                  Category
+                </label>
+                <select
+                  value={courseCategory}
+                  onChange={(e) => setCourseCategory(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-card text-foreground text-xs focus:ring-2 focus:ring-primary/40 focus:outline-none"
+                >
+                  <option value="Competitive Programming">Competitive Programming</option>
+                  <option value="Software Engineering">Software Engineering</option>
+                  <option value="Interview Prep">Interview Prep</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <Button type="submit" variant="primary" size="md">
+                  Create Course
+                </Button>
+              </div>
+            </form>
+          </Modal>
+        )}
+
+        {/* MODAL: ADD BLOG */}
+        {isAddBlogOpen && (
+          <Modal
+            isOpen={isAddBlogOpen}
+            onClose={() => setIsAddBlogOpen(false)}
+            title="Write Blog Post"
+          >
+            <form onSubmit={handleCreateBlog} className="space-y-4">
+              <Input
+                label="Article Title"
+                placeholder="e.g. Mastering Segment Trees with Lazy Propagation"
+                value={blogTitle}
+                onChange={(e) => setBlogTitle(e.target.value)}
+                required
+              />
+              <Input
+                label="Excerpt"
+                placeholder="Brief 1-2 sentence preview..."
+                value={blogExcerpt}
+                onChange={(e) => setBlogExcerpt(e.target.value)}
+              />
+              <div>
+                <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                  Category
+                </label>
+                <select
+                  value={blogCategory}
+                  onChange={(e) => setBlogCategory(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-card text-foreground text-xs focus:ring-2 focus:ring-primary/40 focus:outline-none"
+                >
+                  <option value="Competitive Programming">Competitive Programming</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Interview Prep">Interview Prep</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <Button type="submit" variant="primary" size="md">
+                  Save Draft
+                </Button>
+              </div>
+            </form>
+          </Modal>
         )}
       </DashboardLayout>
     </RoleGuard>
