@@ -45,6 +45,12 @@ export function Header() {
               Quizzes
             </Link>
             <Link
+              href="/blog"
+              className="text-sm font-medium text-foreground/80 hover:text-foreground px-3 py-2 rounded-md hover:bg-surface transition-colors"
+            >
+              Blog
+            </Link>
+            <Link
               href="/about"
               className="text-sm font-medium text-foreground/80 hover:text-foreground px-3 py-2 rounded-md hover:bg-surface transition-colors"
             >
