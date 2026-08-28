@@ -87,12 +87,12 @@ Goal: create Strapi v5 content-types for complete course lifecycle, learning pro
   - [x] Create `Progress` content-type (student relation, lesson relation, course relation, isCompleted, completedAt)
   - **Test**: Relational schemas link students to courses and lesson completion state. (Passed)
 
-- [ ] **Phase 3.3 — Quiz & Assessment Schemas**
-  - [ ] Create `Quiz` content-type (title, slug, timeLimitMinutes, passingScore, course relation, questions relation)
-  - [ ] Create `Question` content-type (quiz relation, prompt, options JSON, correctAnswer index, explanation, points)
-  - [ ] Create `QuizAttempt` content-type (student relation, quiz relation, score, passed, submittedAnswers, submittedAt)
-  - [ ] Create `BlogPost` content-type (title, slug, excerpt, content, coverImageUrl, category relation, author relation)
-  - **Test**: Strapi schemas validate required fields and link questions to quizzes and attempts to students.
+- [x] **Phase 3.3 — Quiz & Assessment Schemas**
+  - [x] Create `Quiz` content-type (title, slug, timeLimitMinutes, passingScore, course relation, questions relation)
+  - [x] Create `Question` content-type (quiz relation, prompt, options JSON, correctAnswer index, explanation, points)
+  - [x] Create `QuizAttempt` content-type (student relation, quiz relation, score, passed, submittedAnswers, submittedAt)
+  - [x] Create `BlogPost` content-type (title, slug, excerpt, content, coverImageUrl, category relation, author relation)
+  - **Test**: Strapi schemas validate required fields and link questions to quizzes and attempts to students. (Passed)
 
 ---
 
