@@ -1,88 +1,53 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/Card";
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
 import { CourseCard } from "@/components/courses/CourseCard";
-
-const CATEGORIES = [
-  {
-    name: "Competitive Programming",
-    slug: "competitive-programming",
-    courseCount: 14,
-    description: "C++, STL, Number Theory, Dynamic Programming, and Graph Algorithms for ICPC & Codeforces.",
-  },
-  {
-    name: "Data Structures & Algorithms",
-    slug: "dsa",
-    courseCount: 18,
-    description: "Trees, Graphs, Sorting, Searching, Bit Manipulation, and Complexity Analysis.",
-  },
-  {
-    name: "Full-Stack Web Development",
-    slug: "full-stack-web",
-    courseCount: 22,
-    description: "Modern Next.js 16, React 19, Node.js, Strapi v5, and REST/GraphQL APIs.",
-  },
-  {
-    name: "Database Systems & SQL",
-    slug: "database-systems",
-    courseCount: 9,
-    description: "PostgreSQL, Neon, query optimization, indexing, and transactional data integrity.",
-  },
-];
-
-const FEATURED_COURSES = [
-  {
-    id: 1,
-    title: "Complete Competitive Programming Bootcamp",
-    slug: "competitive-programming-bootcamp",
-    category: "Competitive Programming",
-    instructor: "Wasif Hasan",
-    difficulty: "Intermediate",
-    lessonsCount: 42,
-    quizzesCount: 8,
-    price: 49.99,
-    isPopular: true,
-  },
-  {
-    id: 2,
-    title: "Mastering Data Structures & Algorithms with C++",
-    slug: "mastering-dsa-cpp",
-    category: "Data Structures",
-    instructor: "Sharif Ahmed",
-    difficulty: "All Levels",
-    lessonsCount: 56,
-    quizzesCount: 12,
-    price: 39.99,
-    isPopular: false,
-  },
-  {
-    id: 3,
-    title: "Full-Stack Web Engineering with Next.js 16 & Strapi",
-    slug: "full-stack-nextjs-strapi",
-    category: "Web Development",
-    instructor: "CPS Team",
-    difficulty: "Advanced",
-    lessonsCount: 38,
-    quizzesCount: 6,
-    price: 59.99,
-    isPopular: true,
-  },
-  {
-    id: 4,
-    title: "Graph Theory & Dynamic Programming Masterclass",
-    slug: "graph-theory-dp-masterclass",
-    category: "Competitive Programming",
-    instructor: "Wasif Hasan",
-    difficulty: "Advanced",
-    lessonsCount: 30,
-    quizzesCount: 6,
-    price: 44.99,
-    isPopular: false,
-  },
-];
+import { api } from "@/lib/api";
 
 export default function Home() {
+  const [featuredCourses, setFeaturedCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadHomeData() {
+      setIsLoading(true);
+      try {
+        const [courseRes, catRes] = await Promise.all([
+          api
+            .get(
+              "/courses?populate[modules][populate]=lessons&populate[quizzes]=*&populate[category]=*&populate[instructor]=*&populate[enrollments]=*"
+            )
+            .catch(() => null),
+          api.get("/categories").catch(() => null),
+        ]);
+
+        if (Array.isArray(courseRes?.data)) {
+          setFeaturedCourses(courseRes.data);
+        } else if (courseRes?.data) {
+          setFeaturedCourses([courseRes.data]);
+        } else {
+          setFeaturedCourses([]);
+        }
+
+        if (Array.isArray(catRes?.data)) {
+          setCategories(catRes.data);
+        } else {
+          setCategories([]);
+        }
+      } catch (err) {
+        console.warn("Could not fetch home data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadHomeData();
+  }, []);
+
   return (
     <div className="w-full flex flex-col transition-colors duration-200">
       {/* 1. HERO SECTION */}
@@ -91,7 +56,7 @@ export default function Home() {
           <div className="max-w-3xl space-y-6">
             <div className="inline-flex items-center gap-2">
               <Badge variant="highlight" size="sm">
-                CPS Academy 2026
+                CPS Academy
               </Badge>
               <span className="text-xs font-medium text-muted">
                 Structured Computer Science & Competitive Programming
@@ -119,15 +84,15 @@ export default function Home() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-border">
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-foreground">100%</span>
-                <span className="text-xs text-muted">Structured Syllabus</span>
+                <span className="text-xs text-muted">Curated Tracks</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-foreground">Interactive</span>
-                <span className="text-xs text-muted">YouTube Video Player</span>
+                <span className="text-lg font-bold text-foreground">Active</span>
+                <span className="text-xs text-muted">Quiz Engine</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-foreground">Timed</span>
-                <span className="text-xs text-muted">Automated Quizzes</span>
+                <span className="text-lg font-bold text-foreground">Direct</span>
+                <span className="text-xs text-muted">Mentor Guidance</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-foreground">Verified</span>
@@ -139,51 +104,53 @@ export default function Home() {
       </section>
 
       {/* 2. FEATURED CATEGORIES */}
-      <section className="py-16 bg-background border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-            <div>
-              <Badge variant="surface" size="sm" className="mb-2">
-                Curated Taxonomies
-              </Badge>
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-                Browse by Category
-              </h2>
+      {categories.length > 0 && (
+        <section className="py-16 bg-background border-b border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+              <div>
+                <Badge variant="surface" size="sm" className="mb-2">
+                  Curated Taxonomies
+                </Badge>
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+                  Browse by Category
+                </h2>
+              </div>
+              <Link
+                href="/courses"
+                className="text-sm font-semibold text-secondary hover:text-foreground transition-colors inline-flex items-center gap-1"
+              >
+                View all tracks →
+              </Link>
             </div>
-            <Link
-              href="/categories"
-              className="text-sm font-semibold text-secondary hover:text-foreground transition-colors inline-flex items-center gap-1"
-            >
-              View all categories →
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {CATEGORIES.map((category) => (
-              <Card key={category.slug} hoverable className="flex flex-col justify-between">
-                <CardHeader>
-                  <div className="w-10 h-10 rounded-lg bg-surface text-foreground font-bold flex items-center justify-center mb-3">
-                    {category.name.charAt(0)}
-                  </div>
-                  <CardTitle as="h3">{category.name}</CardTitle>
-                  <CardDescription>{category.description}</CardDescription>
-                </CardHeader>
-                <CardFooter className="justify-between">
-                  <span className="text-xs font-semibold text-secondary">
-                    {category.courseCount} Courses
-                  </span>
-                  <Link
-                    href={`/courses?category=${category.slug}`}
-                    className="text-xs font-medium text-foreground hover:text-secondary transition-colors"
-                  >
-                    Explore →
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {categories.map((category) => (
+                <Card key={category.documentId || category.id} hoverable className="flex flex-col justify-between">
+                  <CardHeader>
+                    <div className="w-10 h-10 rounded-lg bg-surface text-foreground font-bold flex items-center justify-center mb-3">
+                      {category.name?.charAt(0) || "C"}
+                    </div>
+                    <CardTitle as="h3">{category.name}</CardTitle>
+                    <CardDescription>{category.description || "Structured learning path and problem sets."}</CardDescription>
+                  </CardHeader>
+                  <CardFooter className="justify-between">
+                    <span className="text-xs font-semibold text-secondary">
+                      Active Track
+                    </span>
+                    <Link
+                      href={`/courses?category=${category.slug || category.documentId || category.id}`}
+                      className="text-xs font-medium text-foreground hover:text-secondary transition-colors"
+                    >
+                      Explore →
+                    </Link>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 3. FEATURED COURSES */}
       <section className="py-16 bg-surface border-b border-border">
@@ -205,11 +172,36 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {FEATURED_COURSES.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((n) => (
+                <div
+                  key={n}
+                  className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between"
+                >
+                  <div className="w-full h-48 bg-surface border-b border-border" />
+                  <div className="p-5 space-y-3">
+                    <div className="flex justify-between">
+                      <div className="w-20 h-4 bg-surface rounded" />
+                      <div className="w-16 h-4 bg-surface rounded" />
+                    </div>
+                    <div className="w-full h-6 bg-surface rounded" />
+                    <div className="w-32 h-4 bg-surface rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : featuredCourses.length === 0 ? (
+            <div className="p-12 text-center text-muted text-sm border border-dashed border-border rounded-xl">
+              No courses currently published on the platform.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredCourses.map((course) => (
+                <CourseCard key={course.documentId || course.id} course={course} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
