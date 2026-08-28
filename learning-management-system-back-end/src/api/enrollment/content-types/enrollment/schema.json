@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "enrollments",
+  "info": {
+    "singularName": "enrollment",
+    "pluralName": "enrollments",
+    "displayName": "Enrollment",
+    "description": "LMS Course Enrollment Schema"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "enrolledAt": {
+      "type": "datetime"
+    },
+    "progressPercentage": {
+      "type": "decimal",
+      "default": 0.00
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["active", "completed", "cancelled"],
+      "default": "active"
+    }
+  }
+}
