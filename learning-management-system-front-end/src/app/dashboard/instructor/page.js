@@ -32,6 +32,23 @@ export default function InstructorOverviewPage() {
     );
   }
 
+  // Transform activities into table rows with contextual subroute links
+  const tableRows = instructorActivities.map((a) => {
+    let href = "/dashboard/instructor/curriculum";
+    if (a.action === "STUDENT_ENROLLED") {
+      href = "/dashboard/instructor/progress";
+    }
+    return {
+      id: a.id,
+      item: a.title,
+      user: a.timestamp,
+      category: a.badgeText,
+      status: a.action === "STUDENT_ENROLLED" ? "Active" : "Updated",
+      actionLabel: "View",
+      href,
+    };
+  });
+
   return (
     <div className="space-y-6">
       {/* KPI Grid */}
@@ -56,11 +73,10 @@ export default function InstructorOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <GrowthLineChart
-            title="Student Enrollment Trend in Your Tracks"
+            title="Student Enrollment Trend"
             subtitle="Cumulative learner registrations across your courses"
             dataPoints={instructorActivities}
-            metricLabel="Enrolled"
-            color="primary"
+            metricLabel="Enrollments"
           />
         </div>
         <div>
@@ -75,9 +91,11 @@ export default function InstructorOverviewPage() {
 
       {/* Activity Feed */}
       <ActivityTable
-        title="Student Learning & Roster Activity"
-        subtitle="Live feed of student enrollments and curriculum updates"
-        activities={instructorActivities}
+        title="Teaching Activity"
+        subtitle="Student enrollments and curriculum updates"
+        columns={["EVENT", "DATE", "TYPE", "STATUS", "ACTION"]}
+        data={tableRows}
+        emptyMessage="No teaching activity recorded yet."
       />
     </div>
   );
