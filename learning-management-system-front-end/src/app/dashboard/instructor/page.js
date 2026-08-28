@@ -21,7 +21,7 @@ const DEFAULT_LMS_CATEGORIES = [
   { id: 5, name: "Web Development", slug: "web-development" },
 ];
 
-export default function TeacherDashboardPage() {
+export default function InstructorDashboardPage() {
   const { user, token } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -137,7 +137,7 @@ export default function TeacherDashboardPage() {
         setEnrollments([]);
       }
     } catch (err) {
-      console.error("Failed to load teacher dashboard data:", err);
+      console.error("Failed to load instructor dashboard data:", err);
     } finally {
       setIsLoadingData(false);
     }
