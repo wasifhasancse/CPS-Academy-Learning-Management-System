@@ -1,9 +1,11 @@
 const variantStyles = {
-  primary: "bg-primary text-white dark:bg-secondary dark:text-white",
+  primary: "bg-primary text-white dark:bg-secondary dark:text-[#091413] font-semibold",
   secondary: "bg-secondary text-white",
-  highlight: "bg-highlight text-[#213C51] font-semibold",
-  surface: "bg-surface text-foreground",
+  highlight: "bg-highlight text-[#091413] font-bold",
+  surface: "bg-surface text-foreground border border-border",
   outline: "border border-border text-muted",
+  danger: "bg-red-500/10 text-red-500 border border-red-500/20 font-semibold",
+  success: "bg-[#285A48]/10 text-[#285A48] dark:bg-[#B0E4CC]/10 dark:text-[#B0E4CC] border border-[#285A48]/20 font-semibold",
 };
 
 const sizeStyles = {
