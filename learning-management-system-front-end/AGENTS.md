@@ -43,7 +43,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 5. **Routing & Authentication**:
    - Unauthenticated routes: `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password`, and `/auth/callback/google` (Google OAuth exchange).
    - "Continue with Google" triggers Strapi Users & Permissions Google provider (`/api/connect/google`).
-   - Authenticated role dashboards: `/dashboard/student/*`, `/dashboard/teacher/*`, `/dashboard/manager/*`, `/dashboard/admin/*`.
+   - Authenticated role dashboards: `/dashboard/student/*`, `/dashboard/instructor/*`, `/dashboard/manager/*`, `/dashboard/admin/*`.
    - Next.js 16 Proxy (`src/proxy.js`) and client `RoleGuard` guard `/dashboard/*` (redirecting unauthenticated requests to `/auth/login?redirect=...`) and strictly isolate role dashboards.
 6. **Code Standards**:
    - Strict TypeScript/JSDoc types; zero tolerance for `any`.

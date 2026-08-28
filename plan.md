@@ -36,7 +36,7 @@ Goal: configure PostgreSQL for Strapi v5 backend, initialize Next.js 16 frontend
 
 ## Phase 2: Authentication & Multi-Role RBAC
 
-Goal: implement secure authentication and establish 4-tier role-based access control (Student, Teacher, Content Manager, Admin).
+Goal: implement secure authentication and establish 4-tier role-based access control (Student, Instructor, Content Manager, Admin).
 
 - [x] **Phase 2.1 — Strapi Roles & Permissions & Google OAuth Setup**
   - [x] Define and configure the 4 core roles in Strapi: `Admin`, `Content Manager`, `Instructor`, `Student`
@@ -55,7 +55,7 @@ Goal: implement secure authentication and establish 4-tier role-based access con
   - [x] Create Google OAuth callback page at `/auth/callback/google` to receive JWT and user profile from Strapi
   - [x] Securely store JWT tokens in localStorage and dynamic session context
   - [x] Create `useAuth` hook and authentication context for current user state and role
-  - [x] On successful login/registration/OAuth, automatically redirect user to `/dashboard/[role]` (`/dashboard/student`, `/dashboard/teacher`, `/dashboard/manager`, `/dashboard/admin`)
+  - [x] On successful login/registration/OAuth, automatically redirect user to `/dashboard/[role]` (`/dashboard/student`, `/dashboard/instructor`, `/dashboard/manager`, `/dashboard/admin`)
   - **Test**: User can register/log in via email/password or Google OAuth, receive JWT session, view role dashboard, and log out cleanly. (Passed)
 
 - [x] **Phase 2.3 — Route Protection & Middleware**
@@ -63,11 +63,11 @@ Goal: implement secure authentication and establish 4-tier role-based access con
   - [x] Redirect unauthenticated users visiting `/dashboard/*` to `/auth/login?redirect=[targetUrl]`
   - [x] For authenticated users visiting root `/dashboard`, automatically redirect to their respective role dashboard:
     - Student -> `/dashboard/student`
-    - Instructor -> `/dashboard/teacher`
+    - Instructor -> `/dashboard/instructor`
     - Content Manager -> `/dashboard/manager`
     - Admin -> `/dashboard/admin`
   - [x] Enforce strict role boundary: `RoleGuard` blocks cross-role access and displays a friendly 403 Forbidden screen
-  - **Test**: Direct navigation to `/dashboard/admin` or `/dashboard/teacher` as a Student enforces role guard. (Passed)
+  - **Test**: Direct navigation to `/dashboard/admin` or `/dashboard/instructor` as a Student enforces role guard. (Passed)
 
 ---
 
@@ -98,14 +98,14 @@ Goal: create Strapi v5 content-types for complete course lifecycle, learning pro
 
 ## Phase 4: Course Management & Moderation Engine
 
-Goal: build authoring workflows for Teachers and review/publishing pipelines for Content Managers and Admins.
+Goal: build authoring workflows for Instructors and review/publishing pipelines for Content Managers and Admins.
 
-- [ ] **Phase 4.1 — Teacher Course Authoring Workspace**
-  - [ ] Create Teacher Course List & Creation wizard (`/dashboard/teacher/courses`)
+- [ ] **Phase 4.1 — Instructor Course Authoring Workspace**
+  - [ ] Create Instructor Course List & Creation wizard (`/dashboard/instructor/courses`)
   - [ ] Implement Module & Lesson organizer (drag-and-drop or order indexing)
   - [ ] Add YouTube video URL validator and preview component
   - [ ] Add resource attachment uploader for lesson materials
-  - **Test**: Teacher can create a draft course with structured modules and lessons.
+  - **Test**: Instructor can create a draft course with structured modules and lessons.
 
 - [ ] **Phase 4.2 — Content Manager Moderation Queue**
   - [ ] Create Content Manager review dashboard (`/dashboard/manager/review`)
@@ -148,13 +148,13 @@ Goal: deliver a high-quality learning experience with course discovery, YouTube 
 
 ## Phase 6: Quiz System & Assessment Engine
 
-Goal: build a secure, interactive quiz system for student testing and teacher assessment.
+Goal: build a secure, interactive quiz system for student testing and instructor assessment.
 
-- [ ] **Phase 6.1 — Teacher Quiz Builder**
-  - [ ] Create Quiz Creation interface (`/dashboard/teacher/quizzes/new` and `/dashboard/teacher/courses/[id]/quizzes`)
+- [ ] **Phase 6.1 — Instructor Quiz Builder**
+  - [ ] Create Quiz Creation interface (`/dashboard/instructor/quizzes/new` and `/dashboard/instructor/courses/[id]/quizzes`)
   - [ ] Build Question Editor supporting Multiple Choice and True/False questions
   - [ ] Set correct answers, score weight per question, time limit, and passing score
-  - **Test**: Teacher can create and save a quiz with multiple questions.
+  - **Test**: Instructor can create and save a quiz with multiple questions.
 
 - [ ] **Phase 6.2 — Secure Student Quiz Runner**
   - [ ] Create Student Quiz landing view with instructions, duration, and passing requirements (`/dashboard/student/quizzes/[id]`)
@@ -168,10 +168,10 @@ Goal: build a secure, interactive quiz system for student testing and teacher as
   - [ ] Render detailed Quiz Result page with score breakdown, review of answers, and explanations (`/dashboard/student/quizzes/[id]/result`)
   - **Test**: Submitting quiz computes correct grade and updates student quiz history.
 
-- [ ] **Phase 6.4 — Teacher Quiz Analytics**
-  - [ ] Create Teacher Quiz Analytics dashboard (`/dashboard/teacher/quizzes/[id]/analytics`)
+- [ ] **Phase 6.4 — Instructor Quiz Analytics**
+  - [ ] Create Instructor Quiz Analytics dashboard (`/dashboard/instructor/quizzes/[id]/analytics`)
   - [ ] Display pass rate, average score, attempt count, and question difficulty breakdown
-  - **Test**: Teacher can inspect class-wide quiz statistics.
+  - **Test**: Instructor can inspect class-wide quiz statistics.
 
 ---
 
@@ -198,15 +198,15 @@ Goal: integrate Stripe checkout for secure course purchases with webhook-verifie
 
 ---
 
-## Phase 8: Teacher & Content Manager Dashboards
+## Phase 8: Instructor & Content Manager Dashboards
 
 Goal: provide dedicated workspaces for instructors and content curators.
 
-- [ ] **Phase 8.1 — Teacher Dashboard**
-  - [ ] Dashboard overview (`/dashboard/teacher`): total courses, total enrolled students, total earnings, active quizzes
-  - [ ] Student Roster view (`/dashboard/teacher/students`): list students enrolled in teacher's courses with progress indicators
+- [ ] **Phase 8.1 — Instructor Dashboard**
+  - [ ] Dashboard overview (`/dashboard/instructor`): total courses, total enrolled students, total earnings, active quizzes
+  - [ ] Student Roster view (`/dashboard/instructor/students`): list students enrolled in instructor's courses with progress indicators
   - [ ] Quick actions to add lessons or create new quizzes
-  - **Test**: Teacher dashboard displays accurate aggregated statistics for assigned courses.
+  - **Test**: Instructor dashboard displays accurate aggregated statistics for assigned courses.
 
 - [ ] **Phase 8.2 — Content Manager Dashboard**
   - [ ] Dashboard overview (`/dashboard/manager`): courses pending review, newly published courses, category distribution
@@ -222,7 +222,7 @@ Goal: build a comprehensive administration portal for managing users, roles, pla
 
 - [ ] **Phase 9.1 — User & Role Management**
   - [ ] Admin User Management table (`/dashboard/admin/users`) with search, role filtering, and status badges
-  - [ ] Role switcher action: promote/demote users between Student, Teacher, Content Manager, and Admin
+  - [ ] Role switcher action: promote/demote users between Student, Instructor, Content Manager, and Admin
   - [ ] Account activation / deactivation controls
   - **Test**: Admin can update a user's role and the user receives updated permissions on next request.
 
@@ -260,14 +260,14 @@ Goal: keep users informed of key lifecycle events via in-app alerts and transact
 Goal: validate security, reliability, performance, and responsive design across all roles.
 
 - [ ] **Phase 11.1 — Security & RBAC Invariant Testing**
-  - [ ] Test student cannot access unauthorized video URLs or teacher dashboard routes (`/dashboard/teacher/*`)
+  - [ ] Test student cannot access unauthorized video URLs or instructor dashboard routes (`/dashboard/instructor/*`)
   - [ ] Test quiz answers are never returned in pre-submission API responses
   - [ ] Test order creation rejects client-modified amounts
   - **Test**: Automated security probes verify all role boundaries hold.
 
 - [ ] **Phase 11.2 — Full Journey E2E Validation**
   - [ ] Test Student journey: `/auth/register` → Browse → Buy Course (Stripe) → Watch Lessons → Complete Quiz → View Certificate
-  - [ ] Test Teacher journey: Login → `/dashboard/teacher` → Create Course → Upload YouTube Lessons → Add Quiz → Review Submissions
+  - [ ] Test Instructor journey: Login → `/dashboard/instructor` → Create Course → Upload YouTube Lessons → Add Quiz → Review Submissions
   - [ ] Test Content Manager journey: Login → `/dashboard/manager` → Review Draft Course → Approve → Publish to Catalog
   - [ ] Test Admin journey: Login → `/dashboard/admin` → Manage Roles → Inspect Transactions → Audit Platform Health
   - **Test**: All user journeys complete without errors across desktop and mobile screen sizes.

@@ -10,7 +10,7 @@ This project has a graphify knowledge graph at graphify-out/.
 
 ## Project Overview: CPS Academy Learning Management System (LMS)
 
-CPS Academy is a comprehensive Learning Management System built for students, teachers, content managers, and administrators.
+CPS Academy is a comprehensive Learning Management System built for students, instructors, content managers, and administrators.
 
 ### Core Roles & Permission Matrix
 
@@ -71,7 +71,7 @@ CPS Academy is a comprehensive Learning Management System built for students, te
   - Always use atomic, reusable UI components (`src/components/ui/`); never duplicate similar component implementations.
 - **Routing Conventions**:
   - Unauthenticated auth routes: `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password`.
-  - Authenticated role dashboards: `/dashboard/student`, `/dashboard/teacher`, `/dashboard/manager`, `/dashboard/admin`.
+  - Authenticated role dashboards: `/dashboard/student`, `/dashboard/instructor`, `/dashboard/manager`, `/dashboard/admin`.
   - Next.js middleware enforces auth guards on `/dashboard/*` (redirecting unauthenticated users to `/auth/login?redirect=...`) and strictly isolates role dashboards.
 - **State & Data Fetching**: Server Components for SEO/prefetching + Client Components for interactive video player and quiz engine.
 - **Video Delivery**: Responsive YouTube embed player with progress checkpoints, duration tracking, and resource trays.
