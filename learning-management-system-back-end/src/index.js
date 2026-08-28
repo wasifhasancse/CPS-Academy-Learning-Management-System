@@ -58,6 +58,52 @@ const DEFAULT_CATEGORIES = [
 ];
 
 /**
+ * CPS Academy Default Published Blog Posts
+ */
+const DEFAULT_BLOGS = [
+  {
+    title: 'How to Reach Candidate Master on Codeforces in 6 Months',
+    slug: 'how-to-reach-candidate-master-on-codeforces',
+    excerpt:
+      'A structured roadmap covering dynamic programming, graph theory, and contest strategies from CPS Academy coaches.',
+    content: `## The Journey to Candidate Master
+
+Reaching **Candidate Master (1900+ rating)** on Codeforces requires moving beyond basic syntax to mastering advanced problem-solving techniques.
+
+### 1. Master Core Data Structures
+- Segment Trees with Lazy Propagation
+- Disjoint Set Union (DSU) with Rollbacks
+- Trie and Suffix Automaton
+
+### 2. Deepen Dynamic Programming Intuition
+- Digit DP and Tree DP
+- Bitmask DP with SOS optimizations
+- Matrix Exponentiation for recurrence relations
+
+### 3. Practice Strategy
+Solve 5 problems above your current rating every week and rigorously upsolve contest problems you couldn't solve during the live round.`,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200',
+  },
+  {
+    title: 'Building Resilient Microservices with Clean Architecture',
+    slug: 'building-resilient-microservices-clean-architecture',
+    excerpt:
+      'Key architectural patterns for designing fault-tolerant, scalable distributed systems.',
+    content: `## Scalable Architecture Principles
+
+Designing microservices requires strict boundary enforcement, idempotent APIs, and robust messaging brokers.
+
+### Key Tenets
+1. **Domain-Driven Design (DDD)**: Separate bounded contexts cleanly.
+2. **Outbox Pattern**: Ensure reliable message delivery to message queues without distributed locks.
+3. **Circuit Breakers**: Gracefully handle downstream service degradation.`,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200',
+  },
+];
+
+/**
  * Essential Permissions by Role Scope
  */
 const PUBLIC_ACTIONS = [
@@ -216,7 +262,29 @@ module.exports = {
         }
       }
 
-      // 3. Fetch updated roles list
+      // 3. Seed Default Sample Blog Posts if none exist
+      const existingBlogs = await strapi.db.query('api::blog-post.blog-post').findMany();
+      if (existingBlogs.length === 0) {
+        strapi.log.info('[Bootstrap] Seeding sample published blog posts...');
+        const cpCat = await strapi.db.query('api::category.category').findOne({
+          where: { slug: 'competitive-programming' },
+        });
+        for (const blog of DEFAULT_BLOGS) {
+          await strapi.documents('api::blog-post.blog-post').create({
+            data: {
+              title: blog.title,
+              slug: blog.slug,
+              excerpt: blog.excerpt,
+              content: blog.content,
+              coverImageUrl: blog.coverImageUrl,
+              category: cpCat ? cpCat.id : undefined,
+              publishedAt: new Date(),
+            },
+          });
+        }
+      }
+
+      // 4. Fetch updated roles list
       const allRoles = await strapi.db.query('plugin::users-permissions.role').findMany();
       const studentRole = allRoles.find(
         (r) => r.type === 'student' || r.name.toLowerCase() === 'student'
@@ -227,7 +295,7 @@ module.exports = {
         name: 'users-permissions',
       });
 
-      // 4. Configure Advanced Registration & Default Role settings
+      // 5. Configure Advanced Registration & Default Role settings
       const advancedSettings = (await pluginStore.get({ key: 'advanced' })) || {};
       const targetType = studentRole?.type || 'student';
 
@@ -239,7 +307,7 @@ module.exports = {
         strapi.log.info(`[Bootstrap] Set default_role to: "${targetType}", registration enabled.`);
       }
 
-      // 5. Configure & Enable Providers strictly via environment variables
+      // 6. Configure & Enable Providers strictly via environment variables
       const grantConfig = (await pluginStore.get({ key: 'grant' })) || {};
       const serverUrl =
         process.env.PUBLIC_URL ||
@@ -280,7 +348,7 @@ module.exports = {
         strapi.log.info('[Bootstrap] Users-Permissions providers updated from environment.');
       }
 
-      // 6. Fast In-Memory Bulk Permission Verification
+      // 7. Fast In-Memory Bulk Permission Verification
       const existingPermissions = await strapi.db
         .query('plugin::users-permissions.permission')
         .findMany({ populate: ['role'] });
