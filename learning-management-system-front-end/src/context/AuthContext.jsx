@@ -29,11 +29,35 @@ export function getRoleDashboardPath(roleName) {
 
 export function AuthProvider({ children }) {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize authentication state and handle OAuth callback tokens from URL
+  // Instant hydration from localStorage
+  const [token, setToken] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("cps_jwt") || null;
+    }
+    return null;
+  });
+
+  const [user, setUser] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("cps_user");
+        return saved ? JSON.parse(saved) : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !localStorage.getItem("cps_jwt");
+    }
+    return true;
+  });
+
+  // Background token verification & OAuth callback handler
   useEffect(() => {
     async function initAuth() {
       if (typeof window === "undefined") {
@@ -62,6 +86,7 @@ export function AuthProvider({ children }) {
             ...(fullUser || {}),
             roleName: fullUser?.role?.name || "Student",
           };
+          localStorage.setItem("cps_user", JSON.stringify(resolvedUser));
           setUser(resolvedUser);
           window.history.replaceState({}, document.title, window.location.pathname);
           const target = getRoleDashboardPath(resolvedUser.roleName);
@@ -95,6 +120,7 @@ export function AuthProvider({ children }) {
               ...(fullUser || res.user),
               roleName: fullUser?.role?.name || res.user?.role?.name || "Student",
             };
+            localStorage.setItem("cps_user", JSON.stringify(resolvedUser));
             setUser(resolvedUser);
             window.history.replaceState({}, document.title, window.location.pathname);
             const target = getRoleDashboardPath(resolvedUser.roleName);
@@ -107,7 +133,7 @@ export function AuthProvider({ children }) {
         }
       }
 
-      // Case 3: Regular existing session verification from localStorage
+      // Case 3: Verify existing token in background without blocking UI
       const storedToken = localStorage.getItem("cps_jwt");
       if (!storedToken) {
         setIsLoading(false);
@@ -122,11 +148,13 @@ export function AuthProvider({ children }) {
             ...me,
             roleName: me?.role?.name || "Student",
           };
+          localStorage.setItem("cps_user", JSON.stringify(resolvedUser));
           setUser(resolvedUser);
         }
       } catch (err) {
-        console.error("Auth session expired or invalid:", err);
+        console.warn("Session expired or invalid:", err);
         localStorage.removeItem("cps_jwt");
+        localStorage.removeItem("cps_user");
         setToken(null);
         setUser(null);
       } finally {
@@ -149,19 +177,27 @@ export function AuthProvider({ children }) {
         localStorage.setItem("cps_jwt", jwt);
         setToken(jwt);
 
-        let fullUser = null;
-        try {
-          fullUser = await api.get("/users/me?populate=role", { token: jwt });
-        } catch (err) {
-          console.warn("Could not fetch /users/me, using auth response user profile:", err);
-          fullUser = response.user;
+        let resolvedRole = response.user?.role?.name;
+        let fullUser = response.user;
+
+        // If role not populated in local auth response, fetch user with role
+        if (!resolvedRole) {
+          try {
+            fullUser = await api.get("/users/me?populate=role", { token: jwt });
+            resolvedRole = fullUser?.role?.name;
+          } catch {
+            resolvedRole = "Student";
+          }
         }
 
         const resolvedUser = {
           ...(fullUser || response.user),
-          roleName: fullUser?.role?.name || response.user?.role?.name || "Student",
+          roleName: resolvedRole || "Student",
         };
+
+        localStorage.setItem("cps_user", JSON.stringify(resolvedUser));
         setUser(resolvedUser);
+        setIsLoading(false);
 
         const target = getRoleDashboardPath(resolvedUser.roleName);
         router.push(target);
@@ -185,19 +221,26 @@ export function AuthProvider({ children }) {
         localStorage.setItem("cps_jwt", jwt);
         setToken(jwt);
 
-        let fullUser = null;
-        try {
-          fullUser = await api.get("/users/me?populate=role", { token: jwt });
-        } catch (err) {
-          console.warn("Could not fetch /users/me, using registration user profile:", err);
-          fullUser = response.user;
+        let resolvedRole = response.user?.role?.name;
+        let fullUser = response.user;
+
+        if (!resolvedRole) {
+          try {
+            fullUser = await api.get("/users/me?populate=role", { token: jwt });
+            resolvedRole = fullUser?.role?.name;
+          } catch {
+            resolvedRole = "Student";
+          }
         }
 
         const resolvedUser = {
           ...(fullUser || response.user),
-          roleName: fullUser?.role?.name || response.user?.role?.name || role || "Student",
+          roleName: resolvedRole || "Student",
         };
+
+        localStorage.setItem("cps_user", JSON.stringify(resolvedUser));
         setUser(resolvedUser);
+        setIsLoading(false);
 
         const target = getRoleDashboardPath(resolvedUser.roleName);
         router.push(target);
@@ -224,7 +267,10 @@ export function AuthProvider({ children }) {
         ...(fullUser || {}),
         roleName: fullUser?.role?.name || "Student",
       };
+
+      localStorage.setItem("cps_user", JSON.stringify(resolvedUser));
       setUser(resolvedUser);
+      setIsLoading(false);
 
       const target = getRoleDashboardPath(resolvedUser.roleName);
       router.push(target);
@@ -235,6 +281,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem("cps_jwt");
+    localStorage.removeItem("cps_user");
     setToken(null);
     setUser(null);
     router.push("/auth/login");
