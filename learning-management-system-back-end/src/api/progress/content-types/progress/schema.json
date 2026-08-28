@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "progresses",
+  "info": {
+    "singularName": "progress",
+    "pluralName": "progresses",
+    "displayName": "Progress",
+    "description": "LMS Student Lesson Progress Schema"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "isCompleted": {
+      "type": "boolean",
+      "default": false
+    },
+    "completedAt": {
+      "type": "datetime"
+    }
+  }
+}
