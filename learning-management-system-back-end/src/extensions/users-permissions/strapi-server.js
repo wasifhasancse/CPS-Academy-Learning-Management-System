@@ -40,7 +40,7 @@ module.exports = (plugin) => {
     let targetRoleType = 'student';
     if (requestedRole && typeof requestedRole === 'string') {
       const normalized = requestedRole.toLowerCase().trim();
-      if (normalized === 'instructor' || normalized === 'teacher') {
+      if (normalized === 'instructor') {
         targetRoleType = 'instructor';
       }
     }

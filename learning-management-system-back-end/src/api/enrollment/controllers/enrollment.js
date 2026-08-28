@@ -5,7 +5,7 @@ const { createCoreController } = require('@strapi/strapi').factories;
 const isInstructor = (user) => {
   const roleType = (user?.role?.type || '').toLowerCase();
   const roleName = (user?.role?.name || '').toLowerCase();
-  return roleType === 'instructor' || roleName === 'instructor' || roleName === 'teacher';
+  return roleType === 'instructor' || roleName === 'instructor';
 };
 
 const isAdminOrManager = (user) => {
