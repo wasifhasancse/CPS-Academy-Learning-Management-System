@@ -16,7 +16,10 @@ export default function AdminDashboardPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [roleModalUser, setRoleModalUser] = useState(null);
 
+  // Mock State for Platform Management
   const [usersList, setUsersList] = useState([
     { id: 1, name: "Admin", email: "admin@cpsacademy.io", role: "Admin", status: "Active" },
     { id: 2, name: "Mohaimin", email: "mohaimin@cpsacademy.io", role: "Instructor", status: "Active" },
@@ -47,9 +50,14 @@ export default function AdminDashboardPage() {
     },
   ]);
 
-  const [selectedApp, setSelectedApp] = useState(null);
-  const [roleModalUser, setRoleModalUser] = useState(null);
+  const [coursesList, setCoursesList] = useState([
+    { id: 1, title: "Competitive Programming Complete Track", instructor: "Mohaimin", category: "CP", price: 4000, students: 340, status: "Published" },
+    { id: 2, title: "Job Interview Preparation & FAANG Cracking", instructor: "Arafat", category: "Interview", price: 6000, students: 210, status: "Published" },
+    { id: 3, title: "Full-Stack ASP.NET 8 & Microservices", instructor: "Mohaimin", category: ".NET", price: 5500, students: 180, status: "Published" },
+    { id: 4, title: "Advanced Graph Algorithms & Dynamic Programming", instructor: "Arafat", category: "Algorithms", price: 3500, students: 95, status: "Draft" },
+  ]);
 
+  // Handlers
   const handleToggleBlock = (userId) => {
     setUsersList((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, status: u.status === "Active" ? "Blocked" : "Active" } : u))
@@ -69,6 +77,12 @@ export default function AdminDashboardPage() {
     setRoleModalUser(null);
   };
 
+  const handleDemoteTrainer = (userId) => {
+    setUsersList((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: "Student" } : u))
+    );
+  };
+
   const handleApproveApp = (appId) => {
     const app = applications.find((a) => a.id === appId);
     if (app) {
@@ -86,12 +100,7 @@ export default function AdminDashboardPage() {
     setSelectedApp(null);
   };
 
-  const handleDemoteTrainer = (userId) => {
-    setUsersList((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, role: "Student" } : u))
-    );
-  };
-
+  // Nav Items
   const navItems = [
     {
       id: "overview",
@@ -130,6 +139,24 @@ export default function AdminDashboardPage() {
         </svg>
       ),
     },
+    {
+      id: "courses",
+      label: "Manage Classes",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      ),
+    },
+    {
+      id: "transactions",
+      label: "Transactions",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+      ),
+    },
   ];
 
   const filteredUsers = usersList.filter(
@@ -149,6 +176,7 @@ export default function AdminDashboardPage() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       >
+        {/* TAB 1: OVERVIEW */}
         {activeTab === "overview" && (
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-foreground">Admin Overview</h2>
@@ -174,7 +202,7 @@ export default function AdminDashboardPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="text-2xl font-extrabold text-foreground">9</span>
+                  <span className="text-2xl font-extrabold text-foreground">{coursesList.length}</span>
                   <span className="text-xs font-semibold text-muted block">Approved Classes</span>
                 </div>
               </Card>
@@ -186,7 +214,7 @@ export default function AdminDashboardPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="text-2xl font-extrabold text-foreground">6</span>
+                  <span className="text-2xl font-extrabold text-foreground">12</span>
                   <span className="text-xs font-semibold text-muted block">Transactions</span>
                 </div>
               </Card>
@@ -312,6 +340,14 @@ export default function AdminDashboardPage() {
                               Make Admin
                             </Button>
                           )}
+                          <Button
+                            onClick={() => setRoleModalUser(u)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs py-1"
+                          >
+                            Change Role
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -403,6 +439,90 @@ export default function AdminDashboardPage() {
                       </TableCell>
                     </TableRow>
                   ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
+        )}
+
+        {/* TAB 5: MANAGE CLASSES / COURSES */}
+        {activeTab === "courses" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-foreground">Manage Classes & Courses</h2>
+              <Badge variant="surface" size="sm">
+                {coursesList.length} Total
+              </Badge>
+            </div>
+            <Card className="overflow-hidden border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Course Title</TableHead>
+                    <TableHead>Instructor</TableHead>
+                    <TableHead>Fee</TableHead>
+                    <TableHead>Students</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {coursesList.map((c) => (
+                    <TableRow key={c.id}>
+                      <TableCell className="font-bold text-xs text-foreground">{c.title}</TableCell>
+                      <TableCell className="text-xs text-muted">{c.instructor}</TableCell>
+                      <TableCell className="text-xs font-bold text-foreground">{c.price} BDT</TableCell>
+                      <TableCell className="text-xs text-muted">{c.students}</TableCell>
+                      <TableCell>
+                        <Badge variant={c.status === "Published" ? "success" : "surface"} size="sm">
+                          {c.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
+        )}
+
+        {/* TAB 6: TRANSACTIONS */}
+        {activeTab === "transactions" && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-foreground">Stripe Payment Transactions</h2>
+            <Card className="overflow-hidden border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Transaction ID</TableHead>
+                    <TableHead>Learner</TableHead>
+                    <TableHead>Course</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="text-xs font-mono text-muted">txn_1Qk49A...</TableCell>
+                    <TableCell className="text-xs font-bold text-foreground">Aileen Anderson</TableCell>
+                    <TableCell className="text-xs text-muted">Competitive Programming Track</TableCell>
+                    <TableCell className="text-xs font-bold text-foreground">4,000 BDT</TableCell>
+                    <TableCell>
+                      <Badge variant="success" size="sm">
+                        Paid
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="text-xs font-mono text-muted">txn_1Qk48B...</TableCell>
+                    <TableCell className="text-xs font-bold text-foreground">Arin Sarkar</TableCell>
+                    <TableCell className="text-xs text-muted">Full-Stack ASP.NET 8</TableCell>
+                    <TableCell className="text-xs font-bold text-foreground">5,500 BDT</TableCell>
+                    <TableCell>
+                      <Badge variant="success" size="sm">
+                        Paid
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </Card>
