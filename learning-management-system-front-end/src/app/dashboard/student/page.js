@@ -34,6 +34,23 @@ export default function StudentOverviewPage() {
     );
   }
 
+  // Transform activities into table rows with contextual subroute links
+  const tableRows = studentActivities.map((a) => {
+    let href = "/dashboard/student/courses";
+    if (a.action === "QUIZ_EVALUATION") {
+      href = "/dashboard/student/quizzes";
+    }
+    return {
+      id: a.id,
+      item: a.title,
+      user: a.timestamp,
+      category: a.badgeText,
+      status: a.action === "COURSE_ENROLLED" ? "Active" : a.badgeText === "PASSED" ? "Completed" : "Pending",
+      actionLabel: "View",
+      href,
+    };
+  });
+
   return (
     <div className="space-y-6">
       {/* Student Study Metrics */}
@@ -91,17 +108,16 @@ export default function StudentOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <GrowthLineChart
-            title="Study Milestones & Activity"
-            subtitle="Your course enrollments and checkpoint assessments"
+            title="Study Milestones"
+            subtitle="Your course enrollments and quiz completions"
             dataPoints={studentActivities}
             metricLabel="Milestones"
-            color="primary"
           />
         </div>
         <div>
           <DistributionDonutChart
-            title="Active Syllabus Distribution"
-            subtitle="Categories of your courses"
+            title="Course Distribution"
+            subtitle="Categories of your enrolled courses"
             items={enrolledCourses.length > 0 ? enrolledCourses : catalogCourses}
             categories={categories}
           />
@@ -111,8 +127,10 @@ export default function StudentOverviewPage() {
       {/* Recent Activity Table */}
       <ActivityTable
         title="Your Learning History"
-        subtitle="Chronological log of your course enrollments and evaluation attempts"
-        activities={studentActivities}
+        subtitle="Chronological log of your enrollments and quiz attempts"
+        columns={["EVENT", "DATE", "TYPE", "STATUS", "ACTION"]}
+        data={tableRows}
+        emptyMessage="No learning activity recorded yet. Enroll in a course to get started!"
       />
     </div>
   );
