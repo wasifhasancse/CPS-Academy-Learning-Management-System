@@ -21,6 +21,12 @@ const formatRole = (role) => {
   };
 };
 
+const isAdmin = (user) => {
+  const roleType = (user?.role?.type || '').toLowerCase();
+  const roleName = (user?.role?.name || '').toLowerCase();
+  return roleType === 'admin' || roleName === 'admin';
+};
+
 module.exports = (plugin) => {
   // 1. Custom Register Controller
   plugin.controllers.auth.register = async (ctx) => {
@@ -238,6 +244,150 @@ module.exports = (plugin) => {
       role: formatRole(userWithRole.role),
     };
   };
+
+  // 4. Custom User Find Controller (Admin Only)
+  plugin.controllers.user.find = async (ctx) => {
+    const authUser = ctx.state.user;
+    if (!authUser) {
+      return ctx.unauthorized();
+    }
+    const fullAuthUser = await strapi.db.query('plugin::users-permissions.user').findOne({
+      where: { id: authUser.id },
+      populate: ['role'],
+    });
+    if (!isAdmin(fullAuthUser)) {
+      return ctx.forbidden('Only administrators can view platform users.');
+    }
+
+    const users = await strapi.db.query('plugin::users-permissions.user').findMany({
+      populate: ['role'],
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const sanitizedUsers = await Promise.all(
+      users.map(async (u) => {
+        const sanitized = await sanitizeUser(u, ctx);
+        return {
+          ...sanitized,
+          role: formatRole(u.role),
+        };
+      })
+    );
+
+    ctx.body = sanitizedUsers;
+  };
+
+  // 5. Custom User Update Controller (Admin Only for Role / Block mutation)
+  plugin.controllers.user.update = async (ctx) => {
+    const authUser = ctx.state.user;
+    const targetUserId = ctx.params.id;
+
+    if (!authUser) {
+      return ctx.unauthorized();
+    }
+
+    const fullAuthUser = await strapi.db.query('plugin::users-permissions.user').findOne({
+      where: { id: authUser.id },
+      populate: ['role'],
+    });
+
+    const isUserAdmin = isAdmin(fullAuthUser);
+    const isSelf = String(authUser.id) === String(targetUserId);
+
+    if (!isUserAdmin && !isSelf) {
+      return ctx.forbidden('Access denied.');
+    }
+
+    const body = ctx.request.body || {};
+    const updateData = {};
+
+    if (body.username) updateData.username = body.username.trim();
+    if (body.email) updateData.email = body.email.toLowerCase().trim();
+
+    // Only Admin can change role or blocked status
+    if (isUserAdmin) {
+      if (typeof body.blocked === 'boolean') {
+        updateData.blocked = body.blocked;
+      }
+
+      if (body.role) {
+        let roleId = body.role;
+        if (typeof roleId === 'string' && isNaN(Number(roleId))) {
+          const matchedRole = await strapi.db.query('plugin::users-permissions.role').findOne({
+            where: {
+              $or: [
+                { type: roleId.toLowerCase().trim() },
+                { name: roleId.trim() },
+              ],
+            },
+          });
+          if (matchedRole) {
+            roleId = matchedRole.id;
+          }
+        }
+        updateData.role = Number(roleId) || roleId;
+      }
+    }
+
+    const updatedUser = await strapi.db.query('plugin::users-permissions.user').update({
+      where: { id: targetUserId },
+      data: updateData,
+      populate: ['role'],
+    });
+
+    if (!updatedUser) {
+      return ctx.notFound('User not found.');
+    }
+
+    const sanitized = await sanitizeUser(updatedUser, ctx);
+    ctx.body = {
+      ...sanitized,
+      role: formatRole(updatedUser.role),
+    };
+  };
+
+  // 6. Custom User Destroy Controller (Admin Only)
+  plugin.controllers.user.destroy = async (ctx) => {
+    const authUser = ctx.state.user;
+    const targetUserId = ctx.params.id;
+
+    if (!authUser) {
+      return ctx.unauthorized();
+    }
+
+    const fullAuthUser = await strapi.db.query('plugin::users-permissions.user').findOne({
+      where: { id: authUser.id },
+      populate: ['role'],
+    });
+
+    if (!isAdmin(fullAuthUser)) {
+      return ctx.forbidden('Only administrators can delete user accounts.');
+    }
+
+    const deleted = await strapi.db.query('plugin::users-permissions.user').delete({
+      where: { id: targetUserId },
+    });
+
+    if (!deleted) {
+      return ctx.notFound('User not found.');
+    }
+
+    ctx.body = { message: 'User successfully deleted.' };
+  };
+
+  // 7. Custom Role Controller (Get all roles for Admin assignment)
+  if (plugin.controllers.role) {
+    plugin.controllers.role.find = async (ctx) => {
+      const authUser = ctx.state.user;
+      if (!authUser) {
+        return ctx.unauthorized();
+      }
+      const roles = await strapi.db.query('plugin::users-permissions.role').findMany({
+        orderBy: { name: 'asc' },
+      });
+      ctx.body = { roles: roles.map(formatRole) };
+    };
+  }
 
   return plugin;
 };
