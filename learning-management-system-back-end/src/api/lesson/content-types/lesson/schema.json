@@ -39,6 +39,17 @@
     "isFreePreview": {
       "type": "boolean",
       "default": false
+    },
+    "module": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::module.module",
+      "inversedBy": "lessons"
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course"
     }
   }
 }
