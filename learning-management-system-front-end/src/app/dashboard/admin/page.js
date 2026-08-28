@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
 import { BarChartCard, PieChartCard } from "@/components/ui/ChartCard";
 
@@ -47,6 +48,7 @@ export default function AdminDashboardPage() {
   ]);
 
   const [selectedApp, setSelectedApp] = useState(null);
+  const [roleModalUser, setRoleModalUser] = useState(null);
 
   const handleToggleBlock = (userId) => {
     setUsersList((prev) =>
@@ -58,6 +60,30 @@ export default function AdminDashboardPage() {
     setUsersList((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, role: "Admin" } : u))
     );
+  };
+
+  const handleChangeRole = (userId, newRole) => {
+    setUsersList((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+    );
+    setRoleModalUser(null);
+  };
+
+  const handleApproveApp = (appId) => {
+    const app = applications.find((a) => a.id === appId);
+    if (app) {
+      setUsersList((prev) => [
+        ...prev,
+        { id: Date.now(), name: app.name, email: app.email, role: "Instructor", status: "Active" },
+      ]);
+      setApplications((prev) => prev.filter((a) => a.id !== appId));
+      setSelectedApp(null);
+    }
+  };
+
+  const handleRejectApp = (appId) => {
+    setApplications((prev) => prev.filter((a) => a.id !== appId));
+    setSelectedApp(null);
   };
 
   const navItems = [
@@ -321,6 +347,89 @@ export default function AdminDashboardPage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* MODAL: APPLICATION DETAILS */}
+        {selectedApp && (
+          <Modal
+            isOpen={!!selectedApp}
+            onClose={() => setSelectedApp(null)}
+            title="Application Details"
+          >
+            <div className="space-y-5 text-foreground">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-[11px] font-semibold text-muted block uppercase">Name</span>
+                  <span className="font-bold text-sm">{selectedApp.name}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold text-muted block uppercase">Email</span>
+                  <span className="font-bold text-sm">{selectedApp.email}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold text-muted block uppercase">Specialty</span>
+                  <span className="font-bold text-sm">{selectedApp.specialty}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold text-muted block uppercase">Experience</span>
+                  <span className="font-bold text-sm">{selectedApp.experience}</span>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-[11px] font-semibold text-muted block uppercase mb-1">Bio</span>
+                <p className="text-xs text-foreground/90 p-3 rounded-lg bg-surface leading-relaxed border border-border">
+                  {selectedApp.bio}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                <Button
+                  onClick={() => handleApproveApp(selectedApp.id)}
+                  variant="primary"
+                  size="md"
+                  className="bg-[#285A48] hover:bg-[#1E4336] text-white"
+                >
+                  ✓ Approve
+                </Button>
+                <Button
+                  onClick={() => handleRejectApp(selectedApp.id)}
+                  variant="danger"
+                  size="md"
+                >
+                  ✕ Reject
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        )}
+
+        {/* MODAL: CHANGE ROLE */}
+        {roleModalUser && (
+          <Modal
+            isOpen={!!roleModalUser}
+            onClose={() => setRoleModalUser(null)}
+            title={`Change Role for ${roleModalUser.name}`}
+          >
+            <div className="space-y-4">
+              <p className="text-xs text-muted">
+                Select the target permission role for <strong className="text-foreground">{roleModalUser.email}</strong>:
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {["Admin", "Content Manager", "Instructor", "Student"].map((r) => (
+                  <Button
+                    key={r}
+                    onClick={() => handleChangeRole(roleModalUser.id, r)}
+                    variant={roleModalUser.role === r ? "primary" : "surface"}
+                    size="sm"
+                    className="w-full justify-start text-xs"
+                  >
+                    {r}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </Modal>
         )}
       </DashboardLayout>
     </RoleGuard>
