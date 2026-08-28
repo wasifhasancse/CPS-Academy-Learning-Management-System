@@ -82,10 +82,10 @@ Goal: create Strapi v5 content-types for complete course lifecycle, learning pro
   - [x] Create `Lesson` content-type (title, slug, videoUrl [YouTube], duration, content/notes, resources, order, isFreePreview, module relation)
   - **Test**: Strapi server validates schemas and creates relational tables in Neon PostgreSQL. (Passed)
 
-- [ ] **Phase 3.2 — Enrollment & Progress Schemas**
-  - [ ] Create `Enrollment` content-type (student relation, course relation, enrolledAt, completionStatus, progressPercentage)
-  - [ ] Create `Progress` content-type (student relation, lesson relation, course relation, isCompleted, completedAt)
-  - **Test**: Relational schemas link students to courses and lesson completion state.
+- [x] **Phase 3.2 — Enrollment & Progress Schemas**
+  - [x] Create `Enrollment` content-type (student relation, course relation, enrolledAt, completionStatus, progressPercentage)
+  - [x] Create `Progress` content-type (student relation, lesson relation, course relation, isCompleted, completedAt)
+  - **Test**: Relational schemas link students to courses and lesson completion state. (Passed)
 
 - [ ] **Phase 3.3 — Quiz & Assessment Schemas**
   - [ ] Create `Quiz` content-type (title, slug, timeLimitMinutes, passingScore, course relation, questions relation)
