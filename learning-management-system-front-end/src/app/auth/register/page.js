@@ -14,7 +14,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("Student");
   const [errors, setErrors] = useState({
     username: "",
     email: "",
@@ -108,7 +107,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      await register({ username: username.trim(), email: email.trim(), password, role });
+      await register({ username: username.trim(), email: email.trim(), password });
     } catch (err) {
       const msg = err?.message || "Registration failed.";
       if (msg.toLowerCase().includes("email")) {
@@ -292,37 +291,6 @@ export default function RegisterPage() {
                   )}
                 </div>
               )}
-
-              {/* Account Intended Path */}
-              <div className="flex flex-col gap-1.5 pt-1">
-                <label className="text-xs font-semibold text-foreground uppercase tracking-wide">
-                  Account Type
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setRole("Student")}
-                    className={`px-3 py-2 text-xs font-semibold rounded-lg border text-center transition-colors cursor-pointer ${
-                      role === "Student"
-                        ? "bg-primary text-white border-primary dark:bg-secondary dark:text-white"
-                        : "bg-surface text-foreground border-border hover:bg-border/60"
-                    }`}
-                  >
-                    Student (Learner)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole("Instructor")}
-                    className={`px-3 py-2 text-xs font-semibold rounded-lg border text-center transition-colors cursor-pointer ${
-                      role === "Instructor"
-                        ? "bg-primary text-white border-primary dark:bg-secondary dark:text-white"
-                        : "bg-surface text-foreground border-border hover:bg-border/60"
-                    }`}
-                  >
-                    Instructor (Teacher)
-                  </button>
-                </div>
-              </div>
 
               <Button
                 type="submit"
