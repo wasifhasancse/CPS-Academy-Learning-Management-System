@@ -1,3 +1,5 @@
+'use strict';
+
 /** @import { Core } from '@strapi/strapi' */
 
 const path = require('path');
