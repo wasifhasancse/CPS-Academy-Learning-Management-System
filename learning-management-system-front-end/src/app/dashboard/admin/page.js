@@ -6,11 +6,36 @@ import { useAuth } from "@/context/AuthContext";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
 import { BarChartCard, PieChartCard } from "@/components/ui/ChartCard";
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [usersList, setUsersList] = useState([
+    { id: 1, name: "Admin", email: "admin@cpsacademy.io", role: "Admin", status: "Active" },
+    { id: 2, name: "Mohaimin", email: "mohaimin@cpsacademy.io", role: "Instructor", status: "Active" },
+    { id: 3, name: "Arafat", email: "arafat@cpsacademy.io", role: "Instructor", status: "Active" },
+    { id: 4, name: "Aileen Anderson", email: "aileen@mailinator.com", role: "Student", status: "Active" },
+    { id: 5, name: "Arin Sarkar", email: "arin@gmail.com", role: "Student", status: "Active" },
+    { id: 6, name: "Tanvir Ahmed", email: "tanvir@gmail.com", role: "Student", status: "Blocked" },
+  ]);
+
+  const handleToggleBlock = (userId) => {
+    setUsersList((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, status: u.status === "Active" ? "Blocked" : "Active" } : u))
+    );
+  };
+
+  const handlePromoteToAdmin = (userId) => {
+    setUsersList((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: "Admin" } : u))
+    );
+  };
 
   const navItems = [
     {
@@ -22,7 +47,22 @@ export default function AdminDashboardPage() {
         </svg>
       ),
     },
+    {
+      id: "users",
+      label: "Manage Users",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ),
+    },
   ];
+
+  const filteredUsers = usersList.filter(
+    (u) =>
+      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <RoleGuard allowedRoles={["Admin"]}>
@@ -46,7 +86,7 @@ export default function AdminDashboardPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="text-2xl font-extrabold text-foreground">29</span>
+                  <span className="text-2xl font-extrabold text-foreground">{usersList.length}</span>
                   <span className="text-xs font-semibold text-muted block">Total Users</span>
                 </div>
               </Card>
@@ -114,6 +154,95 @@ export default function AdminDashboardPage() {
                 ]}
               />
             </div>
+          </div>
+        )}
+
+        {/* TAB 2: MANAGE USERS */}
+        {activeTab === "users" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-xl font-bold text-foreground">Manage Users</h2>
+              <div className="w-full sm:w-80">
+                <Input
+                  type="text"
+                  placeholder="Search by name or email..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="text-xs"
+                />
+              </div>
+            </div>
+
+            <Card className="overflow-hidden border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.map((u) => (
+                    <TableRow key={u.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-[#285A48]/20 text-[#285A48] dark:text-[#B0E4CC] font-bold flex items-center justify-center text-xs shrink-0">
+                            {u.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <span className="font-bold text-xs text-foreground block">{u.name}</span>
+                            <span className="text-[11px] text-muted block">{u.email}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={u.role === "Admin" ? "highlight" : u.role === "Instructor" ? "primary" : "surface"}
+                          size="sm"
+                        >
+                          {u.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
+                            u.status === "Active"
+                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                              : "bg-red-500/10 text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {u.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            onClick={() => handleToggleBlock(u.id)}
+                            variant={u.status === "Active" ? "danger" : "surface"}
+                            size="sm"
+                            className="text-xs py-1"
+                          >
+                            {u.status === "Active" ? "Block" : "Unblock"}
+                          </Button>
+                          {u.role !== "Admin" && (
+                            <Button
+                              onClick={() => handlePromoteToAdmin(u.id)}
+                              variant="outline"
+                              size="sm"
+                              className="text-xs py-1"
+                            >
+                              Make Admin
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
           </div>
         )}
       </DashboardLayout>
