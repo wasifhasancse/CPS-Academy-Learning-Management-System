@@ -53,9 +53,14 @@ export function AuthProvider({ children }) {
         try {
           localStorage.setItem("cps_jwt", directJwt);
           setToken(directJwt);
-          const fullUser = await api.get("/users/me?populate=role", { token: directJwt });
+          let fullUser = null;
+          try {
+            fullUser = await api.get("/users/me?populate=role", { token: directJwt });
+          } catch {
+            fullUser = null;
+          }
           const resolvedUser = {
-            ...fullUser,
+            ...(fullUser || {}),
             roleName: fullUser?.role?.name || "Student",
           };
           setUser(resolvedUser);
@@ -81,10 +86,15 @@ export function AuthProvider({ children }) {
             const jwt = res.jwt;
             localStorage.setItem("cps_jwt", jwt);
             setToken(jwt);
-            const fullUser = await api.get("/users/me?populate=role", { token: jwt });
+            let fullUser = null;
+            try {
+              fullUser = await api.get("/users/me?populate=role", { token: jwt });
+            } catch {
+              fullUser = res.user;
+            }
             const resolvedUser = {
-              ...fullUser,
-              roleName: fullUser?.role?.name || "Student",
+              ...(fullUser || res.user),
+              roleName: fullUser?.role?.name || res.user?.role?.name || "Student",
             };
             setUser(resolvedUser);
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -140,10 +150,17 @@ export function AuthProvider({ children }) {
         localStorage.setItem("cps_jwt", jwt);
         setToken(jwt);
 
-        const fullUser = await api.get("/users/me?populate=role", { token: jwt });
+        let fullUser = null;
+        try {
+          fullUser = await api.get("/users/me?populate=role", { token: jwt });
+        } catch (err) {
+          console.warn("Could not fetch /users/me, using auth response user profile:", err);
+          fullUser = response.user;
+        }
+
         const resolvedUser = {
-          ...fullUser,
-          roleName: fullUser?.role?.name || "Student",
+          ...(fullUser || response.user),
+          roleName: fullUser?.role?.name || response.user?.role?.name || "Student",
         };
         setUser(resolvedUser);
 
@@ -157,7 +174,7 @@ export function AuthProvider({ children }) {
   );
 
   const register = useCallback(
-    async ({ username, email, password, role = "Student" }) => {
+    async ({ username, email, password }) => {
       const response = await api.post("/auth/local/register", {
         username,
         email,
@@ -169,10 +186,17 @@ export function AuthProvider({ children }) {
         localStorage.setItem("cps_jwt", jwt);
         setToken(jwt);
 
-        const fullUser = await api.get("/users/me?populate=role", { token: jwt });
+        let fullUser = null;
+        try {
+          fullUser = await api.get("/users/me?populate=role", { token: jwt });
+        } catch (err) {
+          console.warn("Could not fetch /users/me, using registration user profile:", err);
+          fullUser = response.user;
+        }
+
         const resolvedUser = {
-          ...fullUser,
-          roleName: fullUser?.role?.name || role || "Student",
+          ...(fullUser || response.user),
+          roleName: fullUser?.role?.name || response.user?.role?.name || role || "Student",
         };
         setUser(resolvedUser);
 
@@ -190,9 +214,15 @@ export function AuthProvider({ children }) {
       localStorage.setItem("cps_jwt", jwt);
       setToken(jwt);
 
-      const fullUser = await api.get("/users/me?populate=role", { token: jwt });
+      let fullUser = null;
+      try {
+        fullUser = await api.get("/users/me?populate=role", { token: jwt });
+      } catch {
+        fullUser = null;
+      }
+
       const resolvedUser = {
-        ...fullUser,
+        ...(fullUser || {}),
         roleName: fullUser?.role?.name || "Student",
       };
       setUser(resolvedUser);
