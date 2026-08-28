@@ -25,7 +25,18 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
   async find(ctx) {
     const user = ctx.state.user;
 
-    const filters = {};
+    // Support query filters passed from client
+    let queryFilters = ctx.query?.filters || {};
+    if (typeof queryFilters === 'string') {
+      try {
+        queryFilters = JSON.parse(queryFilters);
+      } catch {
+        queryFilters = {};
+      }
+    }
+
+    const filters = { ...queryFilters };
+
     // Only scope by instructor when explicitly querying own courses in instructor dashboard
     if (ctx.query?.myCourses === "true" && user && isInstructor(user) && !isAdminOrManager(user)) {
       filters.instructor = {
@@ -75,9 +86,11 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
 
   async findOne(ctx) {
     const { id } = ctx.params;
+    const decodedId = decodeURIComponent(id || '').trim();
 
-    const course = await strapi.documents('api::course.course').findOne({
-      documentId: id,
+    // 1. Try finding by documentId directly
+    let course = await strapi.documents('api::course.course').findOne({
+      documentId: decodedId,
       populate: {
         modules: {
           populate: ['lessons'],
@@ -91,7 +104,36 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
         category: true,
         instructor: true,
       },
-    });
+    }).catch(() => null);
+
+    // 2. If not found by documentId, search by slug, generated slug, title, or numeric id
+    if (!course) {
+      const slugCandidate = decodedId.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const foundList = await strapi.documents('api::course.course').findMany({
+        filters: {
+          $or: [
+            { slug: decodedId },
+            { slug: slugCandidate },
+            { title: decodedId },
+            ...(isNaN(Number(decodedId)) ? [] : [{ id: Number(decodedId) }]),
+          ],
+        },
+        populate: {
+          modules: {
+            populate: ['lessons'],
+          },
+          quizzes: {
+            populate: ['questions'],
+          },
+          enrollments: {
+            populate: ['student'],
+          },
+          category: true,
+          instructor: true,
+        },
+      });
+      course = foundList?.[0] || null;
+    }
 
     if (!course) {
       throw new NotFoundError('Course not found');

@@ -153,3 +153,7 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 ### 11. Structured UI Empty States Across Dashboards and Catalogs
 - **Issue**: Using bare plain text for empty lists or searches degrades user experience and leaves users without next-step guidance.
 - **Prevention Rule**: Use the standardized `<EmptyState>` component with relevant icons, explanatory titles, contextual descriptions, and actionable creation or filter-reset buttons across all dashboard tabs, table views, and catalog pages.
+
+### 12. Table Primitives Prop Forwarding (`colSpan`, `rowSpan`, event handlers)
+- **Issue**: Omitting `...props` in custom table wrappers like `<TableCell>` silently drops attributes such as `colSpan={6}`, causing empty state rows or multi-column cells to collapse into the first column rather than spanning the full width of the table.
+- **Prevention Rule**: Always forward `...props` across primitive UI wrappers (`Table`, `TableHeader`, `TableBody`, `TableHead`, `TableRow`, `TableCell`) so HTML attributes like `colSpan`, `rowSpan`, `scope`, and event handlers are passed through to the native elements.

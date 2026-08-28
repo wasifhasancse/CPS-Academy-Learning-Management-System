@@ -11,7 +11,8 @@ import { api } from "@/lib/api";
 
 export default function CourseDetailPage({ params }) {
   const resolvedParams = use(params);
-  const slug = resolvedParams?.slug;
+  const rawSlug = resolvedParams?.slug;
+  const slug = rawSlug ? decodeURIComponent(rawSlug).trim() : "";
   const router = useRouter();
 
   const { user, role, token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -26,23 +27,67 @@ export default function CourseDetailPage({ params }) {
 
   useEffect(() => {
     async function loadCourse() {
+      if (!slug) {
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       try {
-        // Find course by slug or id
-        const res = await api.get(
-          `/courses?filters[slug][$eq]=${encodeURIComponent(slug)}&populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments][populate]=student`
-        ).catch(() => null);
+        let foundCourse = null;
+        const normalizedSlug = slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
-        let foundCourse = res?.data?.[0];
+        // 1. Try direct findOne endpoint (supports documentId, slug, title, id)
+        const directRes = await api
+          .get(
+            `/courses/${encodeURIComponent(slug)}?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments][populate]=student`
+          )
+          .catch(() => null);
 
-        // If not found by slug, try searching by documentId
-        if (!foundCourse) {
-          const directRes = await api
+        if (directRes?.data && !Array.isArray(directRes.data)) {
+          foundCourse = directRes.data;
+        }
+
+        // 2. Try normalized slug if direct with raw slug didn't return
+        if (!foundCourse && normalizedSlug && normalizedSlug !== slug) {
+          const normRes = await api
             .get(
-              `/courses/${slug}?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments][populate]=student`
+              `/courses/${encodeURIComponent(normalizedSlug)}?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments][populate]=student`
             )
             .catch(() => null);
-          foundCourse = directRes?.data;
+
+          if (normRes?.data && !Array.isArray(normRes.data)) {
+            foundCourse = normRes.data;
+          }
+        }
+
+        // 3. If still not found, fetch courses catalog and match specifically against slug, documentId, id, or title
+        if (!foundCourse) {
+          const listRes = await api
+            .get(
+              `/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments][populate]=student`
+            )
+            .catch(() => null);
+
+          const allCourses = Array.isArray(listRes?.data) ? listRes.data : [];
+          foundCourse = allCourses.find((c) => {
+            if (!c) return false;
+            const cSlug = (c.slug || "").toLowerCase();
+            const cTitle = (c.title || "").toLowerCase();
+            const cTitleSlug = cTitle.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+            const cDocId = (c.documentId || "").toLowerCase();
+            const cId = String(c.id || "").toLowerCase();
+            const target = slug.toLowerCase();
+
+            return (
+              cSlug === target ||
+              cSlug === normalizedSlug ||
+              cDocId === target ||
+              cId === target ||
+              cTitle === target ||
+              cTitleSlug === normalizedSlug ||
+              cTitleSlug === target
+            );
+          }) || null;
         }
 
         if (foundCourse) {
@@ -58,17 +103,18 @@ export default function CourseDetailPage({ params }) {
             );
             setIsEnrolled(hasEnrollment);
           }
+        } else {
+          setCourse(null);
         }
       } catch (err) {
         console.error("Failed to load course details:", err);
+        setCourse(null);
       } finally {
         setIsLoading(false);
       }
     }
 
-    if (slug) {
-      loadCourse();
-    }
+    loadCourse();
   }, [slug, user]);
 
   const handleStudentEnroll = async () => {

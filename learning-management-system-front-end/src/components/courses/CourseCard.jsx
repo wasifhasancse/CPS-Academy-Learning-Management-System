@@ -12,7 +12,7 @@ export function CourseCard({ course }) {
   const categoryName =
     course.category?.name ||
     (typeof course.category === "string" ? course.category : "Programming");
-  
+
   // Real instructor attribution from database relation or creator
   const instructorName =
     course.instructor?.username ||
@@ -30,14 +30,14 @@ export function CourseCard({ course }) {
     course.lessonsCount !== undefined
       ? course.lessonsCount
       : course.modules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) ||
-        (Array.isArray(course.lessons) ? course.lessons.length : 0);
+      (Array.isArray(course.lessons) ? course.lessons.length : 0);
 
   const quizzesCount =
     course.quizzesCount !== undefined
       ? course.quizzesCount
       : Array.isArray(course.quizzes)
-      ? course.quizzes.length
-      : 0;
+        ? course.quizzes.length
+        : 0;
 
   return (
     <div className="group rounded-2xl border border-border bg-card overflow-hidden flex flex-col justify-between hover:border-secondary transition-colors duration-200 shadow-sm">
