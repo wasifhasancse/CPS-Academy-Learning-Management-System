@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { api } from "@/lib/api";
 
 export default function BlogListPage() {
@@ -125,11 +126,33 @@ export default function BlogListPage() {
           ))}
         </div>
       ) : filteredBlogs.length === 0 ? (
-        <div className="p-16 text-center text-muted text-sm border border-dashed border-border rounded-xl">
-          {search || selectedCategory !== "all"
-            ? "No published articles matching your search criteria."
-            : "No blog articles published yet on the platform."}
-        </div>
+        <EmptyState
+          icon={
+            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+          }
+          title="No Matching Articles Found"
+          description={
+            search || selectedCategory !== "all"
+              ? "No published engineering articles match your active search terms or category filter."
+              : "No blog articles have been published yet on CPS Academy. Check back soon!"
+          }
+          action={
+            (search || selectedCategory !== "all") && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearch("");
+                  setSelectedCategory("all");
+                }}
+              >
+                Clear Search & Filters
+              </Button>
+            )
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredBlogs.map((blog) => {
