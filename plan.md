@@ -139,6 +139,13 @@ Goal: build responsive public navigation, course catalog discovery with real-tim
   - [x] Alumni quotes, before-and-after rating trajectories, and verification badges
   - **Test**: Filter tabs switch story categories interactively. (Passed)
 
+- [x] **Phase 4.6 — Standardized Course Card & ImgBB Media Upload Engine**
+  - [x] Built reusable `CourseCard` component (`src/components/courses/CourseCard.jsx`) with image banner, prominent category typography, difficulty/lesson counter, instructor attribution, tuition, and CTA
+  - [x] Updated Home page (`src/app/page.js`) and Courses catalog page (`src/app/courses/page.js`) to use the unified `CourseCard`
+  - [x] Built ImgBB upload utility (`src/lib/imgbb.js`) and `ImageUpload` component (`src/components/ui/ImageUpload.jsx`) using API key `07e805fdc8a1c6855e37aa4218e8f967`
+  - [x] Integrated image upload/edit into Admin, Content Manager, and Instructor course creation & editing modals with database URL persistence (`thumbnailUrl`)
+  - **Test**: Direct image upload to ImgBB stores image URL in Strapi and renders thumbnails on cards. (Passed)
+
 ---
 
 ## Phase 5: Multi-Role Dashboards & Control Center
