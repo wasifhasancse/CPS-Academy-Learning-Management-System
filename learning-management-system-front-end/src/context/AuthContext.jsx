@@ -29,43 +29,17 @@ export function getRoleDashboardPath(roleName) {
 
 export function AuthProvider({ children }) {
   const router = useRouter();
-
-  // Instant hydration from localStorage
-  const [token, setToken] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("cps_jwt") || null;
-    }
-    return null;
-  });
-
-  const [user, setUser] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("cps_user");
-        return saved ? JSON.parse(saved) : null;
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
-
-  const [isLoading, setIsLoading] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !localStorage.getItem("cps_jwt");
-    }
-    return true;
-  });
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   // Background token verification & OAuth callback handler
   useEffect(() => {
-    async function initAuth() {
-      if (typeof window === "undefined") {
-        setIsLoading(false);
-        return;
-      }
+    setMounted(true);
 
-      // Check if redirected from Strapi Google OAuth with tokens in query params
+    async function initAuth() {
+      // 1. Check if redirected from Strapi Google OAuth with tokens in query params
       const searchParams = new URLSearchParams(window.location.search);
       const directJwt = searchParams.get("jwt");
       const accessToken = searchParams.get("access_token") || searchParams.get("raw[access_token]");
@@ -133,15 +107,30 @@ export function AuthProvider({ children }) {
         }
       }
 
-      // Case 3: Verify existing token in background without blocking UI
+      // Case 3: Read cached storage immediately to avoid layout flicker
       const storedToken = localStorage.getItem("cps_jwt");
+      const storedUser = localStorage.getItem("cps_user");
+
+      if (storedToken) {
+        setToken(storedToken);
+      }
+
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+          setIsLoading(false);
+        } catch {
+          // ignore corrupted JSON
+        }
+      }
+
       if (!storedToken) {
         setIsLoading(false);
         return;
       }
 
+      // Background verification with backend server
       try {
-        setToken(storedToken);
         const me = await api.get("/users/me?populate=role", { token: storedToken });
         if (me) {
           const resolvedUser = {
@@ -180,7 +169,6 @@ export function AuthProvider({ children }) {
         let resolvedRole = response.user?.role?.name;
         let fullUser = response.user;
 
-        // If role not populated in local auth response, fetch user with role
         if (!resolvedRole) {
           try {
             fullUser = await api.get("/users/me?populate=role", { token: jwt });
@@ -293,6 +281,7 @@ export function AuthProvider({ children }) {
     role: user?.roleName || null,
     isAuthenticated: Boolean(user && token),
     isLoading,
+    mounted,
     login,
     register,
     logout,
