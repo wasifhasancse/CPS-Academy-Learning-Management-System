@@ -7,37 +7,37 @@
   --font-roboto: 'Roboto', sans-serif;
 
   /* Brand Palette (Constant) */
-  --primary: #213C51;
-  --secondary: #6594B1;
-  --highlight: #DDAED3;
+  --primary: #285A48;
+  --secondary: #408A71;
+  --highlight: #B0E4CC;
 
   /* Base Light Theme */
   --background: #FFFFFF;
-  --foreground: #213C51;
-  --surface: #EEEEEE;
+  --foreground: #091413;
+  --surface: #F0F7F4;
   --card: #FFFFFF;
-  --card-foreground: #213C51;
-  --border: #DDE3EA;
-  --muted: #5A7184;
+  --card-foreground: #091413;
+  --border: #D4E7DF;
+  --muted: #4D6D63;
 
   /* Footer Colors */
-  --footer-bg: #213C51;
-  --footer-fg: #FFFFFF;
+  --footer-bg: #091413;
+  --footer-fg: #F0F7F4;
 }
 
 .dark {
   /* Base Dark Theme */
-  --background: #101F2B;
-  --foreground: #EEEEEE;
-  --surface: #162938;
-  --card: #162938;
-  --card-foreground: #EEEEEE;
-  --border: #243D50;
-  --muted: #9BB8CB;
+  --background: #091413;
+  --foreground: #F0F7F4;
+  --surface: #122421;
+  --card: #122421;
+  --card-foreground: #F0F7F4;
+  --border: #1E3A33;
+  --muted: #82A79B;
 
   /* Footer Colors (Dark Mode) */
-  --footer-bg: #0C1822;
-  --footer-fg: #EEEEEE;
+  --footer-bg: #050B0A;
+  --footer-fg: #F0F7F4;
 }
 
 @theme inline {
