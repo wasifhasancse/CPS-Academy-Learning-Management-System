@@ -8,70 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { CourseCard } from "@/components/courses/CourseCard";
 import { api } from "@/lib/api";
 
-const FALLBACK_COURSES = [
-  {
-    id: 1,
-    title: "Complete Competitive Programming Bootcamp",
-    slug: "competitive-programming-bootcamp",
-    description: "Master C++, STL, Number Theory, Dynamic Programming, and Graph Algorithms for ICPC & Codeforces.",
-    price: 4500,
-    difficulty: "Intermediate",
-    thumbnailUrl: "https://images.unsplash.com/photo-1516116211227-bbc2416b2505?w=600",
-    category: { name: "Competitive Programming", slug: "competitive-programming" },
-    instructor: { username: "Wasif Hasan" },
-    modules: [{ lessons: [1, 2, 3, 4, 5, 6, 7, 8] }],
-    quizzes: [1, 2, 3],
-    enrollments: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-  },
-  {
-    id: 2,
-    title: "Data Structures & Algorithms with C++",
-    slug: "dsa-cpp-mastery",
-    description: "In-depth intuition and implementation for Trees, Graphs, Sorting, Searching, and Complexity Analysis.",
-    price: 3800,
-    difficulty: "Beginner",
-    thumbnailUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600",
-    category: { name: "Data Structures & Algorithms", slug: "dsa" },
-    instructor: { username: "Sharif Ahmed" },
-    modules: [{ lessons: [1, 2, 3, 4, 5, 6] }],
-    quizzes: [1, 2],
-    enrollments: [1, 2, 3, 4, 5],
-  },
-  {
-    id: 3,
-    title: "Full-Stack Web Engineering with Next.js 16 & Strapi v5",
-    slug: "fullstack-nextjs-strapi",
-    description: "Production-ready full-stack web applications with React 19, Server Components, Neon PostgreSQL, and Stripe.",
-    price: 5200,
-    difficulty: "Advanced",
-    thumbnailUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600",
-    category: { name: "Web Development", slug: "web-development" },
-    instructor: { username: "CPS Engineering" },
-    modules: [{ lessons: [1, 2, 3, 4, 5, 6, 7] }],
-    quizzes: [1, 2],
-    enrollments: [1, 2, 3, 4, 5, 6, 7, 8],
-  },
-  {
-    id: 4,
-    title: "System Design & Distributed Architecture",
-    slug: "system-design-distributed-systems",
-    description: "Architect scalable, fault-tolerant backend systems, microservices, and event-driven architectures.",
-    price: 6000,
-    difficulty: "Advanced",
-    thumbnailUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600",
-    category: { name: "System Design & Architecture", slug: "system-design" },
-    instructor: { username: "Wasif Hasan" },
-    modules: [{ lessons: [1, 2, 3, 4, 5] }],
-    quizzes: [1],
-    enrollments: [1, 2, 3, 4],
-  },
-];
-
 function CoursesCatalogContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
 
-  const [courses, setCourses] = useState(FALLBACK_COURSES);
+  const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -88,24 +29,39 @@ function CoursesCatalogContent() {
 
   useEffect(() => {
     async function loadCatalog() {
+      setIsLoading(true);
       try {
         const [courseRes, catRes] = await Promise.all([
           api
             .get(
               "/courses?populate[modules][populate]=lessons&populate[quizzes]=*&populate[category]=*&populate[instructor]=*&populate[enrollments]=*"
             )
-            .catch(() => null),
-          api.get("/categories").catch(() => null),
+            .catch((err) => {
+              console.warn("Failed to fetch courses:", err);
+              return null;
+            }),
+          api.get("/categories").catch((err) => {
+            console.warn("Failed to fetch categories:", err);
+            return null;
+          }),
         ]);
 
-        if (Array.isArray(courseRes?.data) && courseRes.data.length > 0) {
+        if (Array.isArray(courseRes?.data)) {
           setCourses(courseRes.data);
+        } else if (courseRes?.data) {
+          setCourses([courseRes.data]);
+        } else {
+          setCourses([]);
         }
-        if (Array.isArray(catRes?.data) && catRes.data.length > 0) {
+
+        if (Array.isArray(catRes?.data)) {
           setCategories(catRes.data);
+        } else {
+          setCategories([]);
         }
       } catch (err) {
-        console.warn("Could not fetch courses from backend API:", err);
+        console.error("Error loading courses:", err);
+        setCourses([]);
       } finally {
         setIsLoading(false);
       }
@@ -125,7 +81,9 @@ function CoursesCatalogContent() {
       const catMatch =
         selectedCategory === "all" ||
         c.category?.slug === selectedCategory ||
-        c.category?.name === selectedCategory;
+        c.category?.name === selectedCategory ||
+        c.category?.documentId === selectedCategory ||
+        String(c.category?.id) === selectedCategory;
 
       const diffMatch =
         selectedDifficulty === "all" ||
@@ -217,7 +175,7 @@ function CoursesCatalogContent() {
           {categories.map((cat) => (
             <Button
               key={cat.documentId || cat.id}
-              variant={selectedCategory === cat.slug ? "primary" : "outline"}
+              variant={selectedCategory === (cat.slug || cat.name) ? "primary" : "outline"}
               size="sm"
               onClick={() => setSelectedCategory(cat.slug || cat.name)}
               className="text-xs flex-shrink-0"
@@ -229,9 +187,34 @@ function CoursesCatalogContent() {
       </div>
 
       {/* Course Cards Grid */}
-      {filteredCourses.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((n) => (
+            <div
+              key={n}
+              className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between"
+            >
+              <div className="w-full h-48 bg-surface border-b border-border" />
+              <div className="p-5 space-y-3">
+                <div className="flex justify-between">
+                  <div className="w-20 h-4 bg-surface rounded" />
+                  <div className="w-16 h-4 bg-surface rounded" />
+                </div>
+                <div className="w-full h-6 bg-surface rounded" />
+                <div className="w-32 h-4 bg-surface rounded" />
+                <div className="pt-4 border-t border-border flex justify-between items-center">
+                  <div className="w-16 h-6 bg-surface rounded" />
+                  <div className="w-24 h-8 bg-surface rounded" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredCourses.length === 0 ? (
         <div className="p-16 text-center text-muted text-sm border border-dashed border-border rounded-xl">
-          No courses found matching your search query or filter criteria.
+          {search || selectedCategory !== "all" || selectedDifficulty !== "all"
+            ? "No courses found matching your search query or filter criteria."
+            : "No courses currently available on the platform."}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
