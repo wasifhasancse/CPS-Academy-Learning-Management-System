@@ -25,6 +25,29 @@ export default function AdminDashboardPage() {
     { id: 6, name: "Tanvir Ahmed", email: "tanvir@gmail.com", role: "Student", status: "Blocked" },
   ]);
 
+  const [applications, setApplications] = useState([
+    {
+      id: 1,
+      name: "Shafiqul Islam",
+      email: "shafiq@gmail.com",
+      specialty: "Competitive Programming",
+      experience: "5 years",
+      bio: "Codeforces Master with extensive ICPC coaching experience. Seeking to author CP track modules.",
+      status: "Pending",
+    },
+    {
+      id: 2,
+      name: "Nusrat Jahan",
+      email: "nusrat@dev.com",
+      specialty: "ASP.NET & Clean Architecture",
+      experience: "4 years",
+      bio: "Senior backend developer working with .NET 8, CQRS, and Azure microservices.",
+      status: "Pending",
+    },
+  ]);
+
+  const [selectedApp, setSelectedApp] = useState(null);
+
   const handleToggleBlock = (userId) => {
     setUsersList((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, status: u.status === "Active" ? "Blocked" : "Active" } : u))
@@ -53,6 +76,16 @@ export default function AdminDashboardPage() {
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ),
+    },
+    {
+      id: "applications",
+      label: "Trainer Applications",
+      badge: applications.length > 0 ? applications.length : null,
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       ),
     },
@@ -243,6 +276,50 @@ export default function AdminDashboardPage() {
                 </TableBody>
               </Table>
             </Card>
+          </div>
+        )}
+
+        {/* TAB 3: TRAINER APPLICATIONS */}
+        {activeTab === "applications" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-foreground">Trainer Applications</h2>
+              <Badge variant="surface" size="sm">
+                {applications.length} Pending
+              </Badge>
+            </div>
+
+            {applications.length === 0 ? (
+              <Card className="p-8 text-center border-dashed">
+                <p className="text-xs text-muted">No pending instructor applications at this time.</p>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {applications.map((app) => (
+                  <Card key={app.id} className="p-5 bg-card border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-extrabold text-sm text-foreground">{app.name}</h3>
+                        <Badge variant="highlight" size="sm">
+                          {app.specialty}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted">{app.email} • {app.experience} experience</p>
+                      <p className="text-xs text-foreground/80 line-clamp-1">{app.bio}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => setSelectedApp(app)}
+                        variant="primary"
+                        size="sm"
+                      >
+                        👁 View Details
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </DashboardLayout>
