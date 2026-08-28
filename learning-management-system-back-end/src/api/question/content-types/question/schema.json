@@ -16,6 +16,17 @@
       "type": "text",
       "required": true
     },
+    "options": {
+      "type": "json",
+      "required": true
+    },
+    "correctAnswer": {
+      "type": "integer",
+      "required": true
+    },
+    "explanation": {
+      "type": "text"
+    },
     "points": {
       "type": "integer",
       "default": 1
