@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "questions",
+  "info": {
+    "singularName": "question",
+    "pluralName": "questions",
+    "displayName": "Question",
+    "description": "LMS Quiz Question Schema"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "prompt": {
+      "type": "text",
+      "required": true
+    },
+    "points": {
+      "type": "integer",
+      "default": 1
+    },
+    "quiz": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::quiz.quiz",
+      "inversedBy": "questions"
+    }
+  }
+}
