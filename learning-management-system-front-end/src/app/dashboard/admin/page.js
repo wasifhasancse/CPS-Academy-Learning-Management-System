@@ -86,6 +86,12 @@ export default function AdminDashboardPage() {
     setSelectedApp(null);
   };
 
+  const handleDemoteTrainer = (userId) => {
+    setUsersList((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: "Student" } : u))
+    );
+  };
+
   const navItems = [
     {
       id: "overview",
@@ -115,6 +121,15 @@ export default function AdminDashboardPage() {
         </svg>
       ),
     },
+    {
+      id: "trainers",
+      label: "Manage Trainers",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+    },
   ];
 
   const filteredUsers = usersList.filter(
@@ -122,6 +137,8 @@ export default function AdminDashboardPage() {
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       u.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const trainersList = usersList.filter((u) => u.role === "Instructor" || u.role === "Admin");
 
   return (
     <RoleGuard allowedRoles={["Admin"]}>
@@ -346,6 +363,49 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* TAB 4: MANAGE TRAINERS */}
+        {activeTab === "trainers" && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-foreground">Manage Trainers & Instructors</h2>
+            <Card className="overflow-hidden border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Trainer</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {trainersList.map((tr) => (
+                    <TableRow key={tr.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-[#285A48] text-white font-bold flex items-center justify-center text-xs">
+                            {tr.name.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="font-bold text-xs text-foreground">{tr.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted">{tr.email}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          onClick={() => handleDemoteTrainer(tr.id)}
+                          variant="danger"
+                          size="sm"
+                          className="text-xs py-1"
+                        >
+                          Demote to User
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
           </div>
         )}
 
