@@ -8,9 +8,24 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
+
 export default function ManagerDashboardPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+
+  const [courses, setCourses] = useState([
+    { id: 1, title: "Competitive Programming Complete Track", instructor: "Mohaimin", category: "CP", price: 4000, lessonsCount: 14, status: "Published" },
+    { id: 2, title: "Job Interview Preparation & FAANG Cracking", instructor: "Arafat", category: "Interview", price: 6000, lessonsCount: 10, status: "Published" },
+    { id: 3, title: "Full-Stack ASP.NET 8 & Microservices", instructor: "Mohaimin", category: ".NET", price: 5500, lessonsCount: 12, status: "Published" },
+    { id: 4, title: "Advanced Graph Algorithms & Dynamic Programming", instructor: "Arafat", category: "Algorithms", price: 3500, lessonsCount: 8, status: "Draft" },
+  ]);
+
+  const handleToggleCourseStatus = (id) => {
+    setCourses((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, status: c.status === "Published" ? "Draft" : "Published" } : c))
+    );
+  };
 
   const navItems = [
     {
@@ -19,6 +34,15 @@ export default function ManagerDashboardPage() {
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+      ),
+    },
+    {
+      id: "courses",
+      label: "Content Library",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
       ),
     },
@@ -87,6 +111,55 @@ export default function ManagerDashboardPage() {
                 </div>
               </Card>
             </div>
+          </div>
+        )}
+
+        {/* TAB 2: CONTENT LIBRARY */}
+        {activeTab === "courses" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-foreground">All Platform Courses</h2>
+            </div>
+
+            <Card className="overflow-hidden border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Course Title</TableHead>
+                    <TableHead>Instructor</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Lessons</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {courses.map((c) => (
+                    <TableRow key={c.id}>
+                      <TableCell className="font-bold text-xs text-foreground">{c.title}</TableCell>
+                      <TableCell className="text-xs text-muted">{c.instructor}</TableCell>
+                      <TableCell className="text-xs font-bold text-foreground">{c.price} BDT</TableCell>
+                      <TableCell className="text-xs text-muted">{c.lessonsCount} lessons</TableCell>
+                      <TableCell>
+                        <Badge variant={c.status === "Published" ? "success" : "surface"} size="sm">
+                          {c.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          onClick={() => handleToggleCourseStatus(c.id)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs py-1"
+                        >
+                          {c.status === "Published" ? "Unpublish" : "Publish"}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
           </div>
         )}
       </DashboardLayout>
