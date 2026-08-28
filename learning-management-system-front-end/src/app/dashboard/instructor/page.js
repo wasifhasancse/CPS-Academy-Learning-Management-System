@@ -104,7 +104,7 @@ export default function InstructorDashboardPage() {
       // 1. Fetch instructor's courses with nested modules, lessons, quizzes, and enrollments
       try {
         const coursesRes = await api.get(
-          "/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[enrollments][populate]=student&populate[category]=*",
+          "/courses?myCourses=true&populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[enrollments][populate]=student&populate[category]=*",
           { token }
         );
         const fetchedCourses = Array.isArray(coursesRes?.data)
@@ -202,6 +202,7 @@ export default function InstructorDashboardPage() {
           difficulty: courseDifficulty,
           description: courseDescription,
           category: courseCategory || undefined,
+          instructor: user?.id || undefined,
         },
       };
       await api.post("/courses", payload, { token });

@@ -232,6 +232,7 @@ export default function ManagerDashboardPage() {
           difficulty: courseDifficulty,
           description: courseDescription,
           category: courseCategory || undefined,
+          instructor: user?.id || undefined,
         },
       };
       await api.post("/courses", payload, { token });
