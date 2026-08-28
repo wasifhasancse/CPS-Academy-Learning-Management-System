@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
 export function CourseCard({ course }) {
   if (!course) return null;
@@ -10,24 +11,37 @@ export function CourseCard({ course }) {
   const slug = course.slug || "course";
   const categoryName =
     course.category?.name ||
-    (typeof course.category === "string" ? course.category : "DATA STRUCTURES");
+    (typeof course.category === "string" ? course.category : "Programming");
+  
+  // Real instructor attribution from database relation or creator
   const instructorName =
     course.instructor?.username ||
-    (typeof course.instructor === "string" ? course.instructor : "CPS Faculty");
+    course.instructor?.name ||
+    course.instructor?.email?.split("@")[0] ||
+    (typeof course.instructor === "string" ? course.instructor : "") ||
+    "CPS Instructor";
+
   const difficulty = course.difficulty || "All Levels";
   const price = course.price !== undefined ? course.price : 0;
   const thumbnailUrl = course.thumbnailUrl || course.thumbnail || "";
 
-  // Compute lesson count
+  // Compute lesson & quiz count
   const lessonsCount =
     course.lessonsCount !== undefined
       ? course.lessonsCount
       : course.modules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) ||
         (Array.isArray(course.lessons) ? course.lessons.length : 0);
 
+  const quizzesCount =
+    course.quizzesCount !== undefined
+      ? course.quizzesCount
+      : Array.isArray(course.quizzes)
+      ? course.quizzes.length
+      : 0;
+
   return (
-    <div className="group rounded-2xl border border-border bg-card overflow-hidden flex flex-col justify-between hover:border-secondary transition-colors duration-200">
-      {/* 1. Top Image / Category Banner Section */}
+    <div className="group rounded-2xl border border-border bg-card overflow-hidden flex flex-col justify-between hover:border-secondary transition-colors duration-200 shadow-sm">
+      {/* 1. Top Image & Badge Section */}
       <div className="relative w-full h-48 bg-surface dark:bg-[#091513] border-b border-border overflow-hidden flex items-center justify-center">
         {thumbnailUrl ? (
           <>
@@ -37,14 +51,9 @@ export function CourseCard({ course }) {
               alt={title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
-                // If broken image URL, fallback to clean category banner
                 e.currentTarget.style.display = "none";
               }}
             />
-            {/* Category Overlay Tag */}
-            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-background/90 backdrop-blur-sm border border-border text-[11px] font-bold text-primary dark:text-highlight tracking-wider uppercase">
-              {categoryName}
-            </div>
           </>
         ) : (
           <div className="text-center p-6 space-y-2">
@@ -53,15 +62,24 @@ export function CourseCard({ course }) {
             </span>
           </div>
         )}
+
+        {/* Top Right Corner Badge */}
+        <div className="absolute top-3 right-3 z-10">
+          <Badge variant="highlight" size="sm" className="shadow-sm uppercase font-bold tracking-wide">
+            {categoryName}
+          </Badge>
+        </div>
       </div>
 
       {/* 2. Middle Content Section */}
-      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-        <div className="space-y-2.5">
-          {/* Level & Lessons Count Header */}
+      <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+        <div className="space-y-2">
+          {/* Level, Lessons Count & Quizzes Header */}
           <div className="flex items-center justify-between text-xs text-muted font-medium">
             <span>{difficulty}</span>
-            <span>{lessonsCount} Lessons</span>
+            <span>
+              {lessonsCount} Lessons • {quizzesCount} {quizzesCount === 1 ? "Quiz" : "Quizzes"}
+            </span>
           </div>
 
           {/* Course Title */}
@@ -71,17 +89,20 @@ export function CourseCard({ course }) {
             </h3>
           </Link>
 
-          {/* Instructor Attribution */}
-          <p className="text-xs text-muted">
-            Instructor: <span className="font-semibold text-foreground">{instructorName}</span>
-          </p>
+          {/* Instructor Attribution with clean spacing (no borders) */}
+          <div className="pt-1.5 pb-0.5">
+            <p className="text-xs text-muted flex items-center gap-1.5">
+              <span>Instructor:</span>
+              <strong className="font-semibold text-foreground">{instructorName}</strong>
+            </p>
+          </div>
         </div>
 
         {/* 3. Bottom Row: Price & Action CTA */}
-        <div className="pt-4 border-t border-border flex items-center justify-between gap-3">
+        <div className="pt-3 border-t border-border flex items-center justify-between gap-3">
           <div className="flex flex-col">
-            <span className="text-[11px] text-muted font-medium uppercase tracking-wider">Price</span>
-            <span className="text-base font-black text-foreground">
+            <span className="text-[11px] text-muted font-semibold uppercase tracking-wider">PRICE</span>
+            <span className="text-lg font-black text-foreground">
               ৳{Number(price).toLocaleString()}
             </span>
           </div>
