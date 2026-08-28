@@ -18,18 +18,19 @@ Goal: configure PostgreSQL for Strapi v5 backend, initialize Next.js 16 frontend
 - [x] **Phase 1.2 — Frontend Foundation, Design Tokens & Reusable UI**
   - [x] Import Google Font Roboto (`@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');`) and set as global font family
   - [x] Configure brand design tokens in `src/app/globals.css` with Tailwind CSS v4 `@theme inline`:
-    - Primary: `#213C51`
-    - Secondary: `#6594B1`
-    - Highlight / Accent: `#DDAED3`
-    - Neutral / Surface: `#EEEEEE`
+    - Primary: `#285A48` (Forest Emerald Green)
+    - Secondary: `#408A71` (Sage Pine Green)
+    - Highlight / Accent: `#B0E4CC` (Mint Highlight)
+    - Dark / Base: `#091413` (Obsidian Forest)
+    - Surface / Neutral: `#F0F7F4` (Light clean mint surface)
   - [x] Strictly enforce flat solid color styling: **NO gradients** anywhere in the project
-  - [x] Build atomic, reusable UI component library in `src/components/ui/` (`Button`, `Input`, `Card`, `Badge`, `Modal`, `Table`, `Dropdown`, `ProgressBar`, `Skeleton`) to avoid duplicate component types
+  - [x] Build atomic, reusable UI component library in `src/components/ui/` (`Button`, `Input`, `Card`, `Badge`, `Modal`, `Table`, `Dropdown`, `ProgressBar`, `Skeleton`, `ThemeToggle`, `RoleGuard`) to avoid duplicate component types
   - [x] Create semantic layout shell (`<header>`, `<nav>`, `<main>`, `<aside>`, `<footer>`) with sidebar and navigation
   - **Test**: Frontend builds with `next build` without styling or compilation errors. (Passed)
 
 - [x] **Phase 1.3 — Shared Contracts & API Client**
   - [x] Define shared TypeScript / JSDoc interfaces for User, Course, Module, Lesson, Quiz, Question, Enrollment, and Transaction
-  - [x] Create central API client utility with token injection and error handling in frontend
+  - [x] Create central API client utility with token injection and error handling in frontend (`src/lib/api.js`)
   - **Test**: API client utility correctly formats requests and parses error responses. (Passed)
 
 ---
@@ -45,6 +46,7 @@ Goal: implement secure authentication and establish 4-tier role-based access con
     - **Content Manager**: Manage users (No), create/edit/delete any course (Yes), manage all lessons (Yes), create quizzes (Yes), view all student progress (Yes), manage blogs (Yes), enroll in course (No), take quizzes (No)
     - **Instructor**: Manage users (No), create/edit/delete own courses only (Yes), manage own lessons only (Yes), create own quizzes only (Yes), view own enrolled student progress only (Yes), manage blogs (No), enroll in course (No), take quizzes (No)
     - **Student**: Manage users (No), create courses/lessons/quizzes (No), view own progress only (Yes), manage blogs (No), enroll in courses (Yes), take quizzes (Yes)
+  - [x] Standardize role terminology to **Instructor** across all backend controllers, auth routes, and documentation
   - [x] Configure Google OAuth Provider in Strapi Users & Permissions (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, callback redirect to frontend)
   - [x] Add custom policies/middlewares in Strapi to restrict resources strictly by role and record ownership
   - **Test**: Database migrations applied to Neon PostgreSQL, user and role tables provisioned, and bootstrap role seeding configured. (Passed)
@@ -54,12 +56,12 @@ Goal: implement secure authentication and establish 4-tier role-based access con
   - [x] Implement "Continue with Google" button triggering Strapi OAuth (`${STRAPI_URL}/api/connect/google`)
   - [x] Create Google OAuth callback page at `/auth/callback/google` to receive JWT and user profile from Strapi
   - [x] Securely store JWT tokens in localStorage and dynamic session context
-  - [x] Create `useAuth` hook and authentication context for current user state and role
+  - [x] Create `useAuth` hook and authentication context for current user state and role (`src/context/AuthContext.jsx`)
   - [x] On successful login/registration/OAuth, automatically redirect user to `/dashboard/[role]` (`/dashboard/student`, `/dashboard/instructor`, `/dashboard/manager`, `/dashboard/admin`)
   - **Test**: User can register/log in via email/password or Google OAuth, receive JWT session, view role dashboard, and log out cleanly. (Passed)
 
 - [x] **Phase 2.3 — Route Protection & Middleware**
-  - [x] Add Next.js middleware to guard all `/dashboard/*` routes
+  - [x] Add Next.js 16 `src/proxy.js` to guard all `/dashboard/*` routes
   - [x] Redirect unauthenticated users visiting `/dashboard/*` to `/auth/login?redirect=[targetUrl]`
   - [x] For authenticated users visiting root `/dashboard`, automatically redirect to their respective role dashboard:
     - Student -> `/dashboard/student`
@@ -96,178 +98,159 @@ Goal: create Strapi v5 content-types for complete course lifecycle, learning pro
 
 ---
 
-## Phase 4: Course Management & Moderation Engine
+## Phase 4: Public Navigation & Discovery Pages
 
-Goal: build authoring workflows for Instructors and review/publishing pipelines for Content Managers and Admins.
+Goal: build responsive public navigation, course catalog discovery with real-time search, blog platform, about page, and student success stories.
 
-- [ ] **Phase 4.1 — Instructor Course Authoring Workspace**
-  - [ ] Create Instructor Course List & Creation wizard (`/dashboard/instructor/courses`)
-  - [ ] Implement Module & Lesson organizer (drag-and-drop or order indexing)
-  - [ ] Add YouTube video URL validator and preview component
-  - [ ] Add resource attachment uploader for lesson materials
-  - **Test**: Instructor can create a draft course with structured modules and lessons.
+- [x] **Phase 4.1 — Navigation Header & Integrated Search Bar**
+  - [x] Updated `Header.jsx` with standard navigation links:
+    - **Home** (`/`)
+    - **Courses** (`/courses`)
+    - **Blog** (`/blog`)
+    - **About** (`/about`)
+    - **Success Story** (`/success-story`)
+  - [x] Integrated center search bar with query submit redirecting to `/courses?search=<query>`
+  - [x] Built mobile drawer menu supporting search and navigation
+  - [x] Updated `Footer.jsx` explore links matching the new navigation routes
+  - **Test**: Header renders all items cleanly across desktop and mobile screens. (Passed)
 
-- [ ] **Phase 4.2 — Content Manager Moderation Queue**
-  - [ ] Create Content Manager review dashboard (`/dashboard/manager/review`)
-  - [ ] Build course inspection view showing full curriculum, video validity, and metadata
-  - [ ] Implement Approve, Request Changes, and Reject actions with feedback notes
-  - [ ] Add Category and Tag management interface (`/dashboard/manager/categories`)
-  - **Test**: Content Manager can approve a course, which transitions `publishedStatus` to `published`.
+- [x] **Phase 4.2 — Course Catalog & Discovery (`/courses`)**
+  - [x] Built public Course Catalog with query parameter support (`?search=...`, `useSearchParams` inside `<Suspense>`)
+  - [x] Added Category Filter Pills (`All Tracks`, `CP`, `DSA`, `Web Dev`, `System Design`)
+  - [x] Added Difficulty dropdown (`Beginner`, `Intermediate`, `Advanced`) and Sorting (`Popularity`, `Price`, `Lesson count`)
+  - [x] Rendered course cards with lesson count, quiz count, student enrollment count, and enrollment CTA
+  - **Test**: Catalog loads courses from Strapi and filters in real time. (Passed)
 
-- [ ] **Phase 4.3 — Admin Course Oversight**
-  - [ ] Provide global course management table with override capabilities (`/dashboard/admin/courses`)
-  - [ ] Add ability to feature courses on the homepage or archive obsolete courses
-  - **Test**: Admin can update status or reassign instructor for any course.
+- [x] **Phase 4.3 — Public Engineering Blog (`/blog` & `/blog/[slug]`)**
+  - [x] Built public article catalog with category filtering and search
+  - [x] Built single article reader with full markdown body rendering and author metadata
+  - [x] Enforced zero-trust backend draft filtering (Public/Students only see published posts)
+  - **Test**: Published articles viewable by public; draft articles concealed. (Passed)
 
----
+- [x] **Phase 4.4 — About CPS Academy (`/about`)**
+  - [x] Mission overview and 4 learning pillars (Competitive Programming Rigor, Software Engineering, Timed Assessments, Mentorship)
+  - [x] Faculty and mentor profiles with bios and expertise tags
+  - [x] Academy statistics counter (5,000+ students, 250k+ problem solves, 120+ regionalists)
+  - **Test**: Page renders semantic layout with responsive cards. (Passed)
 
-## Phase 5: Student Learning Interface & Course Player
-
-Goal: deliver a high-quality learning experience with course discovery, YouTube video player, progress tracking, and resource access.
-
-- [ ] **Phase 5.1 — Course Catalog & Discovery**
-  - [ ] Build public Course Browse page with search, category filtering, difficulty filters, and price filters (`/courses`)
-  - [ ] Implement Course Detail page with curriculum preview, instructor info, prerequisites, and enrollment CTA (`/courses/[slug]`)
-  - [ ] Display free preview lessons for unauthenticated/unenrolled visitors
-  - **Test**: Catalog filters accurately narrow down courses and detail pages render full syllabus.
-
-- [ ] **Phase 5.2 — Interactive Course Player**
-  - [ ] Create dedicated Learning Player view (`/learn/[courseSlug]`)
-  - [ ] Implement responsive YouTube player integration with custom controls, timestamps, and autoplay next lesson
-  - [ ] Add collapsible curriculum sidebar with completed checkmarks and current lesson highlight
-  - [ ] Add Lesson Notes and Downloadable Resources tab below the video
-  - **Test**: Enrolled student can stream lessons and navigate between curriculum items.
-
-- [ ] **Phase 5.3 — Progress Tracking Engine**
-  - [ ] Implement "Mark as Complete" action on lesson finish
-  - [ ] Calculate and display overall course progress percentage in real time
-  - [ ] Show course completion status and prompt certificate generation when all lessons and quizzes are completed
-  - **Test**: Completing a lesson updates progress bar and persists state across page reloads.
+- [x] **Phase 4.5 — Student Success Stories (`/success-story`)**
+  - [x] Showcased verified student milestones (Codeforces rating jumps, ICPC medals, FAANG placements)
+  - [x] Category filtering (All Stories, Competitive Programming & ICPC, Tech Careers & FAANG)
+  - [x] Alumni quotes, before-and-after rating trajectories, and verification badges
+  - **Test**: Filter tabs switch story categories interactively. (Passed)
 
 ---
 
-## Phase 6: Quiz System & Assessment Engine
+## Phase 5: Multi-Role Dashboards & Control Center
 
-Goal: build a secure, interactive quiz system for student testing and instructor assessment.
+Goal: deliver complete, production-grade dashboards for Students, Instructors, Content Managers, and Admins.
 
-- [ ] **Phase 6.1 — Instructor Quiz Builder**
-  - [ ] Create Quiz Creation interface (`/dashboard/instructor/quizzes/new` and `/dashboard/instructor/courses/[id]/quizzes`)
-  - [ ] Build Question Editor supporting Multiple Choice and True/False questions
-  - [ ] Set correct answers, score weight per question, time limit, and passing score
-  - **Test**: Instructor can create and save a quiz with multiple questions.
+- [x] **Phase 5.1 — Admin Control Center (`/dashboard/admin`)**
+  - [x] Platform KPI metrics: Total Users (by role: Admins, Content Managers, Instructors, Students), Total Courses, Lessons, Quizzes, Enrollments, Blog Posts (Draft vs Published)
+  - [x] **User & Role Management**: Searchable user table, role switcher modal (`Admin`, `Content Manager`, `Instructor`, `Student`), block/unblock account toggle, user deletion
+  - [x] **Global Course CRUD**: Add, edit, delete any course across the entire platform
+  - [x] **Curriculum Hub**: Add, edit, delete video lessons (YouTube URL, markdown notes, duration, free preview toggle), add/edit/delete MCQ quizzes and question builder
+  - [x] **Blog Oversight**: Global blog post table, write new posts, edit, delete, and toggle draft/published status
+  - [x] **Student Progress**: Real-time progress monitoring for enrolled students across all courses
+  - [x] Backend user controller extension in Strapi (`user.find`, `user.update`, `user.destroy`, `role.find`) with admin zero-trust authorization
+  - **Test**: Admin can manage users, assign roles, create courses/lessons/quizzes/blogs, and view student progress. (Passed)
 
-- [ ] **Phase 6.2 — Secure Student Quiz Runner**
-  - [ ] Create Student Quiz landing view with instructions, duration, and passing requirements (`/dashboard/student/quizzes/[id]`)
-  - [ ] Build active Quiz Runner interface with countdown timer, question pagination/nav, and review mode
-  - [ ] Ensure backend API masks correct answers from the student payload during quiz taking
-  - **Test**: Student can take a quiz within the time limit without answers exposed in network traffic.
+- [x] **Phase 5.2 — Content Manager Dashboard (`/dashboard/manager`)**
+  - [x] Platform-wide Course Library management (create, edit, delete any course)
+  - [x] Platform-wide Curriculum & MCQ Hub (lessons, quizzes, questions)
+  - [x] Student Progress Roster across all platform courses
+  - [x] Blog Writing & Publishing Center (write, edit, publish, delete blog posts)
+  - [x] Strict RBAC isolation: Content Manager cannot manage users or assign roles
+  - **Test**: Content Manager can curate all content without accessing user management. (Passed)
 
-- [ ] **Phase 6.3 — Server-Side Grading & Scorecards**
-  - [ ] Implement backend grading service in Strapi that compares submitted answers with stored correct answers
+- [x] **Phase 5.3 — Instructor Dashboard (`/dashboard/instructor`)**
+  - [x] Scoped Course Management: create, edit, delete **assigned courses only**
+  - [x] Scoped Curriculum Organizer: add/edit/delete lessons and MCQ quizzes for own courses
+  - [x] Scoped Student Roster: monitor completion progress of students enrolled in own courses
+  - [x] Strict RBAC isolation: Instructor cannot access other instructors' courses, manage users, or publish blogs
+  - **Test**: Instructor can manage own courses and students while blocked from global administration. (Passed)
+
+- [x] **Phase 5.4 — Role Invariant Enforcement & Security Guards**
+  - [x] `Enrollment.create`: Enforces that only users with role `Student` can enroll in courses (Admin, Content Manager, and Instructor rejected with `403 Forbidden`)
+  - [x] `QuizAttempt.create`: Enforces that only users with role `Student` can submit quiz attempts (Admin, Content Manager, and Instructor rejected with `403 Forbidden`)
+  - **Test**: Backend rejects enrollment and quiz attempts from non-student roles. (Passed)
+
+---
+
+## Phase 6: Student Learning Interface & Course Player
+
+Goal: deliver an interactive video course player, curriculum navigation, lesson completion tracking, and student scorecards.
+
+- [ ] **Phase 6.1 — Interactive Video Course Player (`/learn/[courseSlug]`)**
+  - [ ] Dedicated responsive YouTube video player with custom progress checkpoints
+  - [ ] Collapsible curriculum sidebar with completed checkmarks and current lesson highlighting
+  - [ ] Lesson notes tray with markdown rendering and downloadable resource attachments
+  - [ ] Automatic next-lesson autoplay and transition triggers
+  - **Test**: Enrolled student can watch video lessons, view notes, and mark lessons as complete.
+
+- [ ] **Phase 6.2 — Progress Persistence & Certificate Trigger**
+  - [ ] Calculate and persist lesson completion via `Progress` content-type
+  - [ ] Update `Enrollment.progressPercentage` in real time
+  - [ ] Prompt course completion certificate when all lessons and quizzes are passed
+  - **Test**: Completing lessons updates student progress bar on dashboard and player.
+
+---
+
+## Phase 7: MCQ Quiz Engine & Server-Side Auto-Grading
+
+Goal: build a secure, interactive quiz system with timer countdown, secret answer keys, and automatic scorecard generation.
+
+- [ ] **Phase 7.1 — Secure Student Quiz Runner (`/dashboard/student/quizzes/[id]`)**
+  - [ ] Quiz instructions screen with time limit and passing score requirements
+  - [ ] Interactive question runner with countdown timer, question pagination, and review screen
+  - [ ] Zero-Trust answer security: API masks correct answers from client payload before submission
+  - **Test**: Student can take timed quiz without answers exposed in browser devtools or network traffic.
+
+- [ ] **Phase 7.2 — Server-Side Grading & Scorecards**
+  - [ ] Backend grading service in Strapi comparing submitted answers with stored correct answers
   - [ ] Compute score, percentage, pass/fail status, and persist `QuizAttempt` record
-  - [ ] Render detailed Quiz Result page with score breakdown, review of answers, and explanations (`/dashboard/student/quizzes/[id]/result`)
-  - **Test**: Submitting quiz computes correct grade and updates student quiz history.
-
-- [ ] **Phase 6.4 — Instructor Quiz Analytics**
-  - [ ] Create Instructor Quiz Analytics dashboard (`/dashboard/instructor/quizzes/[id]/analytics`)
-  - [ ] Display pass rate, average score, attempt count, and question difficulty breakdown
-  - **Test**: Instructor can inspect class-wide quiz statistics.
+  - [ ] Render detailed Quiz Result scorecard with score breakdown, review of answers, and explanations (`/dashboard/student/quizzes/[id]/result`)
+  - **Test**: Submitting quiz computes grade server-side and updates student scorecards.
 
 ---
 
-## Phase 7: Stripe Checkout, Payments & Automated Enrollment
+## Phase 8: Stripe Checkout, Payments & Automated Enrollment
 
 Goal: integrate Stripe checkout for secure course purchases with webhook-verified enrollment automation.
 
-- [ ] **Phase 7.1 — Stripe Checkout Integration**
-  - [ ] Implement backend endpoint `/api/orders/create-checkout-session` in Strapi
-  - [ ] Create Stripe Checkout session with course metadata, price, customer email, and success/cancel URLs
-  - [ ] Build frontend Checkout button and payment loading state
-  - **Test**: Clicking "Buy Course" redirects to Stripe Checkout with correct course price and metadata.
+- [ ] **Phase 8.1 — Stripe Checkout Integration**
+  - [ ] Backend endpoint `/api/orders/create-checkout-session` in Strapi
+  - [ ] Stripe Checkout session with course metadata, price, customer email, and redirect URLs
+  - [ ] Frontend "Enroll with Stripe" button and payment loading state
+  - **Test**: Clicking "Buy Course" redirects to Stripe Checkout with correct price and course ID.
 
-- [ ] **Phase 7.2 — Stripe Webhook & Automated Enrollment**
-  - [ ] Create Stripe webhook handler `/api/orders/webhook` in Strapi with signature verification (`stripe.webhooks.constructEvent`)
-  - [ ] On `checkout.session.completed`, update `Order` status to `paid` and automatically create `Enrollment` record transactionally
-  - [ ] Implement idempotency checks to prevent duplicate enrollments on webhook retries
-  - **Test**: Test Stripe webhook event transitions order to paid and unlocks course for student.
+- [ ] **Phase 8.2 — Stripe Webhook & Automated Enrollment**
+  - [ ] Stripe webhook handler `/api/orders/webhook` in Strapi with signature verification (`stripe.webhooks.constructEvent`)
+  - [ ] On `checkout.session.completed`, update `Order` status to `paid` and create `Enrollment` record transactionally
+  - [ ] Idempotency checks to prevent duplicate enrollments on webhook retries
+  - **Test**: Stripe webhook event creates student enrollment automatically upon successful payment.
 
-- [ ] **Phase 7.3 — Student Purchase History & Invoices**
-  - [ ] Build Student Purchase History page (`/dashboard/student/orders`)
-  - [ ] Display order receipt details, payment method summary, transaction date, and invoice link
-  - **Test**: Student can view past purchases and access enrolled courses directly.
-
----
-
-## Phase 8: Instructor & Content Manager Dashboards
-
-Goal: provide dedicated workspaces for instructors and content curators.
-
-- [ ] **Phase 8.1 — Instructor Dashboard**
-  - [ ] Dashboard overview (`/dashboard/instructor`): total courses, total enrolled students, total earnings, active quizzes
-  - [ ] Student Roster view (`/dashboard/instructor/students`): list students enrolled in instructor's courses with progress indicators
-  - [ ] Quick actions to add lessons or create new quizzes
-  - **Test**: Instructor dashboard displays accurate aggregated statistics for assigned courses.
-
-- [ ] **Phase 8.2 — Content Manager Dashboard**
-  - [ ] Dashboard overview (`/dashboard/manager`): courses pending review, newly published courses, category distribution
-  - [ ] Bulk category and tag assignment tools
-  - [ ] Content quality checklist and curriculum health monitoring
-  - **Test**: Content Manager can navigate pending items and manage course taxonomies efficiently.
+- [ ] **Phase 8.3 — Student Purchase History & Invoices**
+  - [ ] Student Purchase History page (`/dashboard/student/orders`)
+  - [ ] Order receipt details, transaction date, payment method summary, and course access links
+  - **Test**: Student can inspect past receipts and access purchased courses.
 
 ---
 
-## Phase 9: Admin Control Center
-
-Goal: build a comprehensive administration portal for managing users, roles, platform finances, and system settings.
-
-- [ ] **Phase 9.1 — User & Role Management**
-  - [ ] Admin User Management table (`/dashboard/admin/users`) with search, role filtering, and status badges
-  - [ ] Role switcher action: promote/demote users between Student, Instructor, Content Manager, and Admin
-  - [ ] Account activation / deactivation controls
-  - **Test**: Admin can update a user's role and the user receives updated permissions on next request.
-
-- [ ] **Phase 9.2 — Financial & Transaction Oversight**
-  - [ ] Transaction log table (`/dashboard/admin/transactions`) showing all Stripe orders, amounts, customer details, and status
-  - [ ] Platform revenue metrics, refund inspection, and monthly sales summaries
-  - **Test**: Admin can search and filter transactions by date, course, or student.
-
-- [ ] **Phase 9.3 — System Health & Audit Logging**
-  - [ ] System audit trail (`/dashboard/admin/audit`) recording critical actions (role changes, course approvals, refunds)
-  - [ ] Stripe webhook health monitor
-  - **Test**: System events are logged with actor, timestamp, and action description.
-
----
-
-## Phase 10: Notification & Communication Engine
-
-Goal: keep users informed of key lifecycle events via in-app alerts and transactional email notifications.
-
-- [ ] **Phase 10.1 — In-App Notifications**
-  - [ ] Implement in-app notification bell with unread badge in header
-  - [ ] Emit notifications for: Course Purchase Confirmed, Quiz Result Ready, Course Approved / Needs Changes, New Student Enrolled
-  - [ ] Add "Mark as read" and "Mark all as read" actions
-  - **Test**: User receives real-time/polled notification when a milestone occurs.
-
-- [ ] **Phase 10.2 — Transactional Email Notifications**
-  - [ ] Setup Nodemailer / SMTP transport in Strapi backend
-  - [ ] Create email templates for: Purchase Receipt, Course Enrollment Confirmation, Quiz Scorecard, Course Approval Notice
-  - **Test**: Test email dispatch sends formatted HTML email on course purchase.
-
----
-
-## Phase 11: End-to-End Testing, Security & Optimization
+## Phase 9: End-to-End Testing, Security & Optimization
 
 Goal: validate security, reliability, performance, and responsive design across all roles.
 
-- [ ] **Phase 11.1 — Security & RBAC Invariant Testing**
-  - [ ] Test student cannot access unauthorized video URLs or instructor dashboard routes (`/dashboard/instructor/*`)
-  - [ ] Test quiz answers are never returned in pre-submission API responses
-  - [ ] Test order creation rejects client-modified amounts
-  - **Test**: Automated security probes verify all role boundaries hold.
+- [ ] **Phase 9.1 — Automated Security & RBAC Invariant Testing**
+  - [ ] Verify Student cannot access instructor/manager/admin dashboard routes
+  - [ ] Verify Admin / Manager / Instructor cannot enroll or take quizzes
+  - [ ] Verify quiz answers remain hidden before attempt submission
+  - [ ] Verify order creation calculates amounts on the backend
+  - **Test**: Automated security test suite passes.
 
-- [ ] **Phase 11.2 — Full Journey E2E Validation**
-  - [ ] Test Student journey: `/auth/register` → Browse → Buy Course (Stripe) → Watch Lessons → Complete Quiz → View Certificate
-  - [ ] Test Instructor journey: Login → `/dashboard/instructor` → Create Course → Upload YouTube Lessons → Add Quiz → Review Submissions
-  - [ ] Test Content Manager journey: Login → `/dashboard/manager` → Review Draft Course → Approve → Publish to Catalog
-  - [ ] Test Admin journey: Login → `/dashboard/admin` → Manage Roles → Inspect Transactions → Audit Platform Health
-  - **Test**: All user journeys complete without errors across desktop and mobile screen sizes.
+- [ ] **Phase 9.2 — Full Journey E2E Validation**
+  - [ ] Student journey: Register → Browse Catalog → Buy Course (Stripe) → Watch Lessons → Complete Quiz → View Progress
+  - [ ] Instructor journey: Login → `/dashboard/instructor` → Create Course → Add Lessons & Quizzes → Monitor Roster
+  - [ ] Content Manager journey: Login → `/dashboard/manager` → Manage Courses & Quizzes → Publish Blog Posts
+  - [ ] Admin journey: Login → `/dashboard/admin` → Assign Roles → Manage Platform Courses/Blogs → Monitor Platform Stats
+  - **Test**: All role journeys execute cleanly without errors across desktop and mobile devices.
