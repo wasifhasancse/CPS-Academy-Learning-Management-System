@@ -21,9 +21,21 @@ export default function ManagerDashboardPage() {
     { id: 4, title: "Advanced Graph Algorithms & Dynamic Programming", instructor: "Arafat", category: "Algorithms", price: 3500, lessonsCount: 8, status: "Draft" },
   ]);
 
+  const [blogs, setBlogs] = useState([
+    { id: 1, title: "How to reach Candidate Master on Codeforces in 6 Months", author: "Mohaimin", category: "Competitive Programming", status: "Published", date: "2026-08-20" },
+    { id: 2, title: "Building Resilient Microservices with .NET 8 and Clean Architecture", author: "Arafat", category: "Software Engineering", status: "Published", date: "2026-08-24" },
+    { id: 3, title: "Top 50 Dynamic Programming Patterns for FAANG Interviews", author: "Editorial Team", category: "Interview Prep", status: "Draft", date: "2026-08-27" },
+  ]);
+
   const handleToggleCourseStatus = (id) => {
     setCourses((prev) =>
       prev.map((c) => (c.id === id ? { ...c, status: c.status === "Published" ? "Draft" : "Published" } : c))
+    );
+  };
+
+  const handleToggleBlogStatus = (id) => {
+    setBlogs((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, status: b.status === "Published" ? "Draft" : "Published" } : b))
     );
   };
 
@@ -43,6 +55,15 @@ export default function ManagerDashboardPage() {
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      ),
+    },
+    {
+      id: "blogs",
+      label: "Blog Publisher",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
         </svg>
       ),
     },
@@ -153,6 +174,55 @@ export default function ManagerDashboardPage() {
                           className="text-xs py-1"
                         >
                           {c.status === "Published" ? "Unpublish" : "Publish"}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
+        )}
+
+        {/* TAB 3: BLOG PUBLISHER */}
+        {activeTab === "blogs" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-foreground">Blog Articles & Editorial Posts</h2>
+            </div>
+
+            <Card className="overflow-hidden border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Article Title</TableHead>
+                    <TableHead>Author</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {blogs.map((b) => (
+                    <TableRow key={b.id}>
+                      <TableCell className="font-bold text-xs text-foreground">{b.title}</TableCell>
+                      <TableCell className="text-xs text-muted">{b.author}</TableCell>
+                      <TableCell className="text-xs text-foreground">{b.category}</TableCell>
+                      <TableCell className="text-xs text-muted">{b.date}</TableCell>
+                      <TableCell>
+                        <Badge variant={b.status === "Published" ? "success" : "surface"} size="sm">
+                          {b.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          onClick={() => handleToggleBlogStatus(b.id)}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs py-1"
+                        >
+                          {b.status === "Published" ? "Unpublish" : "Publish"}
                         </Button>
                       </TableCell>
                     </TableRow>
