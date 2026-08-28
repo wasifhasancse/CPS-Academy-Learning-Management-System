@@ -231,6 +231,27 @@ Goal: deliver complete, production-grade dashboards for Students, Instructors, C
     - `/blog`: Empty blog articles with search/category clear action button
   - **Test**: Full production build passed across all 18 routes with zero errors or warnings. (Passed)
 
+- [x] **Phase 5.8 — Modular Dashboard Component Architecture & Tab Extraction**
+  - [x] Extracted shared dashboard modals into `src/components/dashboard/modals/` (`CourseModal`, `LessonModal`, `QuizModal`, `ManageQuestionsModal`, `BlogModal`, `ChangeRoleModal`, `ConfirmDeleteModal`)
+  - [x] Extracted modular Admin dashboard tabs into `src/components/dashboard/admin/` (`AdminOverviewTab`, `AdminUsersTab`, `AdminCoursesTab`, `AdminCurriculumTab`, `AdminBlogsTab`, `AdminProgressTab`)
+  - [x] Extracted modular Content Manager dashboard tabs into `src/components/dashboard/manager/` (`ManagerOverviewTab`, `ManagerCoursesTab`, `ManagerCurriculumTab`, `ManagerBlogsTab`, `ManagerProgressTab`)
+  - [x] Extracted modular Instructor dashboard tabs into `src/components/dashboard/instructor/` (`InstructorOverviewTab`, `InstructorCoursesTab`, `InstructorCurriculumTab`, `InstructorProgressTab`)
+  - [x] Extracted modular Student dashboard tabs into `src/components/dashboard/student/` (`StudentOverviewTab`, `StudentCoursesTab`, `StudentQuizzesTab`, `StudentCatalogTab`)
+  - [x] Refactored all dashboard pages (`src/app/dashboard/admin/page.js`, `src/app/dashboard/manager/page.js`, `src/app/dashboard/instructor/page.js`, `src/app/dashboard/student/page.js`) into clean, modular parent containers
+  - [x] Fixed parent course relation requirement in Strapi lesson creation across all dashboard controllers
+  - **Test**: Created courses and video lessons dynamically from the modular Instructor studio and verified via browser and production build. (Passed)
+
+- [x] **Phase 5.9 — Full Next.js App Router Sub-Routes per Role**
+  - [x] Restructured every sidebar tab into a dedicated first-class Next.js App Router sub-route under `src/app/dashboard/[role]/[subroute]/page.js`:
+    - **Admin**: `/dashboard/admin` (Overview), `/dashboard/admin/users`, `/dashboard/admin/courses`, `/dashboard/admin/curriculum`, `/dashboard/admin/blogs`, `/dashboard/admin/progress`, `/dashboard/admin/profile`
+    - **Content Manager**: `/dashboard/manager` (Studio Overview), `/dashboard/manager/courses`, `/dashboard/manager/curriculum`, `/dashboard/manager/blogs`, `/dashboard/manager/progress`, `/dashboard/manager/profile`
+    - **Instructor**: `/dashboard/instructor` (Overview), `/dashboard/instructor/courses`, `/dashboard/instructor/curriculum`, `/dashboard/instructor/progress`, `/dashboard/instructor/profile`
+    - **Student**: `/dashboard/student` (Overview), `/dashboard/student/courses`, `/dashboard/student/quizzes`, `/dashboard/student/catalog`, `/dashboard/student/profile`
+  - [x] Integrated dedicated Role Data Providers (`AdminContext.jsx`, `ManagerContext.jsx`, `InstructorContext.jsx`, `StudentContext.jsx`) in each role layout
+  - [x] Upgraded `DashboardLayout.jsx` with Next.js `<Link>` and pathname-based active state highlighting
+  - [x] Embedded full route UI logic directly into self-contained page components under `src/app/dashboard/` and removed redundant wrapper folders
+  - **Test**: Turbopack compiled all 37 App Router routes in 4.0s with 0 errors; interactive browser verification confirmed sub-route navigation and active highlighting. (Passed)
+
 ---
 
 ## Phase 6: Student Learning Interface & Course Player
