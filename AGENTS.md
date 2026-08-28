@@ -60,10 +60,11 @@ CPS Academy is a comprehensive Learning Management System built for students, te
 - **Framework**: Next.js 16 App Router with React 19.
 - **Typography**: Roboto (`@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');`).
 - **Color Palette & Theme Tokens** (Tailwind CSS v4):
-  - Primary: `#213C51` (Dark navy slate)
-  - Secondary: `#6594B1` (Soft steel blue)
-  - Highlight / Accent: `#DDAED3` (Lilac lavender)
-  - Surface / Neutral: `#EEEEEE` (Light grey)
+  - Primary: `#285A48` (Forest Emerald Green)
+  - Secondary: `#408A71` (Sage Pine Green)
+  - Highlight / Accent: `#B0E4CC` (Mint Highlight)
+  - Dark / Base: `#091413` (Obsidian Forest)
+  - Surface / Neutral: `#F0F7F4` (Light clean mint surface)
 - **Styling & Component Rules**:
   - **NO gradients anywhere in the project**; use clean, solid flat colors.
   - Always use semantic HTML tags (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<aside>`, `<footer>`) and semantic class names.
@@ -108,7 +109,7 @@ CPS Academy is a comprehensive Learning Management System built for students, te
 ### 1. Theme Variables & Dark Mode Color Invariants
 - **Issue**: Overriding constant brand color tokens (e.g. assigning `--primary: #EEEEEE` inside `.dark`) breaks utilities like `bg-primary`, causing dark mode footers, banners, and components to render with light backgrounds.
 - **Prevention Rule**:
-  - Keep brand palette variables constant in both light and dark modes: `--primary: #213C51;`, `--secondary: #6594B1;`, `--highlight: #DDAED3;`.
+  - Keep brand palette variables constant in both light and dark modes: `--primary: #285A48;`, `--secondary: #408A71;`, `--highlight: #B0E4CC;`.
   - Use dedicated semantic tokens for theming: `--background`, `--foreground`, `--surface`, `--card`, `--border`, `--muted`, `--footer-bg`, `--footer-fg`.
   - Always provide explicit hover states for buttons and interactive elements across both modes (`hover:...` and `dark:hover:...`).
   - For full-width callout banners, place dark cards (`bg-primary`) inside neutral section wrappers (`bg-surface` / `bg-background`) so they remain well-framed in light mode instead of creating full-width dark blocks.

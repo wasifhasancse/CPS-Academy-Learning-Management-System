@@ -18,10 +18,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 2. **Design System & Styling (Tailwind CSS v4)**:
    - **Typography**: Roboto (`@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');`).
    - **Color Tokens**:
-     - Primary: `#213C51` (Dark navy slate)
-     - Secondary: `#6594B1` (Soft steel blue)
-     - Highlight: `#DDAED3` (Lilac lavender)
-     - Surface: `#EEEEEE` (Light grey)
+     - Primary: `#285A48` (Forest Emerald Green)
+     - Secondary: `#408A71` (Sage Pine Green)
+     - Highlight: `#B0E4CC` (Mint Highlight)
+     - Dark / Base: `#091413` (Obsidian Forest)
+     - Surface: `#F0F7F4` (Clean Mint Surface)
    - **Styling Rules**:
      - **NO gradients anywhere in the project**; use clean, flat solid colors.
      - Always use semantic HTML tags (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<aside>`, `<footer>`) and semantic class names.
