@@ -106,9 +106,7 @@ export function Header() {
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
 
-          {isLoading ? (
-            <div className="w-20 h-8 rounded-md bg-surface animate-pulse" />
-          ) : isAuthenticated ? (
+          {user ? (
             <div className="flex items-center gap-2 sm:gap-3">
               <Link href={dashboardPath} className="hidden sm:flex items-center gap-2 group">
                 <Badge variant="highlight" size="sm">
@@ -126,6 +124,8 @@ export function Header() {
                 Log Out
               </Button>
             </div>
+          ) : isLoading ? (
+            <div className="w-20 h-8 rounded-md bg-surface animate-pulse" />
           ) : (
             <div className="flex items-center gap-1.5 sm:gap-2">
               <Button href="/auth/login" variant="ghost" size="sm" className="text-xs">
