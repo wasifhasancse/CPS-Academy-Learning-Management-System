@@ -47,7 +47,7 @@ export function CourseCard({ course }) {
         : 0;
 
   return (
-    <div className="group rounded-3xl border border-border bg-card overflow-hidden flex flex-col justify-between hover:border-primary transition-all duration-200 shadow-xs">
+    <div className="group rounded-3xl border border-border bg-card overflow-hidden flex flex-col justify-between hover:border-[#7AB2D3] transition-all duration-200 shadow-xs">
       {/* 1. Top Image & Badge Section */}
       <div className="relative w-full h-48 bg-surface border-b border-border overflow-hidden flex items-center justify-center">
         {thumbnailUrl ? (
@@ -63,9 +63,9 @@ export function CourseCard({ course }) {
             />
           </>
         ) : (
-          <div className="w-full h-full bg-primary/10 flex flex-col items-center justify-center p-6 text-center space-y-2">
-            <HiOutlineBookOpen className="w-10 h-10 text-primary dark:text-highlight opacity-60" />
-            <span className="text-[11px] font-black text-secondary dark:text-highlight uppercase tracking-widest block">
+          <div className="w-full h-full bg-[#DFF2EB] dark:bg-[#1E2A3A] flex flex-col items-center justify-center p-6 text-center space-y-2">
+            <HiOutlineBookOpen className="w-10 h-10 text-[#7AB2D3] opacity-80" />
+            <span className="text-[11px] font-black text-[#7AB2D3] uppercase tracking-widest block">
               {categoryName}
             </span>
           </div>
@@ -80,7 +80,7 @@ export function CourseCard({ course }) {
 
         {/* Top Left Difficulty Tag */}
         <div className="absolute top-3 left-3 z-10">
-          <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white font-bold text-[10px] border border-white/20">
+          <span className="px-2.5 py-1 rounded-full bg-[#4A628A]/80 backdrop-blur-md text-[#DFF2EB] font-bold text-[10px] border border-[#B9E5E8]/40">
             {difficulty}
           </span>
         </div>
@@ -92,18 +92,18 @@ export function CourseCard({ course }) {
           {/* Level, Lessons Count & Quizzes Header */}
           <div className="flex items-center justify-between text-xs text-muted font-medium">
             <span className="flex items-center gap-1">
-              <HiOutlineBookOpen className="w-3.5 h-3.5 text-secondary" />
+              <HiOutlineBookOpen className="w-3.5 h-3.5 text-[#7AB2D3]" />
               <span>{lessonsCount} Lessons</span>
             </span>
             <span className="flex items-center gap-1">
-              <HiOutlineAcademicCap className="w-3.5 h-3.5 text-secondary" />
+              <HiOutlineAcademicCap className="w-3.5 h-3.5 text-[#7AB2D3]" />
               <span>{quizzesCount} {quizzesCount === 1 ? "Quiz" : "Quizzes"}</span>
             </span>
           </div>
 
           {/* Course Title */}
           <Link href={`/courses/${slug}`}>
-            <h3 className="text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors line-clamp-2">
+            <h3 className="text-base font-bold text-foreground leading-snug group-hover:text-[#7AB2D3] transition-colors line-clamp-2">
               {title}
             </h3>
           </Link>
@@ -111,7 +111,7 @@ export function CourseCard({ course }) {
           {/* Instructor Attribution */}
           <div className="pt-1">
             <div className="flex items-center gap-2 text-xs text-muted">
-              <div className="w-5 h-5 rounded-full bg-primary/15 text-primary dark:text-highlight flex items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="w-5 h-5 rounded-full bg-[#7AB2D3]/15 text-[#4A628A] dark:text-[#B9E5E8] flex items-center justify-center font-bold text-[10px] shrink-0">
                 {instructorName.charAt(0).toUpperCase()}
               </div>
               <span className="truncate">

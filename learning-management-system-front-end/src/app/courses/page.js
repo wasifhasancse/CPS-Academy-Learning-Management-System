@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CourseCard } from "@/components/courses/CourseCard";
+import { CourseGridSkeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/api";
 import {
   HiOutlineSparkles,
@@ -284,28 +285,7 @@ function CoursesCatalogContent() {
 
       {/* Course Cards Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((n) => (
-            <div
-              key={n}
-              className="rounded-3xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between"
-            >
-              <div className="w-full h-48 bg-surface border-b border-border" />
-              <div className="p-6 space-y-3">
-                <div className="flex justify-between">
-                  <div className="w-20 h-4 bg-surface rounded" />
-                  <div className="w-16 h-4 bg-surface rounded" />
-                </div>
-                <div className="w-full h-6 bg-surface rounded" />
-                <div className="w-32 h-4 bg-surface rounded" />
-                <div className="pt-4 border-t border-border flex justify-between items-center">
-                  <div className="w-16 h-6 bg-surface rounded" />
-                  <div className="w-24 h-8 bg-surface rounded" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <CourseGridSkeleton count={6} columns="grid-cols-1 md:grid-cols-2 lg:grid-cols-3" />
       ) : filteredCourses.length === 0 ? (
         <EmptyState
           icon={<HiOutlineBookOpen className="w-8 h-8 text-muted" />}
@@ -342,13 +322,13 @@ export default function CoursesPage() {
   return (
     <Suspense
       fallback={
-        <div className="w-full py-16 px-4 max-w-[1400px] mx-auto text-center text-muted text-sm animate-pulse space-y-4">
-          <div className="h-10 bg-surface rounded-xl max-w-md mx-auto" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-64 bg-surface rounded-2xl" />
-            ))}
+        <div className="w-full py-10 px-4 max-w-[1400px] mx-auto space-y-8 animate-pulse">
+          <div className="p-8 sm:p-12 rounded-3xl bg-surface border border-border space-y-4">
+            <div className="w-32 h-6 rounded-full bg-card" />
+            <div className="w-96 max-w-full h-10 rounded-xl bg-card" />
+            <div className="w-72 max-w-full h-4 rounded bg-card" />
           </div>
+          <CourseGridSkeleton count={6} columns="grid-cols-1 md:grid-cols-2 lg:grid-cols-3" />
         </div>
       }
     >

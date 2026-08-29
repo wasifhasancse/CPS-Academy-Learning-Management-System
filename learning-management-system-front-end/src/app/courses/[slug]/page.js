@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { CourseCard } from "@/components/courses/CourseCard";
+import { CourseDetailsSkeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/api";
 import {
   HiOutlineArrowLeft,
@@ -232,19 +233,7 @@ export default function CourseDetailPage({ params }) {
   };
 
   if (isLoading) {
-    return (
-      <div className="w-full max-w-[1400px] mx-auto py-16 px-4 sm:px-6 lg:px-8 space-y-8 animate-pulse">
-        <div className="w-36 h-6 bg-surface rounded-lg" />
-        <div className="w-3/4 h-12 bg-surface rounded-xl" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="w-full h-64 bg-surface rounded-2xl" />
-            <div className="w-full h-40 bg-surface rounded-2xl" />
-          </div>
-          <div className="w-full h-80 bg-surface rounded-2xl" />
-        </div>
-      </div>
-    );
+    return <CourseDetailsSkeleton />;
   }
 
   if (!course) {
