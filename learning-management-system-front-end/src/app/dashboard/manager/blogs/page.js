@@ -1,17 +1,33 @@
 "use client";
 
-import { useManager } from "@/context/ManagerContext";
-import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
+import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Input } from "@/components/ui/Input";
+import { TableSkeleton } from "@/components/ui/Skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
+import { useManager } from "@/context/ManagerContext";
+import {
+  HiOutlineDocumentText,
+  HiOutlineMagnifyingGlass,
+  HiOutlinePencilSquare,
+  HiOutlinePlus,
+  HiOutlineTrash,
+} from "react-icons/hi2";
 
 export default function ManagerBlogsPage() {
   const {
-    blogs,
     filteredBlogs,
+    isLoading,
+    isActionLoading,
     blogSearch,
     setBlogSearch,
     blogStatusFilter,
@@ -21,7 +37,6 @@ export default function ManagerBlogsPage() {
     draftBlogsCount,
     handleOpenAddBlog,
     handleOpenEditBlog,
-    handleToggleBlogStatus,
     handleOpenDeleteBlogModal,
   } = useManager();
 
@@ -29,120 +44,185 @@ export default function ManagerBlogsPage() {
     <div className="space-y-6">
       {/* Controls Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Input
-            placeholder="Search articles..."
-            value={blogSearch}
-            onChange={(e) => setBlogSearch(e.target.value)}
-            className="w-64 text-xs"
-          />
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative w-64">
+            <Input
+              placeholder="Search blog articles..."
+              value={blogSearch}
+              onChange={(e) => setBlogSearch(e.target.value)}
+              className="w-full text-xs pl-8"
+            />
+            <HiOutlineMagnifyingGlass className="w-4 h-4 text-muted absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
           <select
             value={blogStatusFilter}
             onChange={(e) => setBlogStatusFilter(e.target.value)}
-            className="px-3 py-2 rounded-lg bg-surface border border-border text-xs text-foreground"
+            className="px-3 py-2 rounded-xl bg-surface border border-border text-xs text-foreground font-semibold focus:outline-none"
           >
-            <option value="all">All Statuses ({totalBlogs})</option>
-            <option value="published">Published ({publishedBlogsCount})</option>
-            <option value="draft">Drafts ({draftBlogsCount})</option>
+            <option value="all">All Articles ({totalBlogs})</option>
+            <option value="published">
+              Published Only ({publishedBlogsCount})
+            </option>
+            <option value="draft">Drafts Only ({draftBlogsCount})</option>
           </select>
         </div>
 
-        <Button variant="primary" size="sm" onClick={handleOpenAddBlog}>
-          + Write New Post
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={handleOpenAddBlog}
+          className="shrink-0 font-bold"
+        >
+          <HiOutlinePlus className="w-4 h-4 mr-1" />
+          <span>Write New Post</span>
         </Button>
       </div>
 
-      {/* Articles Table */}
-      {filteredBlogs.length === 0 ? (
+      {/* Blogs Table Card */}
+      {isLoading ? (
+        <TableSkeleton rows={5} columns={6} />
+      ) : filteredBlogs.length === 0 ? (
         <EmptyState
-          icon={
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-          }
+          icon={<HiOutlineDocumentText className="w-8 h-8 text-muted" />}
           title="No Articles Found"
           description={
             blogSearch || blogStatusFilter !== "all"
-              ? "No blog articles match your active search or status filter."
-              : "No technical articles published or drafted yet."
+              ? "No technical articles match your active search filter or status selection."
+              : "No articles have been created yet. Click 'Write New Post' to author your first article as Draft."
           }
           action={
             <Button variant="primary" size="sm" onClick={handleOpenAddBlog}>
-              + Write First Post
+              <HiOutlinePlus className="w-4 h-4 mr-1" />
+              <span>Write First Post</span>
             </Button>
           }
         />
       ) : (
         <Card>
           <CardContent className="p-0">
-            <Table>
+            <Table className="border-0! rounded-none! bg-transparent!">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Article Title</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Author</TableHead>
-                  <TableHead>Published Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="px-4 sm:px-4 py-3.5 whitespace-nowrap text-foreground">
+                    Article Title
+                  </TableHead>
+                  <TableHead className="px-4 sm:px-4 py-3.5 whitespace-nowrap text-center text-foreground">
+                    Category
+                  </TableHead>
+                  <TableHead className="px-4 sm:px-4 py-3.5 whitespace-nowrap text-center text-foreground">
+                    Status
+                  </TableHead>
+                  <TableHead className="px-4 sm:px-4 py-3.5 whitespace-nowrap text-center text-foreground">
+                    Author
+                  </TableHead>
+                  <TableHead className="px-4 sm:px-4 py-3.5 whitespace-nowrap text-center text-foreground">
+                    Published Date
+                  </TableHead>
+                  <TableHead className="px-4 sm:px-4 py-3.5 whitespace-nowrap text-right text-foreground">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {filteredBlogs.map((blog) => {
-                  const isPublished = Boolean(blog.publishedAt);
+              <TableBody className="divide-y divide-border">
+                {filteredBlogs.map((blog, idx) => {
+                  const isPublished = blog.status === "published";
+                  const rowKey = blog.documentId
+                    ? `${blog.documentId}-${idx}`
+                    : `blog-${blog.id || idx}`;
 
                   return (
-                    <TableRow key={blog.documentId || blog.id}>
-                      <TableCell>
-                        <div className="font-semibold text-foreground text-xs line-clamp-1 max-w-xs">
+                    <TableRow
+                      key={rowKey}
+                      className="hover:bg-surface/40 transition-colors"
+                    >
+                      {/* Article Title & Excerpt */}
+                      <TableCell className="py-3.5 px-4 sm:px-4 align-middle">
+                        <div className="font-bold text-foreground text-xs line-clamp-1 max-w-sm">
                           {blog.title}
                         </div>
-                        <div className="text-[10px] text-muted line-clamp-1 max-w-xs">
-                          {blog.excerpt || "No excerpt summary."}
+                        <div className="text-[11px] text-muted line-clamp-1 max-w-sm mt-0.5">
+                          {blog.excerpt || "No excerpt summary provided."}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs">
+
+                      {/* Category */}
+                      <TableCell className="py-3.5 px-4 sm:px-4 text-center align-middle">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] font-semibold"
+                        >
                           {blog.category?.name || "Engineering"}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant={isPublished ? "highlight" : "secondary"}>
+
+                      {/* Status Badge */}
+                      <TableCell className="py-3.5 px-4 sm:px-4 text-center align-middle">
+                        <Badge
+                          variant={isPublished ? "highlight" : "secondary"}
+                          className="text-[10px] font-bold"
+                        >
                           {isPublished ? "Published" : "Draft"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-xs text-muted">
-                        {blog.author?.username || "Editorial Team"}
+
+                      {/* Author */}
+                      <TableCell className="py-3.5 px-4 sm:px-4 text-center align-middle text-xs text-muted font-medium">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-primary/15 text-primary dark:text-highlight inline-flex items-center justify-center font-bold text-[10px]">
+                            {(blog.author?.username || "C")[0].toUpperCase()}
+                          </span>
+                          <span>
+                            {blog.author?.username || "Editorial Team"}
+                          </span>
+                        </span>
                       </TableCell>
-                      <TableCell className="text-xs text-muted">
-                        {blog.publishedAt
-                          ? new Date(blog.publishedAt).toLocaleDateString()
-                          : "Unpublished"}
+
+                      {/* Published Date */}
+                      <TableCell className="py-3.5 px-4 sm:px-4 text-center align-middle text-xs text-muted">
+                        {blog.publishedAt ? (
+                          <span className="font-semibold text-foreground">
+                            {new Date(blog.publishedAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              },
+                            )}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-muted italic">
+                            Unpublished (Draft)
+                          </span>
+                        )}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="surface"
-                            size="sm"
-                            className="text-xs py-1"
-                            onClick={() => handleToggleBlogStatus(blog)}
-                          >
-                            {isPublished ? "Unpublish" : "Publish"}
-                          </Button>
+
+                      {/* Action Buttons */}
+                      <TableCell className="py-3.5 px-4 sm:px-4 text-right align-middle">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Edit Article */}
                           <Button
                             variant="secondary"
                             size="sm"
-                            className="text-xs py-1"
+                            disabled={isActionLoading}
+                            className="text-xs py-1 px-2.5"
                             onClick={() => handleOpenEditBlog(blog)}
+                            title="Edit Article"
                           >
-                            Edit
+                            <HiOutlinePencilSquare className="w-3.5 h-3.5 mr-0.5" />
+                            <span>Edit</span>
                           </Button>
+
+                          {/* Delete Article */}
                           <Button
                             variant="danger"
                             size="sm"
-                            className="text-xs py-1"
+                            disabled={isActionLoading}
+                            className="text-xs py-1 px-2.5"
                             onClick={() => handleOpenDeleteBlogModal(blog)}
+                            title="Delete Article"
                           >
-                            Delete
+                            <HiOutlineTrash className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       </TableCell>

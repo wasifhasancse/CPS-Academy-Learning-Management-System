@@ -7,6 +7,7 @@ import { DistributionDonutChart } from "@/components/dashboard/DistributionDonut
 import { ActivityTable } from "@/components/dashboard/ActivityTable";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Skeleton, DashboardStatsSkeleton, TableSkeleton } from "@/components/ui/Skeleton";
 
 export default function ManagerOverviewPage() {
   const {
@@ -22,13 +23,50 @@ export default function ManagerOverviewPage() {
   if (isLoading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-28 bg-surface rounded-2xl" />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-24 bg-surface rounded-xl" />
-          ))}
+        {/* Welcome Header Banner Skeleton */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <Skeleton className="w-56 h-6 rounded-md" />
+            <Skeleton className="w-72 h-4 rounded" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="w-28 h-10 rounded-xl" />
+            <Skeleton className="w-28 h-10 rounded-xl" />
+          </div>
         </div>
-        <div className="h-80 bg-surface rounded-2xl" />
+
+        {/* Metric Cards Skeleton */}
+        <DashboardStatsSkeleton count={4} columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" />
+
+        {/* Charts Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 p-6 rounded-3xl bg-card border border-border space-y-4">
+            <div className="flex justify-between items-center">
+              <Skeleton className="w-44 h-5 rounded-md" />
+              <Skeleton className="w-24 h-4 rounded" />
+            </div>
+            <Skeleton className="w-full h-64 rounded-2xl" />
+          </div>
+          <div className="lg:col-span-4 p-6 rounded-3xl bg-card border border-border space-y-4">
+            <Skeleton className="w-36 h-5 rounded-md" />
+            <div className="flex justify-center py-4">
+              <Skeleton className="w-44 h-44 rounded-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="w-full h-3.5 rounded" />
+              <Skeleton className="w-full h-3.5 rounded" />
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity Table Skeleton */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <Skeleton className="w-40 h-5 rounded-md" />
+            <Skeleton className="w-20 h-4 rounded" />
+          </div>
+          <TableSkeleton rows={4} columns={5} />
+        </div>
       </div>
     );
   }

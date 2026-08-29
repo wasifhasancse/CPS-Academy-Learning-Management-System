@@ -1,15 +1,20 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { api } from "@/lib/api";
-import { CourseModal } from "@/components/dashboard/modals/CourseModal";
-import { LessonModal } from "@/components/dashboard/modals/LessonModal";
-import { QuizModal } from "@/components/dashboard/modals/QuizModal";
-import { ManageQuestionsModal } from "@/components/dashboard/modals/ManageQuestionsModal";
 import { BlogModal } from "@/components/dashboard/modals/BlogModal";
 import { ConfirmDeleteModal } from "@/components/dashboard/modals/ConfirmDeleteModal";
-
+import { CourseModal } from "@/components/dashboard/modals/CourseModal";
+import { LessonModal } from "@/components/dashboard/modals/LessonModal";
+import { ManageQuestionsModal } from "@/components/dashboard/modals/ManageQuestionsModal";
+import { QuizModal } from "@/components/dashboard/modals/QuizModal";
+import { useAuth } from "@/context/AuthContext";
+import { api } from "@/lib/api";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 
 const ManagerContext = createContext(null);
 
@@ -109,38 +114,70 @@ export function ManagerProvider({ children }) {
     if (!token) return;
     setIsLoading(true);
     try {
-      const [coursesRes, catsRes, blogsRes, enrollsRes, progressRes, quizAttemptsRes] = await Promise.all([
-        api.get("/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments]=*", { token }).catch(() => ({ data: [] })),
+      const [
+        coursesRes,
+        catsRes,
+        blogsRes,
+        enrollsRes,
+        progressRes,
+        quizAttemptsRes,
+      ] = await Promise.all([
+        api
+          .get(
+            "/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments]=*",
+            { token },
+          )
+          .catch(() => ({ data: [] })),
         api.get("/categories", { token }).catch(() => ({ data: [] })),
-        api.get("/blog-posts?populate=author&populate=category", { token }).catch(() => ({ data: [] })),
-        api.get("/enrollments?populate[student]=*&populate[course][populate]=modules.lessons&populate[course][populate]=quizzes", { token }).catch(() => ({ data: [] })),
+        api
+          .get("/blog-posts?populate=author&populate=category", { token })
+          .catch(() => ({ data: [] })),
+        api
+          .get(
+            "/enrollments?populate[student]=*&populate[course][populate]=modules.lessons&populate[course][populate]=quizzes",
+            { token },
+          )
+          .catch(() => ({ data: [] })),
         api.get("/progresses", { token }).catch(() => ({ data: [] })),
         api.get("/quiz-attempts", { token }).catch(() => ({ data: [] })),
       ]);
 
-      const resolvedCourses = Array.isArray(coursesRes?.data) ? coursesRes.data : [];
+      const resolvedCourses = Array.isArray(coursesRes?.data)
+        ? coursesRes.data
+        : [];
       const resolvedCats = Array.isArray(catsRes?.data) ? catsRes.data : [];
       const resolvedBlogs = Array.isArray(blogsRes?.data) ? blogsRes.data : [];
-      const resolvedEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
-      const allProgress = Array.isArray(progressRes?.data) ? progressRes.data : [];
-      const allAttempts = Array.isArray(quizAttemptsRes?.data) ? quizAttemptsRes.data : [];
+      const resolvedEnrolls = Array.isArray(enrollsRes?.data)
+        ? enrollsRes.data
+        : [];
+      const allProgress = Array.isArray(progressRes?.data)
+        ? progressRes.data
+        : [];
+      const allAttempts = Array.isArray(quizAttemptsRes?.data)
+        ? quizAttemptsRes.data
+        : [];
 
       const enhancedEnrolls = resolvedEnrolls.map((e) => {
         if (!e.course || !e.student) return e;
         const studentId = e.student.id;
         const studentDocId = e.student.documentId;
 
-        const lessons = (e.course.modules || []).flatMap((m) => m.lessons || []);
+        const lessons = (e.course.modules || []).flatMap(
+          (m) => m.lessons || [],
+        );
         const quizzes = e.course.quizzes || [];
         const totalUnits = Math.max(1, lessons.length + quizzes.length);
 
         const lessonIds = new Set(lessons.map((l) => String(l.id)));
-        const lessonDocIds = new Set(lessons.map((l) => String(l.documentId || "")));
+        const lessonDocIds = new Set(
+          lessons.map((l) => String(l.documentId || "")),
+        );
 
         const completedLessonsCount = allProgress.filter((p) => {
           if (!p.isCompleted || !p.lesson || !p.student) return false;
           const pStudentId = p.student.id;
-          const isSameStudent = pStudentId === studentId || p.student.documentId === studentDocId;
+          const isSameStudent =
+            pStudentId === studentId || p.student.documentId === studentDocId;
           if (!isSameStudent) return false;
           const lId = String(p.lesson.id);
           const lDocId = String(p.lesson.documentId || "");
@@ -148,27 +185,43 @@ export function ManagerProvider({ children }) {
         }).length;
 
         const quizIds = new Set(quizzes.map((q) => String(q.id)));
-        const quizDocIds = new Set(quizzes.map((q) => String(q.documentId || "")));
+        const quizDocIds = new Set(
+          quizzes.map((q) => String(q.documentId || "")),
+        );
 
         const passedQuizzes = allAttempts.filter((a) => {
           if (!a.passed || !a.quiz || !a.student) return false;
           const aStudentId = a.student.id;
-          const isSameStudent = aStudentId === studentId || a.student.documentId === studentDocId;
+          const isSameStudent =
+            aStudentId === studentId || a.student.documentId === studentDocId;
           if (!isSameStudent) return false;
           const qId = String(a.quiz.id);
           const qDocId = String(a.quiz.documentId || "");
           return quizIds.has(qId) || quizDocIds.has(qDocId);
         });
-        const passedQuizzesCount = new Set(passedQuizzes.map((a) => a.quiz.documentId || String(a.quiz.id))).size;
+        const passedQuizzesCount = new Set(
+          passedQuizzes.map((a) => a.quiz.documentId || String(a.quiz.id)),
+        ).size;
 
         const completedUnits = completedLessonsCount + passedQuizzesCount;
-        const calculatedPct = Math.min(100, Math.round((completedUnits / totalUnits) * 100));
-        const finalPct = Math.max(Number(e.progressPercentage || 0), calculatedPct);
+        const calculatedPct = Math.min(
+          100,
+          Math.round((completedUnits / totalUnits) * 100),
+        );
+        const finalPct = Math.max(
+          Number(e.progressPercentage || 0),
+          calculatedPct,
+        );
 
         return {
           ...e,
           progressPercentage: finalPct,
-          status: finalPct === 100 ? "Completed" : (finalPct > 0 ? "In Progress" : "Enrolled"),
+          status:
+            finalPct === 100
+              ? "Completed"
+              : finalPct > 0
+                ? "In Progress"
+                : "Enrolled",
         };
       });
 
@@ -178,7 +231,9 @@ export function ManagerProvider({ children }) {
       setStudentsProgress(enhancedEnrolls);
 
       if (resolvedCourses.length > 0 && !selectedCourseId) {
-        setSelectedCourseId(resolvedCourses[0].documentId || String(resolvedCourses[0].id));
+        setSelectedCourseId(
+          resolvedCourses[0].documentId || String(resolvedCourses[0].id),
+        );
       }
     } catch (err) {
       console.error("Failed to load content manager data:", err);
@@ -194,20 +249,43 @@ export function ManagerProvider({ children }) {
   // Derived Metrics & Filters
   const totalCourses = courses.length;
   const totalLessons = courses.reduce(
-    (acc, c) => acc + (c.modules?.reduce((mAcc, m) => mAcc + (m.lessons?.length || 0), 0) || 0),
-    0
+    (acc, c) =>
+      acc +
+      (c.modules?.reduce((mAcc, m) => mAcc + (m.lessons?.length || 0), 0) || 0),
+    0,
   );
-  const totalQuizzes = courses.reduce((acc, c) => acc + (c.quizzes?.length || 0), 0);
+  const totalQuizzes = courses.reduce(
+    (acc, c) => acc + (c.quizzes?.length || 0),
+    0,
+  );
   const totalEnrollments = studentsProgress.length;
   const totalBlogs = blogs.length;
-  const publishedBlogsCount = blogs.filter((b) => Boolean(b.publishedAt)).length;
+  const publishedBlogsCount = blogs.filter(
+    (b) => b.status === "published",
+  ).length;
   const draftBlogsCount = totalBlogs - publishedBlogsCount;
 
   const stats = [
-    { title: "Course Tracks", value: totalCourses, subtitle: `Organized into ${categories.length} Technical Categories` },
-    { title: "Curriculum Units", value: `${totalLessons} / ${totalQuizzes}`, subtitle: "Active Lessons & Checkpoint Quizzes" },
-    { title: "Articles & Knowledge", value: totalBlogs, subtitle: `${publishedBlogsCount} Published • ${draftBlogsCount} In Draft` },
-    { title: "Learners Monitored", value: totalEnrollments, subtitle: "Students Enrolled Across All Tracks" },
+    {
+      title: "Course Tracks",
+      value: totalCourses,
+      subtitle: `Organized into ${categories.length} Technical Categories`,
+    },
+    {
+      title: "Curriculum Units",
+      value: `${totalLessons} / ${totalQuizzes}`,
+      subtitle: "Active Lessons & Checkpoint Quizzes",
+    },
+    {
+      title: "Articles & Knowledge",
+      value: totalBlogs,
+      subtitle: `${publishedBlogsCount} Published • ${draftBlogsCount} In Draft`,
+    },
+    {
+      title: "Learners Monitored",
+      value: totalEnrollments,
+      subtitle: "Students Enrolled Across All Tracks",
+    },
   ];
 
   const managerActivities = [
@@ -215,7 +293,9 @@ export function ManagerProvider({ children }) {
       id: `c-${c.id}`,
       action: "COURSE_UPDATED",
       title: `Course track "${c.title}" updated`,
-      timestamp: c.updatedAt ? new Date(c.updatedAt).toLocaleDateString() : "Recent",
+      timestamp: c.updatedAt
+        ? new Date(c.updatedAt).toLocaleDateString()
+        : "Recent",
       dateObj: c.updatedAt ? new Date(c.updatedAt) : new Date(0),
       badgeText: "COURSE",
       badgeVariant: "primary",
@@ -223,13 +303,17 @@ export function ManagerProvider({ children }) {
     ...blogs.map((b) => ({
       id: `b-${b.id}`,
       action: "BLOG_SAVED",
-      title: `Article "${b.title}" ${b.publishedAt ? "published" : "drafted"}`,
-      timestamp: b.updatedAt ? new Date(b.updatedAt).toLocaleDateString() : "Recent",
+      title: `Article "${b.title}" ${b.status === "published" ? "published" : "drafted"}`,
+      timestamp: b.updatedAt
+        ? new Date(b.updatedAt).toLocaleDateString()
+        : "Recent",
       dateObj: b.updatedAt ? new Date(b.updatedAt) : new Date(0),
-      badgeText: b.publishedAt ? "PUBLISHED" : "DRAFT",
-      badgeVariant: b.publishedAt ? "highlight" : "secondary",
+      badgeText: b.status === "published" ? "PUBLISHED" : "DRAFT",
+      badgeVariant: b.status === "published" ? "highlight" : "secondary",
     })),
-  ].sort((a, b) => b.dateObj - a.dateObj).slice(0, 10);
+  ]
+    .sort((a, b) => b.dateObj - a.dateObj)
+    .slice(0, 10);
 
   const filteredCourses = courses.filter((c) => {
     const query = courseSearch.toLowerCase();
@@ -246,7 +330,9 @@ export function ManagerProvider({ children }) {
   });
 
   const currentCourse =
-    courses.find((c) => (c.documentId || String(c.id)) === selectedCourseId) || courses[0] || null;
+    courses.find((c) => (c.documentId || String(c.id)) === selectedCourseId) ||
+    courses[0] ||
+    null;
 
   const currentCourseLessons =
     currentCourse?.modules?.flatMap((m) => m.lessons || []) || [];
@@ -258,7 +344,7 @@ export function ManagerProvider({ children }) {
       !query ||
       b.title?.toLowerCase().includes(query) ||
       b.excerpt?.toLowerCase().includes(query);
-    const isPublished = Boolean(b.publishedAt);
+    const isPublished = b.status === "published";
     const matchStatus =
       blogStatusFilter === "all" ||
       (blogStatusFilter === "published" && isPublished) ||
@@ -302,7 +388,8 @@ export function ManagerProvider({ children }) {
     setEditingCourseId(course.documentId || course.id);
     setCourseForm({
       title: course.title || "",
-      category: course.category?.documentId || String(course.category?.id) || "",
+      category:
+        course.category?.documentId || String(course.category?.id) || "",
       price: String(course.price || 0),
       difficulty: course.difficulty || "Beginner",
       description: course.description || "",
@@ -399,7 +486,7 @@ export function ManagerProvider({ children }) {
               course: currentCourse.documentId || currentCourse.id,
             },
           },
-          { token }
+          { token },
         );
         targetModule = modRes.data;
       }
@@ -556,7 +643,7 @@ export function ManagerProvider({ children }) {
             quiz: quizId,
           },
         },
-        { token }
+        { token },
       );
 
       setNewQuestion({
@@ -571,7 +658,7 @@ export function ManagerProvider({ children }) {
 
       const updatedQuizRes = await api.get(
         `/quizzes/${quizId}?populate=questions`,
-        { token }
+        { token },
       );
       if (updatedQuizRes?.data) {
         setQuizForQuestions(updatedQuizRes.data);
@@ -592,7 +679,7 @@ export function ManagerProvider({ children }) {
       await api.delete(`/questions/${questionId}`, { token });
       const updatedQuizRes = await api.get(
         `/quizzes/${quizId}?populate=questions`,
-        { token }
+        { token },
       );
       if (updatedQuizRes?.data) {
         setQuizForQuestions(updatedQuizRes.data);
@@ -626,7 +713,7 @@ export function ManagerProvider({ children }) {
     setBlogForm({
       title: blog.title || "",
       category: blog.category?.documentId || String(blog.category?.id) || "",
-      status: blog.publishedAt ? "published" : "draft",
+      status: blog.status || (blog.publishedAt ? "published" : "draft"),
       excerpt: blog.excerpt || "",
       content: blog.content || "",
       coverImageUrl: blog.coverImageUrl || "",
@@ -638,7 +725,6 @@ export function ManagerProvider({ children }) {
     e.preventDefault();
     setActionLoading(true);
     try {
-      const isPublishing = blogForm.status === "published";
       const payload = {
         data: {
           title: blogForm.title,
@@ -646,7 +732,7 @@ export function ManagerProvider({ children }) {
           excerpt: blogForm.excerpt,
           content: blogForm.content,
           coverImageUrl: blogForm.coverImageUrl,
-          publishedAt: isPublishing ? new Date().toISOString() : null,
+          status: blogForm.status,
           author: currentManager?.id,
         },
       };
@@ -675,10 +761,10 @@ export function ManagerProvider({ children }) {
         `/blog-posts/${blogId}`,
         {
           data: {
-            publishedAt: isCurrentlyPublished ? null : new Date().toISOString(),
+            status: isCurrentlyPublished ? "draft" : "published",
           },
         },
-        { token }
+        { token },
       );
       await loadManagerData();
     } catch (err) {

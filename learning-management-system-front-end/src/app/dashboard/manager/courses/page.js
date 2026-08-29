@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CourseGridSkeleton } from "@/components/ui/Skeleton";
 import { useRouter } from "next/navigation";
 
 export default function ManagerCoursesPage() {
@@ -14,6 +15,7 @@ export default function ManagerCoursesPage() {
     courses,
     filteredCourses,
     categories,
+    isLoading,
     courseSearch,
     setCourseSearch,
     courseCategoryFilter,
@@ -54,7 +56,9 @@ export default function ManagerCoursesPage() {
       </div>
 
       {/* Course Cards Grid */}
-      {filteredCourses.length === 0 ? (
+      {isLoading ? (
+        <CourseGridSkeleton count={6} columns="grid-cols-1 md:grid-cols-2 lg:grid-cols-3" />
+      ) : filteredCourses.length === 0 ? (
         <EmptyState
           icon={
             <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
