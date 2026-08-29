@@ -2,21 +2,30 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CourseCard } from "@/components/courses/CourseCard";
 import { api } from "@/lib/api";
+import {
+  HiOutlineSparkles,
+  HiOutlineBookOpen,
+  HiOutlineMagnifyingGlass,
+  HiOutlineFunnel,
+  HiOutlineArrowPath,
+} from "react-icons/hi2";
 
 function CoursesCatalogContent() {
   const searchParams = useSearchParams();
-  const initialSearch = searchParams.get("search") || "";
+  const initialSearch = searchParams.get("search") || searchParams.get("q") || "";
+  const initialCategory = searchParams.get("category") || "all";
 
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState(initialSearch);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
   const [sortBy, setSortBy] = useState("popular");
   const [isLoading, setIsLoading] = useState(true);
@@ -27,6 +36,12 @@ function CoursesCatalogContent() {
       setSearch(initialSearch);
     }
   }, [initialSearch]);
+
+  useEffect(() => {
+    if (initialCategory && initialCategory !== "all") {
+      setSelectedCategory(initialCategory);
+    }
+  }, [initialCategory]);
 
   useEffect(() => {
     async function loadCatalog() {
@@ -106,39 +121,98 @@ function CoursesCatalogContent() {
       return bE - aE;
     });
 
+  const hasActiveFilters = search || selectedCategory !== "all" || selectedDifficulty !== "all" || sortBy !== "popular";
+
+  const handleResetFilters = () => {
+    setSearch("");
+    setSelectedCategory("all");
+    setSelectedDifficulty("all");
+    setSortBy("popular");
+  };
+
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-11/12 mx-auto space-y-8">
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto space-y-10">
       {/* Header Banner */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
-        <Badge variant="highlight">Curated Learning Tracks</Badge>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary dark:text-highlight">
+          <HiOutlineSparkles className="w-4 h-4" />
+          <span>Curated Computer Science Curriculums</span>
+        </div>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight leading-tight">
           Explore CPS Academy Courses
         </h1>
-        <p className="text-sm sm:text-base text-muted">
-          Master Competitive Programming, Algorithms, System Design, and Full-Stack Engineering with structured video modules and timed evaluations.
+        <p className="text-sm sm:text-base text-muted max-w-2xl mx-auto leading-relaxed">
+          Master Competitive Programming, Algorithms, System Design, and Full-Stack Engineering with structured video modules, reading notes, and timed quiz evaluations.
         </p>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="p-4 rounded-xl bg-surface border border-border space-y-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="relative w-full md:w-96">
+      <div className="space-y-4">
+        {/* Category Pill Tabs */}
+        <div className="flex flex-wrap items-center justify-center gap-2 max-w-4xl mx-auto p-1.5 rounded-2xl bg-surface/60 border border-border">
+          <button
+            type="button"
+            onClick={() => setSelectedCategory("all")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              selectedCategory === "all"
+                ? "bg-primary text-white shadow-sm"
+                : "text-muted hover:text-foreground hover:bg-surface"
+            }`}
+          >
+            All Tracks ({courses.length})
+          </button>
+          {categories.map((cat) => {
+            const isSelected = selectedCategory === (cat.slug || cat.name || cat.documentId);
+            const count = courses.filter(
+              (c) =>
+                c.category?.slug === cat.slug ||
+                c.category?.name === cat.name ||
+                c.category?.documentId === cat.documentId
+            ).length;
+
+            return (
+              <button
+                key={cat.documentId || cat.id}
+                type="button"
+                onClick={() => setSelectedCategory(cat.slug || cat.name || cat.documentId)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isSelected
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-muted hover:text-foreground hover:bg-surface"
+                }`}
+              >
+                <span>{cat.name}</span>
+                {count > 0 && (
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                      isSelected ? "bg-white/20 text-white" : "bg-card border border-border text-muted"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Filter Controls Bar */}
+        <div className="p-4 rounded-2xl bg-surface border border-border flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="relative w-full md:w-80">
             <Input
-              placeholder="Search by course title, keyword, or topic..."
+              placeholder="Search courses by keyword..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full text-xs pl-9 pr-8"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <HiOutlineMagnifyingGlass className="w-4 h-4" />
             </div>
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground text-xs p-0.5"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground text-xs p-0.5 cursor-pointer"
                 aria-label="Clear search"
               >
                 ✕
@@ -146,24 +220,24 @@ function CoursesCatalogContent() {
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-wrap items-center justify-between md:justify-end gap-3 w-full md:w-auto">
             {/* Difficulty Filter */}
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-card border border-border text-xs text-foreground font-medium focus:outline-none"
+              className="px-3.5 py-2 rounded-xl bg-card border border-border text-xs text-foreground font-semibold focus:outline-none min-w-[140px]"
             >
               <option value="all">All Difficulties</option>
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
+              <option value="beginner">Beginner Level</option>
+              <option value="intermediate">Intermediate Level</option>
+              <option value="advanced">Advanced Level</option>
             </select>
 
             {/* Sort Filter */}
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-card border border-border text-xs text-foreground font-medium focus:outline-none"
+              className="px-3.5 py-2 rounded-xl bg-card border border-border text-xs text-foreground font-semibold focus:outline-none min-w-[140px]"
             >
               <option value="popular">Most Popular</option>
               <option value="lessons">Most Lessons</option>
@@ -171,46 +245,40 @@ function CoursesCatalogContent() {
               <option value="price-high">Price: High to Low</option>
             </select>
 
-            {/* Clear All Filters Button */}
-            {(search || selectedCategory !== "all" || selectedDifficulty !== "all" || sortBy !== "popular") && (
+            {/* Reset All Filters Button */}
+            {hasActiveFilters && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  setSearch("");
-                  setSelectedCategory("all");
-                  setSelectedDifficulty("all");
-                  setSortBy("popular");
-                }}
-                className="text-xs font-semibold text-red-500 hover:text-red-600 border-red-500/20 hover:bg-red-500/10 transition-colors"
+                onClick={handleResetFilters}
+                className="text-xs font-semibold text-red-500 hover:text-red-600 border-red-500/20 hover:bg-red-500/10 transition-colors gap-1"
               >
-                ✕ Clear All
+                <HiOutlineArrowPath className="w-3.5 h-3.5" />
+                <span>Reset</span>
               </Button>
             )}
           </div>
         </div>
 
-        {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pt-1 pb-1">
-          <Button
-            variant={selectedCategory === "all" ? "primary" : "outline"}
-            size="sm"
-            onClick={() => setSelectedCategory("all")}
-            className="text-xs flex-shrink-0"
-          >
-            All Tracks ({courses.length})
-          </Button>
-          {categories.map((cat) => (
-            <Button
-              key={cat.documentId || cat.id}
-              variant={selectedCategory === (cat.slug || cat.name) ? "primary" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(cat.slug || cat.name)}
-              className="text-xs flex-shrink-0"
-            >
-              {cat.name}
-            </Button>
-          ))}
+        {/* Results Counter & Search Indicator */}
+        <div className="flex items-center justify-between text-xs text-muted px-1">
+          <span>
+            Showing <strong className="text-foreground">{filteredCourses.length}</strong> of{" "}
+            <strong className="text-foreground">{courses.length}</strong> available courses
+          </span>
+
+          {search && (
+            <div className="flex items-center gap-1.5">
+              <span>Matching &ldquo;<strong className="text-foreground">{search}</strong>&rdquo;</span>
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="text-primary dark:text-highlight hover:underline font-bold text-xs cursor-pointer ml-1"
+              >
+                Clear ✕
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -220,10 +288,10 @@ function CoursesCatalogContent() {
           {[1, 2, 3, 4, 5, 6].map((n) => (
             <div
               key={n}
-              className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between"
+              className="rounded-3xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between"
             >
               <div className="w-full h-48 bg-surface border-b border-border" />
-              <div className="p-5 space-y-3">
+              <div className="p-6 space-y-3">
                 <div className="flex justify-between">
                   <div className="w-20 h-4 bg-surface rounded" />
                   <div className="w-16 h-4 bg-surface rounded" />
@@ -240,27 +308,19 @@ function CoursesCatalogContent() {
         </div>
       ) : filteredCourses.length === 0 ? (
         <EmptyState
-          icon={
-            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          }
+          icon={<HiOutlineBookOpen className="w-8 h-8 text-muted" />}
           title="No Matching Courses Found"
           description={
-            search || selectedCategory !== "all" || selectedDifficulty !== "all"
+            hasActiveFilters
               ? "We couldn't find any courses matching your active search keywords or filter selections."
               : "No course tracks are currently published in the academy catalog. Check back soon!"
           }
           action={
-            (search || selectedCategory !== "all" || selectedDifficulty !== "all") && (
+            hasActiveFilters && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  setSearch("");
-                  setSelectedCategory("all");
-                  setSelectedDifficulty("all");
-                }}
+                onClick={handleResetFilters}
               >
                 Reset All Filters
               </Button>
@@ -282,8 +342,13 @@ export default function CoursesPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-16 text-center text-muted text-sm">
-          Loading course catalog...
+        <div className="w-full py-16 px-4 max-w-[1400px] mx-auto text-center text-muted text-sm animate-pulse space-y-4">
+          <div className="h-10 bg-surface rounded-xl max-w-md mx-auto" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-64 bg-surface rounded-2xl" />
+            ))}
+          </div>
         </div>
       }
     >
