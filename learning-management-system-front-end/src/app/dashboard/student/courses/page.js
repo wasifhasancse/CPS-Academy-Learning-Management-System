@@ -48,14 +48,15 @@ export default function StudentCoursesPage() {
             const lessonsCount =
               course.modules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) || 0;
             const progress = Number(course.progressPercentage) || 0;
+            const isFinished = progress === 100;
 
             return (
               <Card key={course.documentId || course.id} className="flex flex-col justify-between">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
                     <Badge variant="outline">{course.category?.name || "Track"}</Badge>
-                    <Badge variant={progress === 100 ? "highlight" : "secondary"}>
-                      {progress === 100 ? "Completed" : "In Progress"}
+                    <Badge variant={isFinished ? "highlight" : "secondary"}>
+                      {isFinished ? "✓ Completed" : "In Progress"}
                     </Badge>
                   </div>
                   <CardTitle className="text-base mt-2 line-clamp-2">{course.title}</CardTitle>
@@ -68,14 +69,20 @@ export default function StudentCoursesPage() {
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs font-semibold">
                       <span className="text-muted">{lessonsCount} Lessons</span>
-                      <span className="text-foreground">{progress}%</span>
+                      <span className={`font-bold ${isFinished ? "text-primary dark:text-highlight" : "text-foreground"}`}>
+                        {progress}%
+                      </span>
                     </div>
                     <ProgressBar progress={progress} />
                   </div>
 
                   <Link href={`/learn/${course.slug || course.documentId || course.id}`} className="block">
-                    <Button variant="primary" size="sm" className="w-full">
-                      {progress === 0 ? "▶ Start Learning Now" : "▶ Continue Learning"}
+                    <Button variant={isFinished ? "outline" : "primary"} size="sm" className="w-full font-bold">
+                      {isFinished
+                        ? "✓ Completed (Review Course)"
+                        : progress === 0
+                        ? "▶ Start Learning Now"
+                        : "▶ Continue Learning"}
                     </Button>
                   </Link>
                 </CardContent>
