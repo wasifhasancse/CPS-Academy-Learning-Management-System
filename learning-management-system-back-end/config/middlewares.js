@@ -25,7 +25,13 @@ module.exports = ({ env }) => [
       includeUnparsed: true,
     },
   },
-  'strapi::session',
+  {
+    name: 'strapi::session',
+    config: {
+      secure: false,
+      sameSite: 'lax',
+    },
+  },
   'strapi::favicon',
   'strapi::public',
 ];
