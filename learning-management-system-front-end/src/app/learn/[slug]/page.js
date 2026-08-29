@@ -26,13 +26,18 @@ import {
   HiOutlineXMark,
   HiOutlineArrowPath,
   HiOutlineDocumentText,
+  HiOutlineClock,
 } from "react-icons/hi2";
 
 function extractYouTubeId(url) {
   if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
+  const str = String(url).trim();
+  if (/^[a-zA-Z0-9_-]{11}$/.test(str)) {
+    return str;
+  }
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = str.match(regExp);
+  return match && match[1] ? match[1] : null;
 }
 
 export default function CoursePlayerPage({ params }) {
@@ -520,7 +525,13 @@ export default function CoursePlayerPage({ params }) {
 
   const isVideoLesson = activeItem?.type === "lesson";
   const isQuizItem = activeItem?.type === "quiz";
-  const youtubeVideoId = isVideoLesson ? extractYouTubeId(activeItem?.data?.videoUrl) : null;
+  const rawVideoUrl =
+    activeItem?.data?.youtubeUrl ||
+    activeItem?.data?.videoUrl ||
+    activeItem?.data?.youtube_url ||
+    activeItem?.data?.url ||
+    "";
+  const youtubeVideoId = isVideoLesson ? extractYouTubeId(rawVideoUrl) : null;
   const currentActiveId = activeItem ? `${activeItem.type}-${activeItem.data?.documentId || activeItem.data?.id}` : "";
   const isCurrentComplete = completedItemIds.has(currentActiveId);
   const activeSavedAttempt = isQuizItem ? getSavedAttemptForQuiz(activeItem?.data) : null;
@@ -603,19 +614,23 @@ export default function CoursePlayerPage({ params }) {
           {isVideoLesson ? (
             youtubeVideoId ? (
               /* 16:9 Video Player */
-              <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black border border-border shadow-sm">
+              <div
+                key={`video-${youtubeVideoId}`}
+                className="w-full aspect-video rounded-3xl overflow-hidden bg-black border-2 border-border shadow-md"
+              >
                 <iframe
+                  key={youtubeVideoId}
                   className="w-full h-full"
-                  src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?rel=0&modestbranding=1&enablejsapi=1`}
+                  src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?rel=0&modestbranding=1&enablejsapi=1&autoplay=1`}
                   title={activeItem?.data?.title || "Lesson Video"}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>
             ) : (
-              /* Text / Article Lesson Reader Stage */
-              <Card className="bg-card border-border overflow-hidden">
-                <CardHeader className="bg-surface/60 border-b border-border py-4 px-6">
+              /* Text / Article Lesson Reader Stage when no video is attached */
+              <Card key={`article-${currentActiveId}`} className="bg-card border-2 border-border overflow-hidden shadow-sm rounded-3xl">
+                <CardHeader className="bg-surface/80 border-b border-border py-4 px-6">
                   <div className="flex items-center justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -633,16 +648,19 @@ export default function CoursePlayerPage({ params }) {
                       </CardTitle>
                     </div>
                     {activeItem?.data?.duration && (
-                      <div className="text-right text-xs text-muted shrink-0">
+                      <div className="text-right text-xs text-muted shrink-0 flex items-center gap-1">
+                        <HiOutlineClock className="w-3.5 h-3.5 text-secondary" />
                         <span>Est. Reading Time: </span>
                         <strong className="text-foreground">{activeItem?.data?.duration}</strong>
                       </div>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-6 space-y-4">
+                <CardContent className="p-6 sm:p-8 space-y-4">
                   <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap font-sans">
-                    {activeItem?.data?.content || activeItem?.data?.notes || "Welcome to this reading lesson. Study the contents and concepts below, then mark as complete to advance."}
+                    {activeItem?.data?.content ||
+                      activeItem?.data?.notes ||
+                      "Welcome to this reading lesson. Study the contents and concepts below, then mark as complete to advance."}
                   </div>
                 </CardContent>
               </Card>
@@ -912,30 +930,86 @@ export default function CoursePlayerPage({ params }) {
             </div>
           </div>
 
-          {/* Lesson Details & Notes */}
+          {/* Lesson Details & Multi-Tab Resources */}
           {isVideoLesson && (
-            <Card className="bg-card border-border">
-              <CardHeader className="py-3 px-5 border-b border-border bg-surface/50">
+            <Card className="bg-card border-border overflow-hidden shadow-xs">
+              <CardHeader className="py-3 px-5 border-b border-border bg-surface/60">
                 <div className="flex gap-4 text-xs font-bold">
                   <button
+                    type="button"
                     onClick={() => setActiveTab("overview")}
-                    className={`pb-1 border-b-2 transition-colors cursor-pointer ${
-                      activeTab === "overview" ? "border-secondary text-secondary" : "border-transparent text-muted hover:text-foreground"
+                    className={`pb-1.5 border-b-2 transition-colors cursor-pointer ${
+                      activeTab === "overview"
+                        ? "border-secondary text-secondary font-bold"
+                        : "border-transparent text-muted hover:text-foreground"
                     }`}
                   >
                     Lesson Notes & Practice
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("resources")}
+                    className={`pb-1.5 border-b-2 transition-colors cursor-pointer ${
+                      activeTab === "resources"
+                        ? "border-secondary text-secondary font-bold"
+                        : "border-transparent text-muted hover:text-foreground"
+                    }`}
+                  >
+                    Resources & Templates
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("qna")}
+                    className={`pb-1.5 border-b-2 transition-colors cursor-pointer ${
+                      activeTab === "qna"
+                        ? "border-secondary text-secondary font-bold"
+                        : "border-transparent text-muted hover:text-foreground"
+                    }`}
+                  >
+                    Instructor Q&A
+                  </button>
                 </div>
               </CardHeader>
-              <CardContent className="p-5 text-sm text-muted leading-relaxed space-y-3">
-                <p>
-                  {activeItem?.data?.content ||
-                    "Review the foundational topics covered in this lesson. Practice with the problem sets to build mastery."}
-                </p>
-                {activeItem?.data?.duration && (
-                  <p className="text-xs text-muted">
-                    Estimated Duration: <strong className="text-foreground">{activeItem.data.duration}</strong>
-                  </p>
+              <CardContent className="p-6 text-sm leading-relaxed space-y-4">
+                {activeTab === "overview" && (
+                  <div className="space-y-3">
+                    <div className="text-foreground text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">
+                      {activeItem?.data?.content ||
+                        activeItem?.data?.notes ||
+                        "Review the foundational topics covered in this lesson. Practice with the problem sets to build mastery."}
+                    </div>
+                    {activeItem?.data?.duration && (
+                      <div className="text-xs text-muted pt-2 border-t border-border/60 flex items-center gap-1.5">
+                        <HiOutlineClock className="w-3.5 h-3.5 text-secondary" />
+                        <span>Estimated Duration: <strong className="text-foreground">{activeItem.data.duration}</strong></span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === "resources" && (
+                  <div className="space-y-3 text-xs text-muted">
+                    <p className="text-foreground font-semibold">Supplementary Code & Downloadable Materials</p>
+                    <div className="p-4 rounded-xl bg-surface border border-border space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-foreground font-bold">{course.title} - Starter Code</span>
+                        <span className="text-[10px] font-bold text-secondary">Verified Template</span>
+                      </div>
+                      <p className="text-[11px]">Download starter files, algorithm templates, and practice test cases for this unit.</p>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "qna" && (
+                  <div className="space-y-3 text-xs">
+                    <p className="text-foreground font-semibold">Discussion with Instructor & Classmates</p>
+                    <div className="p-4 rounded-xl bg-surface border border-border space-y-2 text-muted">
+                      <p>Have a question regarding this video lesson or test case failure? Reach out through your instructor portal or class discussion group.</p>
+                      <div className="pt-2 text-[11px] font-bold text-secondary">
+                        Instructor: {course.instructor?.username || "CPS Faculty"}
+                      </div>
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>

@@ -17,7 +17,7 @@ module.exports = ({ env }) => {
   const databaseUrl = env('DATABASE_URL');
   const isNeonOrSsl = env.bool('DATABASE_SSL', true);
 
-  /** @type {Record<Core.Config.Database.ClientKind, Core.Config.Database['connection']>} */
+  /** @type {Record<Core.Config.Database.ClientKind, Record<string, unknown>>} */
   const connections = {
     postgres: {
       client: 'postgres',
@@ -48,8 +48,10 @@ module.exports = ({ env }) => {
             schema: env('DATABASE_SCHEMA', 'public'),
           },
       pool: {
-        min: env.int('DATABASE_POOL_MIN', 2),
+        min: env.int('DATABASE_POOL_MIN', 0),
         max: env.int('DATABASE_POOL_MAX', 10),
+        idleTimeoutMillis: env.int('DATABASE_POOL_IDLE_TIMEOUT', 30000),
+        acquireTimeoutMillis: env.int('DATABASE_CONNECTION_TIMEOUT', 60000),
       },
     },
     mysql: {

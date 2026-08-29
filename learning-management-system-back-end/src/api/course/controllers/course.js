@@ -26,10 +26,16 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
     const user = ctx.state.user;
 
     // Support query filters passed from client
-    let queryFilters = ctx.query?.filters || {};
-    if (typeof queryFilters === 'string') {
+    /** @type {Record<string, unknown>} */
+    let queryFilters = {};
+    if (ctx.query?.filters && typeof ctx.query.filters === 'object') {
+      queryFilters = /** @type {Record<string, unknown>} */ (ctx.query.filters);
+    } else if (typeof ctx.query?.filters === 'string') {
       try {
-        queryFilters = JSON.parse(queryFilters);
+        const parsed = JSON.parse(ctx.query.filters);
+        if (parsed && typeof parsed === 'object') {
+          queryFilters = parsed;
+        }
       } catch {
         queryFilters = {};
       }
@@ -61,21 +67,26 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
       },
     });
 
-    const sanitizedOutput = await this.sanitizeOutput(courses, ctx);
+    const sanitizedOutput = /** @type {Record<string, unknown> | Array<Record<string, unknown>>} */ (
+      await this.sanitizeOutput(courses, ctx)
+    );
 
     // Ensure instructor username and curriculum modules are preserved across public and authenticated roles
     if (Array.isArray(sanitizedOutput)) {
-      sanitizedOutput.forEach((c, idx) => {
+      sanitizedOutput.forEach((courseItem, idx) => {
         const rawCourse = courses[idx];
         const rawInstructor = rawCourse?.instructor;
-        if (rawInstructor && (!c.instructor || !c.instructor.username)) {
+        const c = /** @type {Record<string, unknown>} */ (courseItem);
+        const currentInstructor = /** @type {Record<string, unknown> | null | undefined} */ (c.instructor);
+        if (rawInstructor && (!currentInstructor || !currentInstructor.username)) {
           c.instructor = {
             id: rawInstructor.id,
             documentId: rawInstructor.documentId,
-            username: rawInstructor.username || rawInstructor.name || rawInstructor.email?.split('@')[0] || 'CPS Instructor',
+            username: rawInstructor.username || rawInstructor.email?.split('@')[0] || 'CPS Instructor',
           };
         }
-        if (rawCourse?.modules && (!c.modules || c.modules.length === 0)) {
+        const currentModules = /** @type {unknown[] | undefined} */ (c.modules);
+        if (rawCourse?.modules && (!currentModules || currentModules.length === 0)) {
           c.modules = rawCourse.modules;
         }
       });
@@ -139,16 +150,20 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
       throw new NotFoundError('Course not found');
     }
 
-    const sanitizedOutput = await this.sanitizeOutput(course, ctx);
+    const sanitizedOutput = /** @type {Record<string, unknown>} */ (
+      await this.sanitizeOutput(course, ctx)
+    );
 
-    if (course.instructor && (!sanitizedOutput.instructor || !sanitizedOutput.instructor.username)) {
+    const currentInstructor = /** @type {Record<string, unknown> | null | undefined} */ (sanitizedOutput.instructor);
+    if (course.instructor && (!currentInstructor || !currentInstructor.username)) {
       sanitizedOutput.instructor = {
         id: course.instructor.id,
         documentId: course.instructor.documentId,
-        username: course.instructor.username || course.instructor.name || course.instructor.email?.split('@')[0] || 'CPS Instructor',
+        username: course.instructor.username || course.instructor.email?.split('@')[0] || 'CPS Instructor',
       };
     }
-    if (course.modules && (!sanitizedOutput.modules || sanitizedOutput.modules.length === 0)) {
+    const currentModules = /** @type {unknown[] | undefined} */ (sanitizedOutput.modules);
+    if (course.modules && (!currentModules || currentModules.length === 0)) {
       sanitizedOutput.modules = course.modules;
     }
 
@@ -228,13 +243,16 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
       },
     });
 
-    const sanitizedOutput = await this.sanitizeOutput(newCourse, ctx);
+    const sanitizedOutput = /** @type {Record<string, unknown>} */ (
+      await this.sanitizeOutput(newCourse, ctx)
+    );
 
-    if (newCourse.instructor && (!sanitizedOutput.instructor || !sanitizedOutput.instructor.username)) {
+    const currentInstructor = /** @type {Record<string, unknown> | null | undefined} */ (sanitizedOutput.instructor);
+    if (newCourse.instructor && (!currentInstructor || !currentInstructor.username)) {
       sanitizedOutput.instructor = {
         id: newCourse.instructor.id,
         documentId: newCourse.instructor.documentId,
-        username: newCourse.instructor.username || newCourse.instructor.name || newCourse.instructor.email?.split('@')[0] || user.username,
+        username: newCourse.instructor.username || newCourse.instructor.email?.split('@')[0] || user.username,
       };
     }
 
@@ -309,13 +327,16 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
       },
     });
 
-    const sanitizedOutput = await this.sanitizeOutput(updated, ctx);
+    const sanitizedOutput = /** @type {Record<string, unknown>} */ (
+      await this.sanitizeOutput(updated, ctx)
+    );
 
-    if (updated.instructor && (!sanitizedOutput.instructor || !sanitizedOutput.instructor.username)) {
+    const currentInstructor = /** @type {Record<string, unknown> | null | undefined} */ (sanitizedOutput.instructor);
+    if (updated.instructor && (!currentInstructor || !currentInstructor.username)) {
       sanitizedOutput.instructor = {
         id: updated.instructor.id,
         documentId: updated.instructor.documentId,
-        username: updated.instructor.username || updated.instructor.name || updated.instructor.email?.split('@')[0] || 'CPS Instructor',
+        username: updated.instructor.username || updated.instructor.email?.split('@')[0] || 'CPS Instructor',
       };
     }
 

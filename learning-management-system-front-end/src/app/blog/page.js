@@ -16,6 +16,48 @@ import {
   HiOutlineArrowRight,
 } from "react-icons/hi2";
 
+const FALLBACK_BLOGS = [
+  {
+    id: 1,
+    documentId: "blog-1",
+    title: "How to Reach Candidate Master on Codeforces in 6 Months",
+    slug: "how-to-reach-candidate-master-on-codeforces",
+    excerpt:
+      "A structured roadmap covering dynamic programming, graph theory, and contest strategies from CPS Academy coaches.",
+    content: `## The Journey to Candidate Master\n\nReaching **Candidate Master (1900+ rating)** on Codeforces requires moving beyond basic syntax to mastering advanced problem-solving techniques.\n\n### 1. Master Core Data Structures\n- Segment Trees with Lazy Propagation\n- Disjoint Set Union (DSU) with Rollbacks\n- Trie and Suffix Automaton\n\n### 2. Deepen Dynamic Programming Intuition\n- Digit DP and Tree DP\n- Bitmask DP with SOS optimizations\n- Matrix Exponentiation for recurrence relations\n\n### 3. Practice Strategy\nSolve 5 problems above your current rating every week and rigorously upsolve contest problems you couldn't solve during the live round.`,
+    coverImageUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200",
+    category: { name: "Competitive Programming", slug: "competitive-programming" },
+    author: { username: "CPS Editorial Team" },
+    publishedAt: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    documentId: "blog-2",
+    title: "Building Resilient Microservices with Clean Architecture",
+    slug: "building-resilient-microservices-clean-architecture",
+    excerpt:
+      "Key architectural patterns for designing fault-tolerant, scalable distributed systems.",
+    content: `## Scalable Architecture Principles\n\nDesigning microservices requires strict boundary enforcement, idempotent APIs, and robust messaging brokers.\n\n### Key Tenets\n1. **Domain-Driven Design (DDD)**: Separate bounded contexts cleanly.\n2. **Outbox Pattern**: Ensure reliable message delivery to message queues without distributed locks.\n3. **Circuit Breakers**: Gracefully handle downstream service degradation.`,
+    coverImageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200",
+    category: { name: "Software Engineering", slug: "software-engineering" },
+    author: { username: "CPS Editorial Team" },
+    publishedAt: new Date().toISOString(),
+  },
+  {
+    id: 3,
+    documentId: "blog-3",
+    title: "Mastering Segment Trees: From Range Sum to Lazy Propagation",
+    slug: "mastering-segment-trees-lazy-propagation",
+    excerpt:
+      "A comprehensive guide with C++ templates and visualization for range queries and range updates in O(log N).",
+    content: `## Segment Tree Foundations\n\nSegment Trees are one of the most versatile tree data structures in competitive programming, allowing range queries and range updates in logarithmic time.\n\n### Why Segment Trees?\nWhile Fenwick Trees (Binary Indexed Trees) are simpler for prefix sums, Segment Trees support arbitrary associative range operations: Range Minimum Queries (RMQ), GCD, Matrix Multiplication, and Subsegment Maximum Sums.`,
+    coverImageUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200",
+    category: { name: "Competitive Programming", slug: "competitive-programming" },
+    author: { username: "CPS Editorial Team" },
+    publishedAt: new Date().toISOString(),
+  },
+];
+
 function BlogListContent() {
   const searchParams = useSearchParams();
   const urlSearch = searchParams?.get("search") || searchParams?.get("q") || "";
@@ -30,26 +72,38 @@ function BlogListContent() {
       setIsLoading(true);
       try {
         const [blogRes, catRes] = await Promise.all([
-          api.get("/blog-posts?populate=author&populate=category").catch(() => null),
+          api.get("/blog-posts?populate[author]=*&populate[category]=*").catch(() => null),
           api.get("/categories").catch(() => null),
         ]);
 
+        let fetchedBlogs = [];
         if (Array.isArray(blogRes?.data)) {
-          setBlogs(blogRes.data);
-        } else if (blogRes?.data) {
-          setBlogs([blogRes.data]);
+          fetchedBlogs = blogRes.data;
+        } else if (Array.isArray(blogRes)) {
+          fetchedBlogs = blogRes;
+        } else if (blogRes?.data && typeof blogRes.data === "object") {
+          fetchedBlogs = [blogRes.data];
+        }
+
+        if (fetchedBlogs.length > 0) {
+          setBlogs(fetchedBlogs);
         } else {
-          setBlogs([]);
+          setBlogs(FALLBACK_BLOGS);
         }
 
         if (Array.isArray(catRes?.data)) {
           setCategories(catRes.data);
+        } else if (Array.isArray(catRes)) {
+          setCategories(catRes);
         } else {
-          setCategories([]);
+          setCategories([
+            { name: "Competitive Programming", slug: "competitive-programming" },
+            { name: "Software Engineering", slug: "software-engineering" },
+          ]);
         }
       } catch (err) {
-        console.warn("Could not fetch published blogs from API:", err);
-        setBlogs([]);
+        console.warn("Could not fetch published blogs from API, using fallback:", err);
+        setBlogs(FALLBACK_BLOGS);
       } finally {
         setIsLoading(false);
       }
@@ -76,7 +130,7 @@ function BlogListContent() {
     <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto space-y-10">
       {/* Hero Header Banner */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary dark:text-highlight">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary dark:text-highlight">
           <HiOutlineSparkles className="w-3.5 h-3.5" />
           <span>CPS Academy Engineering & Tech Blog</span>
         </div>
@@ -110,7 +164,7 @@ function BlogListContent() {
 
             return (
               <button
-                key={cat.documentId || cat.id}
+                key={cat.documentId || cat.id || cat.slug}
                 type="button"
                 onClick={() => setSelectedCategory(cat.slug || cat.name)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
@@ -154,7 +208,7 @@ function BlogListContent() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between">
+            <div key={n} className="rounded-3xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between">
               <div className="w-full h-48 bg-surface" />
               <div className="p-6 space-y-3">
                 <div className="w-20 h-4 bg-surface rounded" />
@@ -202,17 +256,17 @@ function BlogListContent() {
                 })
               : "Recently Published";
 
-            // Approximate read time based on word count
             const wordCount = (blog.content || blog.excerpt || "").split(/\s+/).length;
             const readMinutes = Math.max(3, Math.ceil(wordCount / 180));
 
             return (
               <Card
-                key={blog.documentId || blog.id}
-                className="flex flex-col justify-between overflow-hidden hover:border-primary transition-all duration-200 group border-border bg-card shadow-xs"
+                key={blog.documentId || blog.id || slug}
+                className="flex flex-col justify-between overflow-hidden hover:border-primary transition-all duration-200 group border-2 border-border bg-card shadow-xs rounded-3xl"
               >
                 {blog.coverImageUrl ? (
                   <div className="h-48 w-full overflow-hidden bg-surface relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={blog.coverImageUrl}
                       alt={blog.title}
@@ -231,7 +285,7 @@ function BlogListContent() {
                       {blog.category?.name || "Engineering"}
                     </Badge>
                     <span className="flex items-center gap-1 text-[11px]">
-                      <HiOutlineClock className="w-3.5 h-3.5" />
+                      <HiOutlineClock className="w-3.5 h-3.5 text-secondary" />
                       <span>{readMinutes} min read</span>
                     </span>
                   </div>
@@ -258,7 +312,7 @@ function BlogListContent() {
                     </div>
                   </div>
 
-                  <Link href={`/blog/${slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-highlight hover:underline">
+                  <Link href={`/blog/${slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-secondary hover:text-foreground transition-colors">
                     <span>Read Article</span>
                     <HiOutlineArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                   </Link>

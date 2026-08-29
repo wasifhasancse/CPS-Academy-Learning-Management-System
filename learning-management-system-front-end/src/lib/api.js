@@ -45,6 +45,8 @@ export async function fetchApi(endpoint, options = {}) {
 
   const defaultHeaders = {
     "Content-Type": "application/json",
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    Pragma: "no-cache",
     ...(resolvedToken ? { Authorization: `Bearer ${resolvedToken}` } : {}),
     ...headers,
   };
@@ -52,6 +54,7 @@ export async function fetchApi(endpoint, options = {}) {
   const config = {
     method: "GET",
     headers: defaultHeaders,
+    cache: "no-store",
     ...customConfig,
   };
 

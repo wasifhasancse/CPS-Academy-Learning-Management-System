@@ -161,3 +161,29 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 ### 13. Strapi v5 Custom Route Ordering & Method Not Allowed (405) Collisions
 - **Issue**: Registering custom endpoints (e.g. `POST /orders/create-checkout-session`) in separate router files or after `createCoreRouter` causes the router's parameterized `:id` matcher (`GET /orders/:id`, `PUT /orders/:id`) to intercept the request and return `405 Method Not Allowed`.
 - **Prevention Rule**: Define explicit ordered route arrays in `src/api/<api>/routes/<api>.js` with custom sub-paths listed *before* generic `/:id` parameters, and provide resilient JWT token verification directly in the controller using Strapi's JWT service (`resolveUser`).
+
+### 14. Icon Imports in Server and Client Components
+- **Issue**: Using newly added icons (e.g. `HiOutlineClock`) without explicitly including them in the `import { ... } from "react-icons/hi2"` statement causes a `Runtime ReferenceError: <Icon> is not defined` during client render.
+- **Prevention Rule**: Always ensure that all referenced icon components are imported in top-level declarations and verified during the build step.
+
+### 15. Strapi v5 Controller `sanitizeOutput` Return Spreading & Property Mutation
+- **Issue**: Spreading the result of `await this.sanitizeOutput(...)` via `{ ...sanitizedOutput }` triggers `Spread types may only be created from object types`, directly mutating properties (`sanitizedOutput.author = ...`) causes `Property 'author' does not exist on type 'object'`, or declaring `/** @type {...} */ const sanitizedOutput = await ...` causes `Type 'unknown' is not assignable to type ...` because `sanitizeOutput` returns `Promise<unknown>` / `Promise<object>`.
+- **Prevention Rule**: Type-cast `sanitizeOutput` using parenthesized JSDoc expression assertion `const sanitizedOutput = /** @type {Record<string, unknown> | Array<Record<string, unknown>>} */ (await this.sanitizeOutput(data, ctx));` or `const sanitizedOutput = /** @type {Record<string, unknown>} */ (await this.sanitizeOutput(data, ctx));` and mutate properties after verifying `typeof sanitizedOutput === 'object'`.
+
+### 16. Controller `ctx.query` Extraction & Spread Type Safety
+- **Issue**: Spreading parsed query filters `{ ...queryFilters }` where `queryFilters` is typed from `ctx.query?.filters` or JSON-parsed can cause TypeScript error `Spread types may only be created from object types` because `ctx.query` values are typed as string / unknown unions.
+- **Prevention Rule**: Safely validate and annotate filter objects with JSDoc `/** @type {Record<string, unknown>} */` after checking `typeof === 'object'` before spreading or passing to Strapi entity/document queries.
+
+### 17. Nested Property Access on `Record<string, unknown>` Entities
+- **Issue**: Directly accessing nested properties such as `sanitizedOutput.instructor.username` or `sanitizedOutput.modules.length` when `sanitizedOutput` is typed as `Record<string, unknown>` triggers `Property 'username' does not exist on type 'unknown'` because dictionary values default to `unknown`.
+- **Prevention Rule**: Safely annotate nested object/array members with concrete JSDoc types (e.g. `const currentInstructor = /** @type {Record<string, unknown> | null | undefined} */ (sanitizedOutput.instructor);` or `const currentModules = /** @type {unknown[] | undefined} */ (sanitizedOutput.modules);`) before accessing nested properties, strictly avoiding the `any` keyword.
+
+### 18. Strapi Users-Permissions User Model Property Access
+- **Issue**: Attempting to access `.name` directly on Strapi `plugin::users-permissions.user` relations (e.g. `rawInstructor.name`) triggers TypeScript error `Property 'name' does not exist on type '{ id: ID; documentId: string; ... }'` because standard Strapi users-permissions schema defines `username` and `email` rather than `name`.
+- **Prevention Rule**: Access standard user fields `username` and `email` (e.g. `rawInstructor.username || rawInstructor.email?.split('@')[0] || 'CPS Instructor'`). If accessing non-standard custom attributes, verify key existence using `'name' in user` with type guarding or explicit JSDoc annotation without using `any`.
+
+### 19. Strapi v5 Database Connection Configuration Typing
+- **Issue**: Annotating database connection dictionaries with `Record<Core.Config.Database.ClientKind, Core.Config.Database['connection']>` triggers TypeScript errors (e.g., `Property 'filename' is missing in type '{ connectionString: ... }' but required in type '{ filename: string; }'`) when using connection URLs (like Neon PostgreSQL `DATABASE_URL`) because `Core.Config.Database['connection']` is a broad union whose constituent connection types require dialect-specific fields (e.g. `filename` for sqlite, or individual `host`/`port`/`database`/`user`/`password` for `SharedConnection`).
+- **Prevention Rule**: Annotate the connection dictionary with `/** @type {Record<Core.Config.Database.ClientKind, Record<string, unknown>>} */` in `config/database.js` so that dynamic connection objects (such as connection strings or dialect options) pass type checking cleanly without violating client kind constraints.
+
+
