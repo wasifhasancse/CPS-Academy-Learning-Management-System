@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Spinner } from "@/components/ui/Spinner";
 import { api } from "@/lib/api";
 
 function OrderSuccessContent() {
@@ -68,8 +69,10 @@ function OrderSuccessContent() {
   if (loading || isAuthLoading) {
     return (
       <div className="w-full max-w-2xl mx-auto py-16 px-4">
-        <Card className="p-8 text-center space-y-4 bg-card border-border">
-          <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto" />
+        <Card className="p-8 text-center space-y-4 bg-card border-border shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-surface border border-border flex items-center justify-center mx-auto shadow-xs">
+            <Spinner size="lg" color="primary" />
+          </div>
           <h2 className="text-xl font-bold text-foreground">Verifying Stripe Payment...</h2>
           <p className="text-xs text-muted">
             Please wait while we confirm your payment and unlock your course enrollment.
