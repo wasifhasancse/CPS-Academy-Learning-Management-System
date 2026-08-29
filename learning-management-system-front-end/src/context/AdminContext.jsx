@@ -121,14 +121,16 @@ export function AdminProvider({ children }) {
     if (!token) return;
     setIsLoading(true);
     try {
-      const [usersRes, rolesRes, coursesRes, catsRes, blogsRes, enrollsRes] =
+      const [usersRes, rolesRes, coursesRes, catsRes, blogsRes, enrollsRes, progressRes, quizAttemptsRes] =
         await Promise.all([
           api.get("/users?populate=role", { token }).catch(() => ({ data: [] })),
           api.get("/users-permissions/roles", { token }).catch(() => ({ roles: [] })),
           api.get("/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments]=*", { token }).catch(() => ({ data: [] })),
           api.get("/categories", { token }).catch(() => ({ data: [] })),
           api.get("/blog-posts?populate=author&populate=category", { token }).catch(() => ({ data: [] })),
-          api.get("/enrollments?populate[student]=*&populate[course]=*", { token }).catch(() => ({ data: [] })),
+          api.get("/enrollments?populate[student]=*&populate[course][populate]=modules.lessons&populate[course][populate]=quizzes", { token }).catch(() => ({ data: [] })),
+          api.get("/progresses", { token }).catch(() => ({ data: [] })),
+          api.get("/quiz-attempts", { token }).catch(() => ({ data: [] })),
         ]);
 
       const resolvedUsers = Array.isArray(usersRes) ? usersRes : usersRes?.data || [];
@@ -137,13 +139,62 @@ export function AdminProvider({ children }) {
       const resolvedCats = Array.isArray(catsRes?.data) ? catsRes.data : [];
       const resolvedBlogs = Array.isArray(blogsRes?.data) ? blogsRes.data : [];
       const resolvedEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
+      const allProgress = Array.isArray(progressRes?.data) ? progressRes.data : [];
+      const allAttempts = Array.isArray(quizAttemptsRes?.data) ? quizAttemptsRes.data : [];
+
+      const enhancedEnrolls = resolvedEnrolls.map((e) => {
+        if (!e.course || !e.student) return e;
+        const studentId = e.student.id;
+        const studentDocId = e.student.documentId;
+
+        const lessons = (e.course.modules || []).flatMap((m) => m.lessons || []);
+        const quizzes = e.course.quizzes || [];
+        const totalUnits = Math.max(1, lessons.length + quizzes.length);
+
+        const lessonIds = new Set(lessons.map((l) => String(l.id)));
+        const lessonDocIds = new Set(lessons.map((l) => String(l.documentId || "")));
+
+        const completedLessonsCount = allProgress.filter((p) => {
+          if (!p.isCompleted || !p.lesson || !p.student) return false;
+          const pStudentId = p.student.id;
+          const isSameStudent = pStudentId === studentId || p.student.documentId === studentDocId;
+          if (!isSameStudent) return false;
+          const lId = String(p.lesson.id);
+          const lDocId = String(p.lesson.documentId || "");
+          return lessonIds.has(lId) || lessonDocIds.has(lDocId);
+        }).length;
+
+        const quizIds = new Set(quizzes.map((q) => String(q.id)));
+        const quizDocIds = new Set(quizzes.map((q) => String(q.documentId || "")));
+
+        const passedQuizzes = allAttempts.filter((a) => {
+          if (!a.passed || !a.quiz || !a.student) return false;
+          const aStudentId = a.student.id;
+          const isSameStudent = aStudentId === studentId || a.student.documentId === studentDocId;
+          if (!isSameStudent) return false;
+          const qId = String(a.quiz.id);
+          const qDocId = String(a.quiz.documentId || "");
+          return quizIds.has(qId) || quizDocIds.has(qDocId);
+        });
+        const passedQuizzesCount = new Set(passedQuizzes.map((a) => a.quiz.documentId || String(a.quiz.id))).size;
+
+        const completedUnits = completedLessonsCount + passedQuizzesCount;
+        const calculatedPct = Math.min(100, Math.round((completedUnits / totalUnits) * 100));
+        const finalPct = Math.max(Number(e.progressPercentage || 0), calculatedPct);
+
+        return {
+          ...e,
+          progressPercentage: finalPct,
+          status: finalPct === 100 ? "Completed" : (finalPct > 0 ? "In Progress" : "Enrolled"),
+        };
+      });
 
       setUsers(resolvedUsers);
       setRoles(resolvedRoles);
       setCourses(resolvedCourses);
       setCategories(resolvedCats);
       setBlogs(resolvedBlogs);
-      setStudentsProgress(resolvedEnrolls);
+      setStudentsProgress(enhancedEnrolls);
 
       if (resolvedCourses.length > 0 && !selectedCourseId) {
         setSelectedCourseId(resolvedCourses[0].documentId || String(resolvedCourses[0].id));
