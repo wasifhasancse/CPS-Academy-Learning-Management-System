@@ -18,8 +18,8 @@ export function LessonModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? "Edit Video Lesson" : "Add Video Lesson"}
-      description={`Curriculum for "${currentCourseTitle || "Course"}".`}
+      title={isEditing ? "Edit Lesson" : "Add Lesson"}
+      description={`Curriculum for "${currentCourseTitle || "Course"}". Add video or text lesson content.`}
       size="md"
     >
       <form onSubmit={onSubmit} className="space-y-4">
@@ -39,12 +39,11 @@ export function LessonModal({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="text-xs font-bold text-foreground block mb-1">
-              YouTube Video URL *
+              YouTube Video URL <span className="text-muted font-normal">(Optional)</span>
             </label>
             <Input
-              required
               placeholder="https://www.youtube.com/watch?v=..."
-              value={lessonForm.youtubeUrl}
+              value={lessonForm.youtubeUrl || ""}
               onChange={(e) => setLessonForm({ ...lessonForm, youtubeUrl: e.target.value })}
               className="text-xs"
             />
@@ -52,12 +51,11 @@ export function LessonModal({
 
           <div>
             <label className="text-xs font-bold text-foreground block mb-1">
-              Duration (mm:ss) *
+              Estimated Duration / Reading Time (mm:ss)
             </label>
             <Input
-              required
-              placeholder="12:45"
-              value={lessonForm.duration}
+              placeholder="10:00"
+              value={lessonForm.duration || "10:00"}
               onChange={(e) => setLessonForm({ ...lessonForm, duration: e.target.value })}
               className="text-xs"
             />
@@ -84,13 +82,13 @@ export function LessonModal({
 
         <div>
           <label className="text-xs font-bold text-foreground block mb-1">
-            Lesson Notes & Resources (Markdown supported)
+            Lesson Content & Notes <span className="text-muted font-normal">(Markdown supported)</span>
           </label>
           <textarea
-            rows={4}
-            placeholder="Add lesson summary, problem links, code snippets, or notes..."
-            value={lessonForm.notes}
-            onChange={(e) => setLessonForm({ ...lessonForm, notes: e.target.value })}
+            rows={5}
+            placeholder="Add lesson reading content, problem links, code snippets, or notes..."
+            value={lessonForm.notes || lessonForm.content || ""}
+            onChange={(e) => setLessonForm({ ...lessonForm, notes: e.target.value, content: e.target.value })}
             className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-xs text-foreground focus:outline-none"
           />
         </div>
