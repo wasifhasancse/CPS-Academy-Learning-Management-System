@@ -73,9 +73,9 @@ export default function StudentCoursesPage() {
                     <ProgressBar progress={progress} />
                   </div>
 
-                  <Link href={`/courses/${course.slug || course.id}`} className="block">
+                  <Link href={`/learn/${course.slug || course.documentId || course.id}`} className="block">
                     <Button variant="primary" size="sm" className="w-full">
-                      {progress === 0 ? "Start Learning →" : "Continue Learning →"}
+                      {progress === 0 ? "▶ Start Learning Now" : "▶ Continue Learning"}
                     </Button>
                   </Link>
                 </CardContent>
