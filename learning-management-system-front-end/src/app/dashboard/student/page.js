@@ -7,6 +7,7 @@ import { DistributionDonutChart } from "@/components/dashboard/DistributionDonut
 import { ActivityTable } from "@/components/dashboard/ActivityTable";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import Link from "next/link";
 
@@ -51,6 +52,10 @@ export default function StudentOverviewPage() {
     };
   });
 
+  const activeCourse = enrolledCourses[0];
+  const activeCourseProgress = Number(activeCourse?.progressPercentage || 0);
+  const isActiveCourseCompleted = activeCourseProgress === 100;
+
   return (
     <div className="space-y-6">
       {/* Student Study Metrics */}
@@ -61,16 +66,23 @@ export default function StudentOverviewPage() {
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-primary dark:text-highlight">
-                CURRENT LEARNING GOAL
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary dark:text-highlight">
+                  CURRENT LEARNING GOAL
+                </span>
+                {isActiveCourseCompleted && (
+                  <Badge variant="highlight" size="sm">
+                    ✓ Course Completed
+                  </Badge>
+                )}
+              </div>
               <CardTitle className="text-lg mt-1">
-                {enrolledCourses[0]?.title}
+                {activeCourse?.title}
               </CardTitle>
             </div>
-            <Link href={`/courses/${enrolledCourses[0]?.slug || enrolledCourses[0]?.id}`}>
-              <Button variant="primary" size="sm">
-                Resume Course →
+            <Link href={`/learn/${activeCourse?.slug || activeCourse?.documentId || activeCourse?.id}`}>
+              <Button variant={isActiveCourseCompleted ? "outline" : "primary"} size="sm" className="font-bold">
+                {isActiveCourseCompleted ? "✓ Review Completed Course" : "Resume Course →"}
               </Button>
             </Link>
           </CardHeader>
@@ -78,11 +90,11 @@ export default function StudentOverviewPage() {
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-medium">
                 <span className="text-muted">Syllabus Completion</span>
-                <span className="text-foreground font-bold">
-                  {enrolledCourses[0]?.progressPercentage || 0}%
+                <span className={`font-bold ${isActiveCourseCompleted ? "text-primary dark:text-highlight" : "text-foreground"}`}>
+                  {activeCourseProgress}%
                 </span>
               </div>
-              <ProgressBar progress={enrolledCourses[0]?.progressPercentage || 0} />
+              <ProgressBar progress={activeCourseProgress} />
             </div>
           </CardContent>
         </Card>
