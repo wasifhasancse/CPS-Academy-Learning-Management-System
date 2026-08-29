@@ -2,8 +2,18 @@
 
 import React from "react";
 
-export function ProgressBar({ value = 0, max = 100, showLabel = false, size = "md", className = "" }) {
-  const percentage = Math.min(100, Math.max(0, Math.round((value / max) * 100)));
+export function ProgressBar({
+  progress,
+  value,
+  max = 100,
+  showLabel = false,
+  size = "md",
+  className = "",
+}) {
+  const rawValue = progress !== undefined ? progress : (value !== undefined ? value : 0);
+  const numericVal = Number(rawValue) || 0;
+  const numericMax = Number(max) || 100;
+  const percentage = Math.min(100, Math.max(0, Math.round((numericVal / numericMax) * 100)));
 
   const sizeClasses = {
     sm: "h-1.5",
@@ -19,14 +29,17 @@ export function ProgressBar({ value = 0, max = 100, showLabel = false, size = "m
           <span>{percentage}%</span>
         </div>
       )}
-      <div className={`w-full rounded-full bg-surface overflow-hidden border border-border/50 ${sizeClasses[size] || sizeClasses.md}`}>
+      <div className={`w-full rounded-full bg-surface border border-border overflow-hidden ${sizeClasses[size] || sizeClasses.md}`}>
         <div
-          className="h-full bg-secondary transition-all duration-300 rounded-full"
-          style={{ width: `${percentage}%` }}
+          className="h-full bg-secondary transition-all duration-500 rounded-full"
+          style={{
+            width: `${percentage}%`,
+            backgroundColor: "#408A71",
+          }}
           role="progressbar"
-          aria-valuenow={value}
+          aria-valuenow={numericVal}
           aria-valuemin={0}
-          aria-valuemax={max}
+          aria-valuemax={numericMax}
         />
       </div>
     </div>
