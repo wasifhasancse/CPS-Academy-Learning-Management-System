@@ -8,8 +8,7 @@ export async function POST(request) {
     const origin =
       headersList.get("origin") ||
       headersList.get("referer")?.replace(/\/$/, "") ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "http://localhost:3000";
+      process.env.NEXT_PUBLIC_SITE_URL;
 
     const contentType = headersList.get("content-type") || "";
     let price, className, trainer, classId, duration, status, userId, userEmail, userName, courseSlug;
