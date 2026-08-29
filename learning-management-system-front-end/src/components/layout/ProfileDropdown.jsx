@@ -3,13 +3,25 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuth, getRoleDashboardPath } from "@/context/AuthContext";
+import { Badge } from "@/components/ui/Badge";
+import {
+  HiOutlineHome,
+  HiOutlineBookOpen,
+  HiOutlineAcademicCap,
+  HiOutlineClipboardDocumentCheck,
+  HiOutlineReceiptPercent,
+  HiOutlineUsers,
+  HiOutlineDocumentText,
+  HiOutlineCog6Tooth,
+  HiOutlineArrowLeftOnRectangle,
+  HiOutlineChartBar,
+  HiOutlineShieldCheck,
+} from "react-icons/hi2";
 
 export function ProfileDropdown() {
   const { user, role, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-
-  const dashboardPath = getRoleDashboardPath(role);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -28,51 +40,172 @@ export function ProfileDropdown() {
 
   if (!user) return null;
 
-  const displayName = user.name || user.username || "Learner";
+  const rawRoleStr = (role || user?.role?.name || user?.role?.type || "student").toLowerCase().replace(/[\s_-]+/g, "");
+  const displayName = user.name || user.username || "CPS User";
   const displayEmail = user.email || `${user.username || "student"}@cpsacademy.io`;
   const avatarUrl = user.avatarUrl || user.avatar?.url || null;
   const initial = (displayName[0] || "U").toUpperCase();
 
-  // Role-specific menu items
-  const menuItems = [
-    {
-      label: "Dashboard & Profile",
-      href: dashboardPath,
-      icon: (
-        <svg className="w-4 h-4 text-muted group-hover:text-primary dark:group-hover:text-highlight transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-        </svg>
-      ),
-    },
-    {
-      label: role === "Student" ? "My Enrolled Courses" : "Manage Courses",
-      href: role === "Student" ? "/dashboard/student?tab=my-courses" : dashboardPath,
-      icon: (
-        <svg className="w-4 h-4 text-muted group-hover:text-primary dark:group-hover:text-highlight transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
-      ),
-    },
-    {
-      label: role === "Student" ? "Quiz Scorecards" : "Curriculum & Assessments",
-      href: role === "Student" ? "/dashboard/student?tab=quizzes" : dashboardPath,
-      icon: (
-        <svg className="w-4 h-4 text-muted group-hover:text-primary dark:group-hover:text-highlight transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      ),
-    },
-    {
-      label: "Account Settings",
-      href: dashboardPath,
-      icon: (
-        <svg className="w-4 h-4 text-muted group-hover:text-primary dark:group-hover:text-highlight transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      ),
-    },
-  ];
+  // Role resolution
+  const isInstructor = rawRoleStr.includes("instructor");
+  const isManager = rawRoleStr.includes("contentmanager") || rawRoleStr.includes("manager");
+  const isAdmin = rawRoleStr.includes("admin");
+  const isStudent = !isInstructor && !isManager && !isAdmin;
+
+  const roleLabel = isAdmin
+    ? "ADMIN"
+    : isManager
+    ? "CONTENT MANAGER"
+    : isInstructor
+    ? "INSTRUCTOR"
+    : "STUDENT";
+
+  // Build role-specific menu items with exact Next.js App Router subroutes
+  let menuItems = [];
+
+  if (isStudent) {
+    menuItems = [
+      {
+        label: "Study Overview",
+        href: "/dashboard/student",
+        icon: <HiOutlineHome className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "My Courses",
+        href: "/dashboard/student/courses",
+        icon: <HiOutlineBookOpen className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Quiz Scorecards",
+        href: "/dashboard/student/quizzes",
+        icon: <HiOutlineClipboardDocumentCheck className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Purchase Receipts",
+        href: "/dashboard/student/orders",
+        icon: <HiOutlineReceiptPercent className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Profile & Settings",
+        href: "/dashboard/student/profile",
+        icon: <HiOutlineCog6Tooth className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+    ];
+  } else if (isInstructor) {
+    menuItems = [
+      {
+        label: "Teaching Overview",
+        href: "/dashboard/instructor",
+        icon: <HiOutlineHome className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "My Authored Courses",
+        href: "/dashboard/instructor/courses",
+        icon: <HiOutlineBookOpen className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Curriculum Hub",
+        href: "/dashboard/instructor/curriculum",
+        icon: <HiOutlineAcademicCap className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Student Roster & Progress",
+        href: "/dashboard/instructor/progress",
+        icon: <HiOutlineUsers className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Sales & Invoices",
+        href: "/dashboard/instructor/orders",
+        icon: <HiOutlineReceiptPercent className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Profile & Settings",
+        href: "/dashboard/instructor/profile",
+        icon: <HiOutlineCog6Tooth className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+    ];
+  } else if (isManager) {
+    menuItems = [
+      {
+        label: "Management Console",
+        href: "/dashboard/manager",
+        icon: <HiOutlineHome className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Course Catalog",
+        href: "/dashboard/manager/courses",
+        icon: <HiOutlineBookOpen className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Curriculum Builder",
+        href: "/dashboard/manager/curriculum",
+        icon: <HiOutlineAcademicCap className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Student Progress Roster",
+        href: "/dashboard/manager/progress",
+        icon: <HiOutlineChartBar className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Manage Blog Posts",
+        href: "/dashboard/manager/blogs",
+        icon: <HiOutlineDocumentText className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Orders & Revenue",
+        href: "/dashboard/manager/orders",
+        icon: <HiOutlineReceiptPercent className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Profile & Settings",
+        href: "/dashboard/manager/profile",
+        icon: <HiOutlineCog6Tooth className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+    ];
+  } else if (isAdmin) {
+    menuItems = [
+      {
+        label: "Admin Console",
+        href: "/dashboard/admin",
+        icon: <HiOutlineShieldCheck className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Manage Users & Roles",
+        href: "/dashboard/admin/users",
+        icon: <HiOutlineUsers className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Global Courses",
+        href: "/dashboard/admin/courses",
+        icon: <HiOutlineBookOpen className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Curriculum Hub",
+        href: "/dashboard/admin/curriculum",
+        icon: <HiOutlineAcademicCap className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Student Progress Analytics",
+        href: "/dashboard/admin/progress",
+        icon: <HiOutlineChartBar className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Platform Blog Articles",
+        href: "/dashboard/admin/blogs",
+        icon: <HiOutlineDocumentText className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Orders & Invoices",
+        href: "/dashboard/admin/orders",
+        icon: <HiOutlineReceiptPercent className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+      {
+        label: "Profile & Security",
+        href: "/dashboard/admin/profile",
+        icon: <HiOutlineCog6Tooth className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />,
+      },
+    ];
+  }
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -116,7 +249,7 @@ export function ProfileDropdown() {
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-card border border-border shadow-xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150">
           {/* Header User Card */}
-          <div className="flex items-center gap-3 p-2 rounded-xl bg-surface/70 border border-border/50">
+          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-surface border border-border/60">
             <div className="w-10 h-10 rounded-full bg-primary/20 text-primary dark:bg-highlight/20 dark:text-highlight flex items-center justify-center font-bold text-sm overflow-hidden shrink-0 border border-border">
               {avatarUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -127,7 +260,12 @@ export function ProfileDropdown() {
             </div>
             <div className="flex flex-col min-w-0">
               <span className="font-bold text-xs text-foreground truncate">{displayName}</span>
-              <span className="text-[11px] text-muted truncate">{displayEmail}</span>
+              <span className="text-[10px] text-muted truncate">{displayEmail}</span>
+              <div className="mt-1">
+                <Badge variant="primary" size="sm" className="text-[9px] px-1.5 py-0">
+                  {roleLabel}
+                </Badge>
+              </div>
             </div>
           </div>
 
@@ -161,9 +299,7 @@ export function ProfileDropdown() {
             }}
             className="group flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-500/10 dark:hover:bg-red-500/20 w-full transition-colors cursor-pointer"
           >
-            <svg className="w-4 h-4 text-red-500 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <HiOutlineArrowLeftOnRectangle className="w-4 h-4 text-red-500 group-hover:translate-x-0.5 transition-transform" />
             <span>Sign Out</span>
           </button>
         </div>
