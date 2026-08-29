@@ -1,9 +1,4 @@
-/**
- * @fileoverview Central API Client for Strapi v5 Backend
- * Handles request formatting, JWT token injection, and structured error normalization.
- */
-
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
 
 /**
  * Custom API Error class with status code and details
