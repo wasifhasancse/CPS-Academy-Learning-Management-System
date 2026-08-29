@@ -2,19 +2,19 @@ import Link from "next/link";
 
 const variantStyles = {
   primary:
-    "bg-primary text-white hover:bg-[#1E4336] dark:bg-[#408A71] dark:text-white dark:hover:bg-[#285A48] focus-visible:ring-primary/40",
+    "bg-[#7AB2D3] text-white hover:bg-[#4A628A] dark:bg-[#7AB2D3] dark:text-[#1E2A3A] dark:hover:bg-[#B9E5E8] focus-visible:ring-[#7AB2D3]/40 font-bold",
   secondary:
-    "bg-secondary text-white hover:bg-[#285A48] dark:bg-secondary dark:hover:bg-[#1E4336] focus-visible:ring-secondary/40",
+    "bg-[#4A628A] text-[#DFF2EB] hover:bg-[#5A7BA0] dark:bg-[#5A7BA0] dark:text-[#DFF2EB] dark:hover:bg-[#7AB2D3] focus-visible:ring-[#4A628A]/40 font-semibold",
   highlight:
-    "bg-highlight text-[#091413] hover:bg-[#97D4B8] dark:bg-highlight dark:text-[#091413] dark:hover:bg-[#97D4B8] focus-visible:ring-highlight/50 font-bold",
+    "bg-[#B9E5E8] text-[#4A628A] hover:bg-[#DFF2EB] dark:bg-[#B9E5E8] dark:text-[#1E2A3A] dark:hover:bg-[#DFF2EB] focus-visible:ring-[#B9E5E8]/50 font-bold",
   outline:
-    "border border-primary text-primary hover:bg-surface dark:border-[#408A71] dark:text-[#B0E4CC] dark:hover:bg-surface focus-visible:ring-primary/30",
+    "border border-[#7AB2D3] text-[#7AB2D3] hover:bg-[#7AB2D3]/10 dark:border-[#B9E5E8] dark:text-[#B9E5E8] dark:hover:bg-[#B9E5E8]/15 focus-visible:ring-[#7AB2D3]/30 font-semibold",
   outlineSecondary:
-    "border border-secondary text-secondary hover:bg-surface dark:border-secondary dark:text-secondary dark:hover:bg-surface focus-visible:ring-secondary/30",
+    "border border-[#B9E5E8] text-[#4A628A] dark:border-[#B9E5E8]/40 dark:text-[#B9E5E8] hover:bg-[#B9E5E8]/10 focus-visible:ring-[#B9E5E8]/30",
   ghost:
-    "text-foreground hover:bg-surface dark:text-foreground dark:hover:bg-surface focus-visible:ring-primary/20",
+    "text-foreground hover:bg-surface dark:text-foreground dark:hover:bg-surface focus-visible:ring-[#7AB2D3]/20",
   surface:
-    "bg-surface text-foreground hover:bg-border/60 dark:bg-surface dark:text-foreground dark:hover:bg-border/60 focus-visible:ring-primary/20",
+    "bg-surface text-foreground hover:bg-border/60 dark:bg-surface dark:text-foreground dark:hover:bg-border/60 focus-visible:ring-[#7AB2D3]/20",
   danger:
     "bg-red-600/10 text-red-500 hover:bg-red-600/20 border border-red-500/20 focus-visible:ring-red-500/30",
 };
