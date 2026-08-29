@@ -9,6 +9,7 @@ import {
   HiOutlineBookOpen,
   HiOutlineAcademicCap,
   HiOutlineDocumentText,
+  HiOutlineCreditCard,
   HiOutlineChartBar,
   HiOutlineUser,
 } from "react-icons/hi2";
@@ -22,6 +23,7 @@ function AdminLayoutShell({ children }) {
     { id: "courses", label: "Course Tracks", icon: <HiOutlineBookOpen className="w-4 h-4" />, href: "/dashboard/admin/courses", badge: totalCourses },
     { id: "curriculum", label: "Curriculum Hub", icon: <HiOutlineAcademicCap className="w-4 h-4" />, href: "/dashboard/admin/curriculum" },
     { id: "blogs", label: "Blog Articles", icon: <HiOutlineDocumentText className="w-4 h-4" />, href: "/dashboard/admin/blogs", badge: totalBlogs },
+    { id: "orders", label: "Orders & Invoices", icon: <HiOutlineCreditCard className="w-4 h-4" />, href: "/dashboard/admin/orders" },
     { id: "progress", label: "Student Progress", icon: <HiOutlineChartBar className="w-4 h-4" />, href: "/dashboard/admin/progress" },
     { id: "profile", label: "Profile Settings", icon: <HiOutlineUser className="w-4 h-4" />, href: "/dashboard/admin/profile" },
   ];
