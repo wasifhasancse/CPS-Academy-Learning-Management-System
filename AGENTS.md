@@ -157,3 +157,7 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 ### 12. Table Primitives Prop Forwarding (`colSpan`, `rowSpan`, event handlers)
 - **Issue**: Omitting `...props` in custom table wrappers like `<TableCell>` silently drops attributes such as `colSpan={6}`, causing empty state rows or multi-column cells to collapse into the first column rather than spanning the full width of the table.
 - **Prevention Rule**: Always forward `...props` across primitive UI wrappers (`Table`, `TableHeader`, `TableBody`, `TableHead`, `TableRow`, `TableCell`) so HTML attributes like `colSpan`, `rowSpan`, `scope`, and event handlers are passed through to the native elements.
+
+### 13. Strapi v5 Custom Route Ordering & Method Not Allowed (405) Collisions
+- **Issue**: Registering custom endpoints (e.g. `POST /orders/create-checkout-session`) in separate router files or after `createCoreRouter` causes the router's parameterized `:id` matcher (`GET /orders/:id`, `PUT /orders/:id`) to intercept the request and return `405 Method Not Allowed`.
+- **Prevention Rule**: Define explicit ordered route arrays in `src/api/<api>/routes/<api>.js` with custom sub-paths listed *before* generic `/:id` parameters, and provide resilient JWT token verification directly in the controller using Strapi's JWT service (`resolveUser`).

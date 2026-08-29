@@ -127,13 +127,23 @@ function CoursesCatalogContent() {
               placeholder="Search by course title, keyword, or topic..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full text-xs pl-9"
+              className="w-full text-xs pl-9 pr-8"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground text-xs p-0.5"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
@@ -160,6 +170,23 @@ function CoursesCatalogContent() {
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>
             </select>
+
+            {/* Clear All Filters Button */}
+            {(search || selectedCategory !== "all" || selectedDifficulty !== "all" || sortBy !== "popular") && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearch("");
+                  setSelectedCategory("all");
+                  setSelectedDifficulty("all");
+                  setSortBy("popular");
+                }}
+                className="text-xs font-semibold text-red-500 hover:text-red-600 border-red-500/20 hover:bg-red-500/10 transition-colors"
+              >
+                ✕ Clear All
+              </Button>
+            )}
           </div>
         </div>
 

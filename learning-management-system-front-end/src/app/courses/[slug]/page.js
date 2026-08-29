@@ -117,6 +117,15 @@ export default function CourseDetailPage({ params }) {
     loadCourse();
   }, [slug, user]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("canceled")) {
+        setErrorMessage("Checkout was canceled. You can try again whenever you're ready.");
+      }
+    }
+  }, []);
+
   const handleStudentEnroll = async () => {
     if (!isAuthenticated) {
       router.push(`/auth/login?redirect=/courses/${encodeURIComponent(slug)}`);
@@ -134,22 +143,57 @@ export default function CourseDetailPage({ params }) {
 
     try {
       const targetCourseId = course.documentId || course.id;
-      await api.post(
-        "/enrollments",
-        {
-          data: {
-            course: targetCourseId,
-            student: user.id,
-            enrolledAt: new Date(),
-          },
-        },
-        { token }
-      );
+      const coursePrice = Number(course.price || 0);
 
-      setIsEnrolled(true);
-      setSuccessMessage("Enrollment successful! You can now start learning.");
+      // Paid course -> Create Stripe Checkout session
+      if (coursePrice > 0) {
+        const response = await fetch("/api/checkout_sessions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            price: coursePrice,
+            className: course.title,
+            trainer: instructorName,
+            classId: targetCourseId,
+            courseSlug: course.slug || slug,
+            userId: user.id,
+            userEmail: user.email,
+            userName: user.username || user.name,
+          }),
+        });
+
+        const checkoutRes = await response.json();
+
+        if (checkoutRes?.url) {
+          // Redirect student directly to Stripe Hosted Checkout
+          window.location.href = checkoutRes.url;
+          return;
+        } else if (checkoutRes?.error) {
+          throw new Error(checkoutRes.error);
+        } else {
+          throw new Error("Unable to create checkout session. Please try again.");
+        }
+      } else {
+        // Free course -> Instant direct enrollment
+        await api.post(
+          "/enrollments",
+          {
+            data: {
+              course: targetCourseId,
+              student: user.id,
+              enrolledAt: new Date(),
+            },
+          },
+          { token }
+        );
+
+        setIsEnrolled(true);
+        setSuccessMessage("Enrollment successful! You can now start learning.");
+      }
     } catch (err) {
-      setErrorMessage(err?.message || "Failed to enroll in course. Please try again.");
+      setErrorMessage(err?.message || "Failed to initiate payment. Please try again.");
     } finally {
       setIsEnrolling(false);
     }
@@ -272,12 +316,12 @@ export default function CourseDetailPage({ params }) {
               </div>
             )}
 
-            {/* Course Syllabus / Modules */}
+            {/* Course Syllabus / Modules with Connected Tree (Matching Reference Design) */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-foreground">Course Curriculum</h2>
+                <h2 className="text-xl font-bold text-foreground">কোর্স সিলেবাস (Course Curriculum)</h2>
                 <span className="text-xs text-muted font-medium">
-                  {allModules.length} Modules • {allLessons.length} Lessons
+                  {allModules.length} Modules • {allLessons.length} Lessons • {allQuizzes.length} Quizzes
                 </span>
               </div>
 
@@ -288,42 +332,65 @@ export default function CourseDetailPage({ params }) {
               ) : (
                 <div className="space-y-3">
                   {allModules.map((module, mIdx) => (
-                    <Card key={module.documentId || module.id || mIdx} className="bg-card border-border overflow-hidden">
+                    <Card key={module.documentId || module.id || mIdx} className="bg-card border-border overflow-hidden shadow-xs">
                       <CardHeader className="py-3.5 px-5 bg-surface/50 border-b border-border">
                         <div className="flex items-center justify-between">
-                          <CardTitle as="h3" className="text-sm font-bold text-foreground">
-                            Module {mIdx + 1}: {module.title}
-                          </CardTitle>
-                          <span className="text-xs text-muted">
-                            {module.lessons?.length || 0} lessons
-                          </span>
+                          <div className="space-y-0.5">
+                            <CardTitle as="h3" className="text-sm font-bold text-foreground">
+                              Module {mIdx + 1}: {module.title}
+                            </CardTitle>
+                            <p className="text-[11px] text-muted font-medium">
+                              {module.lessons?.length || 0}টি ভিডিও ({module.lessons?.length || 0} Lessons)
+                            </p>
+                          </div>
+                          {isEnrolled && (
+                            <Link href={`/learn/${course.slug || slug}`}>
+                              <Badge variant="primary" size="sm" className="cursor-pointer hover:bg-secondary">
+                                ▶ Start Module
+                              </Badge>
+                            </Link>
+                          )}
                         </div>
                       </CardHeader>
-                      <CardContent className="p-0 divide-y divide-border">
+                      <CardContent className="p-4">
                         {module.lessons && module.lessons.length > 0 ? (
-                          module.lessons.map((lesson, lIdx) => (
-                            <div
-                              key={lesson.documentId || lesson.id || lIdx}
-                              className="py-3 px-5 flex items-center justify-between text-xs hover:bg-surface/30 transition-colors"
-                            >
-                              <div className="flex items-center gap-2.5">
-                                <span className="text-muted font-medium w-5">{lIdx + 1}.</span>
-                                <span className="font-medium text-foreground">{lesson.title}</span>
+                          <div className="relative pl-6 space-y-2.5 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-[2px] before:bg-border/80">
+                            {module.lessons.map((lesson, lIdx) => (
+                              <div
+                                key={lesson.documentId || lesson.id || lIdx}
+                                className="relative flex items-center justify-between text-xs py-1 hover:text-secondary transition-colors"
+                              >
+                                <div
+                                  className={`absolute -left-6 w-5 h-5 rounded-full flex items-center justify-center z-10 bg-surface border-2 border-border text-secondary`}
+                                >
+                                  <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                </div>
+                                <div className="flex items-center gap-2 min-w-0 pr-2">
+                                  {isEnrolled ? (
+                                    <Link href={`/learn/${course.slug || slug}`} className="font-medium text-foreground hover:text-secondary truncate">
+                                      {lesson.title}
+                                    </Link>
+                                  ) : (
+                                    <span className="font-medium text-foreground truncate">{lesson.title}</span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {lesson.isFreePreview && (
+                                    <Badge variant="highlight" size="sm">
+                                      Free Preview
+                                    </Badge>
+                                  )}
+                                  {lesson.duration && (
+                                    <span className="text-muted text-[11px] font-mono">{lesson.duration}</span>
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                {lesson.isFreePreview && (
-                                  <Badge variant="highlight" size="sm">
-                                    Free Preview
-                                  </Badge>
-                                )}
-                                {lesson.duration && (
-                                  <span className="text-muted text-[11px]">{lesson.duration}</span>
-                                )}
-                              </div>
-                            </div>
-                          ))
+                            ))}
+                          </div>
                         ) : (
-                          <div className="py-3 px-5 text-xs text-muted">
+                          <div className="py-2 text-xs text-muted">
                             Lessons in development.
                           </div>
                         )}
@@ -427,7 +494,11 @@ export default function CourseDetailPage({ params }) {
                         size="md"
                         className="w-full font-bold"
                       >
-                        {isEnrolling ? "Enrolling..." : `Enroll Now • ৳${Number(course.price || 0).toLocaleString()}`}
+                        {isEnrolling
+                          ? (Number(course.price || 0) > 0 ? "Redirecting to Stripe..." : "Enrolling...")
+                          : (Number(course.price || 0) > 0
+                              ? `Pay & Enroll Now • ৳${Number(course.price || 0).toLocaleString()}`
+                              : "Enroll in Free Course")}
                       </Button>
                     )
                   ) : isStaff ? (
