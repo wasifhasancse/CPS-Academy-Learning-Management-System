@@ -1,8 +1,8 @@
 "use client";
 
-import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
 
 export function QuizModal({
   isOpen,
@@ -31,7 +31,9 @@ export function QuizModal({
             required
             placeholder="e.g. Module 1 Checkpoint: Arrays & Hashing"
             value={quizForm.title}
-            onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
+            onChange={(e) =>
+              setQuizForm({ ...quizForm, title: e.target.value })
+            }
             className="text-xs"
           />
         </div>
@@ -39,20 +41,23 @@ export function QuizModal({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="text-xs font-bold text-foreground block mb-1">
-              Passing Score (%) *
+              Total Score (Points) *
             </label>
             <Input
               type="number"
               min="1"
-              max="100"
               required
-              placeholder="80"
-              value={quizForm.passingScore}
+              placeholder="100"
+              value={quizForm.totalScore}
               onChange={(e) =>
-                setQuizForm({ ...quizForm, passingScore: e.target.value })
+                setQuizForm({ ...quizForm, totalScore: e.target.value })
               }
               className="text-xs"
             />
+            <p className="text-[10px] text-muted mt-1">
+              Split evenly across all questions (e.g. 10 points ÷ 2 questions =
+              5 pts each).
+            </p>
           </div>
 
           <div>
@@ -74,10 +79,21 @@ export function QuizModal({
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="surface" size="sm" onClick={onClose} disabled={isLoading}>
+          <Button
+            type="button"
+            variant="surface"
+            size="sm"
+            onClick={onClose}
+            disabled={isLoading}
+          >
             Cancel
           </Button>
-          <Button type="submit" variant="primary" size="sm" isLoading={isLoading}>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            isLoading={isLoading}
+          >
             {isEditing ? "Save Changes" : "Create Quiz"}
           </Button>
         </div>

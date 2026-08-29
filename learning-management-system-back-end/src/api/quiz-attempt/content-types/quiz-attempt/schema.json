@@ -27,6 +27,10 @@
       "type": "integer",
       "required": true
     },
+    "totalScore": {
+      "type": "integer",
+      "default": 100
+    },
     "passed": {
       "type": "boolean",
       "required": true

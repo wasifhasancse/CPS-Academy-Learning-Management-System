@@ -1,8 +1,14 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 
 const StudentContext = createContext(null);
 
@@ -22,24 +28,50 @@ export function StudentProvider({ children }) {
     if (!token) return;
     setIsLoading(true);
     try {
-      const [enrollsRes, coursesRes, catsRes, quizzesRes, progressRes] = await Promise.all([
-        api.get("/enrollments?populate[course][populate]=modules.lessons&populate[course][populate]=quizzes&populate[course][populate]=category", { token }).catch(() => ({ data: [] })),
-        api.get("/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate=category", { token }).catch(() => ({ data: [] })),
-        api.get("/categories", { token }).catch(() => ({ data: [] })),
-        api.get("/quiz-attempts?populate=quiz.questions&populate=quiz.course", { token }).catch(() => ({ data: [] })),
-        api.get("/progresses", { token }).catch(() => ({ data: [] })),
-      ]);
+      const [enrollsRes, coursesRes, catsRes, quizzesRes, progressRes] =
+        await Promise.all([
+          api
+            .get(
+              "/enrollments?populate[course][populate]=modules.lessons&populate[course][populate]=quizzes&populate[course][populate]=category",
+              { token },
+            )
+            .catch(() => ({ data: [] })),
+          api
+            .get(
+              "/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate=category",
+              { token },
+            )
+            .catch(() => ({ data: [] })),
+          api.get("/categories", { token }).catch(() => ({ data: [] })),
+          api
+            .get(
+              "/quiz-attempts?populate=quiz.questions&populate=quiz.course",
+              { token },
+            )
+            .catch(() => ({ data: [] })),
+          api.get("/progresses", { token }).catch(() => ({ data: [] })),
+        ]);
 
-      const resolvedEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
-      const resolvedCourses = Array.isArray(coursesRes?.data) ? coursesRes.data : [];
+      const resolvedEnrolls = Array.isArray(enrollsRes?.data)
+        ? enrollsRes.data
+        : [];
+      const resolvedCourses = Array.isArray(coursesRes?.data)
+        ? coursesRes.data
+        : [];
       const resolvedCats = Array.isArray(catsRes?.data) ? catsRes.data : [];
-      const resolvedQuizzes = Array.isArray(quizzesRes?.data) ? quizzesRes.data : [];
-      const resolvedProgress = Array.isArray(progressRes?.data) ? progressRes.data : [];
+      const resolvedQuizzes = Array.isArray(quizzesRes?.data)
+        ? quizzesRes.data
+        : [];
+      const resolvedProgress = Array.isArray(progressRes?.data)
+        ? progressRes.data
+        : [];
 
       // Merge local storage quiz attempts if any
       const mergedQuizzes = [...resolvedQuizzes];
       const seenQuizKeys = new Set(
-        resolvedQuizzes.map((q) => String(q.quiz?.documentId || q.quiz?.id || q.id))
+        resolvedQuizzes.map((q) =>
+          String(q.quiz?.documentId || q.quiz?.id || q.id),
+        ),
       );
 
       if (typeof window !== "undefined" && user?.id) {
@@ -84,65 +116,22 @@ export function StudentProvider({ children }) {
 
   useEffect(() => {
     loadStudentData();
+    // Poll periodically so this student's own progress bar stays fresh after actions elsewhere (e.g. quiz grading).
+    const intervalId = setInterval(loadStudentData, 20000);
+    return () => clearInterval(intervalId);
   }, [loadStudentData]);
 
-  // Derived Enrolled Courses with Dynamic Live Progress Calculation
+  // Derived Enrolled Courses — trusts the backend-persisted progressPercentage
+  // (single source of truth, recalculated server-side on every lesson/quiz completion)
+  // so the value is identical to what Instructor/Manager/Admin dashboards see.
   const enrolledCourses = enrollments
     .map((e) => {
       if (!e.course) return null;
       const c = e.course;
-      const cId = String(c.id);
-      const cDocId = String(c.documentId || "");
-
-      // 1. Total Units (Lessons + Quizzes)
-      const lessons = (c.modules || []).flatMap((m) => m.lessons || []);
-      const quizzes = c.quizzes || [];
-      const totalUnits = Math.max(1, lessons.length + quizzes.length);
-
-      // 2. Completed Lessons count
-      const lessonIds = new Set(lessons.map((l) => String(l.id)));
-      const lessonDocIds = new Set(lessons.map((l) => String(l.documentId || "")));
-      const completedLessonsCount = progressRecords.filter((p) => {
-        if (!p.isCompleted || !p.lesson) return false;
-        const lId = String(p.lesson.id);
-        const lDocId = String(p.lesson.documentId || "");
-        return lessonIds.has(lId) || lessonDocIds.has(lDocId);
-      }).length;
-
-      // 3. Passed Quizzes count
-      const quizIds = new Set(quizzes.map((q) => String(q.id)));
-      const quizDocIds = new Set(quizzes.map((q) => String(q.documentId || "")));
-      const passedQuizAttempts = quizAttempts.filter((a) => {
-        if (!a.passed || !a.quiz) return false;
-        const qId = String(a.quiz.id);
-        const qDocId = String(a.quiz.documentId || "");
-        return quizIds.has(qId) || quizDocIds.has(qDocId);
-      });
-      const passedQuizzesCount = new Set(passedQuizAttempts.map((a) => a.quiz.documentId || String(a.quiz.id))).size;
-
-      // 4. Local storage fallback
-      let localCompletedCount = 0;
-      if (typeof window !== "undefined" && user?.id) {
-        try {
-          const keys = [`cps_completed_items_${user.id}_${cId}`, `cps_completed_items_${user.id}_${cDocId}`];
-          for (const k of keys) {
-            const raw = localStorage.getItem(k);
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              if (Array.isArray(parsed)) {
-                localCompletedCount = Math.max(localCompletedCount, parsed.length);
-              }
-            }
-          }
-        } catch (err) {
-          // ignore
-        }
-      }
-
-      const verifiedCompletedUnits = Math.max(completedLessonsCount + passedQuizzesCount, localCompletedCount);
-      const computedPercentage = Math.min(100, Math.round((verifiedCompletedUnits / totalUnits) * 100));
-      const backendPercentage = Number(e.progressPercentage || 0);
-      const finalPercentage = Math.max(backendPercentage, computedPercentage);
+      const finalPercentage = Math.min(
+        100,
+        Math.max(0, Number(e.progressPercentage || 0)),
+      );
 
       return {
         ...c,
@@ -155,27 +144,56 @@ export function StudentProvider({ children }) {
     .filter(Boolean);
 
   const enrolledCourseIds = new Set(
-    enrolledCourses.map((c) => c.documentId || String(c.id))
+    enrolledCourses.map((c) => c.documentId || String(c.id)),
   );
 
   const completedCoursesCount = enrolledCourses.filter(
-    (c) => Number(c.progressPercentage) === 100
+    (c) => Number(c.progressPercentage) === 100,
   ).length;
 
   const totalLessonsCount = enrolledCourses.reduce(
-    (acc, c) => acc + (c.modules?.reduce((mAcc, m) => mAcc + (m.lessons?.length || 0), 0) || 0),
-    0
+    (acc, c) =>
+      acc +
+      (c.modules?.reduce((mAcc, m) => mAcc + (m.lessons?.length || 0), 0) || 0),
+    0,
   );
 
-  const passedQuizzesCount = quizAttempts.filter(
-    (q) => q.score >= (q.quiz?.passingScore || 80)
-  ).length;
+  const passedQuizzesCount = quizAttempts.filter((q) => q.passed).length;
 
   const stats = [
-    { title: "Enrolled Tracks", value: enrolledCourses.length, subtitle: `${completedCoursesCount} Tracks Fully Completed` },
-    { title: "Curriculum Units", value: totalLessonsCount, subtitle: "Video Lessons in Active Syllabus" },
-    { title: "Quiz Evaluations", value: quizAttempts.length, subtitle: `${passedQuizzesCount} Checkpoints Passed` },
-    { title: "Learning Score", value: quizAttempts.length > 0 ? `${Math.round(quizAttempts.reduce((acc, q) => acc + (q.score || 0), 0) / quizAttempts.length)}%` : "N/A", subtitle: quizAttempts.length > 0 ? "Average Verified Score" : "Complete a quiz to see your score" },
+    {
+      title: "Enrolled Tracks",
+      value: enrolledCourses.length,
+      subtitle: `${completedCoursesCount} Tracks Fully Completed`,
+    },
+    {
+      title: "Curriculum Units",
+      value: totalLessonsCount,
+      subtitle: "Video Lessons in Active Syllabus",
+    },
+    {
+      title: "Quiz Evaluations",
+      value: quizAttempts.length,
+      subtitle: `${passedQuizzesCount} Checkpoints Completed`,
+    },
+    {
+      title: "Learning Score",
+      value:
+        quizAttempts.length > 0
+          ? `${Math.round(
+              quizAttempts.reduce((acc, q) => {
+                const denom = Number(q.totalScore || q.quiz?.totalScore || 100);
+                return (
+                  acc + (denom > 0 ? (Number(q.score || 0) / denom) * 100 : 0)
+                );
+              }, 0) / quizAttempts.length,
+            )}%`
+          : "N/A",
+      subtitle:
+        quizAttempts.length > 0
+          ? "Average Verified Score"
+          : "Complete a quiz to see your score",
+    },
   ];
 
   const studentActivities = [
@@ -183,24 +201,30 @@ export function StudentProvider({ children }) {
       id: `en-${e.id}`,
       action: "COURSE_ENROLLED",
       title: `Enrolled in "${e.course?.title || "CPS Course Track"}"`,
-      timestamp: e.createdAt ? new Date(e.createdAt).toLocaleDateString() : "Recent",
+      timestamp: e.createdAt
+        ? new Date(e.createdAt).toLocaleDateString()
+        : "Recent",
       dateObj: e.createdAt ? new Date(e.createdAt) : new Date(0),
       badgeText: "ENROLLED",
       badgeVariant: "primary",
     })),
     ...quizAttempts.map((q) => {
-      const isPassed = q.score >= (q.quiz?.passingScore || 80);
+      const totalScore = Number(q.totalScore || q.quiz?.totalScore || 100);
       return {
         id: `q-${q.id}`,
         action: "QUIZ_EVALUATION",
-        title: `Completed ${q.quiz?.title || "Quiz Checkpoint"} (${q.score}%)`,
-        timestamp: q.createdAt ? new Date(q.createdAt).toLocaleDateString() : "Recent",
+        title: `${q.quiz?.title || "Quiz Checkpoint"} — ${q.score || 0}/${totalScore} pts`,
+        timestamp: q.createdAt
+          ? new Date(q.createdAt).toLocaleDateString()
+          : "Recent",
         dateObj: q.createdAt ? new Date(q.createdAt) : new Date(0),
-        badgeText: isPassed ? "PASSED" : "FAILED",
-        badgeVariant: isPassed ? "highlight" : "danger",
+        badgeText: q.passed ? "COMPLETED" : "IN PROGRESS",
+        badgeVariant: q.passed ? "highlight" : "danger",
       };
     }),
-  ].sort((a, b) => b.dateObj - a.dateObj).slice(0, 10);
+  ]
+    .sort((a, b) => b.dateObj - a.dateObj)
+    .slice(0, 10);
 
   const value = {
     enrollments,
@@ -217,9 +241,7 @@ export function StudentProvider({ children }) {
   };
 
   return (
-    <StudentContext.Provider value={value}>
-      {children}
-    </StudentContext.Provider>
+    <StudentContext.Provider value={value}>{children}</StudentContext.Provider>
   );
 }
 

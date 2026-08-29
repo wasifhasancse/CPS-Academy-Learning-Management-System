@@ -329,6 +329,17 @@ module.exports = {
         }
       }
 
+      // 2.6 Backfill legacy quizzes missing the "totalScore" field (renamed from passingScore)
+      const legacyQuizzes = await strapi.db.query("api::quiz.quiz").findMany();
+      for (const legacyQuiz of legacyQuizzes) {
+        if (!legacyQuiz.totalScore) {
+          await strapi.db.query("api::quiz.quiz").update({
+            where: { id: legacyQuiz.id },
+            data: { totalScore: 100 },
+          });
+        }
+      }
+
       // 3. Seed Default Sample Blog Posts if none exist
       const existingBlogs = await strapi.db
         .query("api::blog-post.blog-post")

@@ -949,6 +949,7 @@ export interface ApiQuizAttemptQuizAttempt extends Struct.CollectionTypeSchema {
     >;
     submittedAnswers: Schema.Attribute.JSON;
     submittedAt: Schema.Attribute.DateTime;
+    totalScore: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<100>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -974,7 +975,6 @@ export interface ApiQuizQuiz extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::quiz.quiz'> &
       Schema.Attribute.Private;
-    passingScore: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<80>;
     publishedAt: Schema.Attribute.DateTime;
     questions: Schema.Attribute.Relation<'oneToMany', 'api::question.question'>;
     quizAttempts: Schema.Attribute.Relation<
@@ -984,6 +984,7 @@ export interface ApiQuizQuiz extends Struct.CollectionTypeSchema {
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     timeLimitMinutes: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<20>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
+    totalScore: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<100>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

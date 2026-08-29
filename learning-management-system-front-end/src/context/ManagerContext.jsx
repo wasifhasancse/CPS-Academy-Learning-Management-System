@@ -75,7 +75,7 @@ export function ManagerProvider({ children }) {
   const [editingQuizId, setEditingQuizId] = useState(null);
   const [quizForm, setQuizForm] = useState({
     title: "",
-    passingScore: "80",
+    totalScore: "100",
     timeLimitMinutes: "20",
   });
 
@@ -114,14 +114,7 @@ export function ManagerProvider({ children }) {
     if (!token) return;
     setIsLoading(true);
     try {
-      const [
-        coursesRes,
-        catsRes,
-        blogsRes,
-        enrollsRes,
-        progressRes,
-        quizAttemptsRes,
-      ] = await Promise.all([
+      const [coursesRes, catsRes, blogsRes, enrollsRes] = await Promise.all([
         api
           .get(
             "/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments]=*",
@@ -138,8 +131,6 @@ export function ManagerProvider({ children }) {
             { token },
           )
           .catch(() => ({ data: [] })),
-        api.get("/progresses", { token }).catch(() => ({ data: [] })),
-        api.get("/quiz-attempts", { token }).catch(() => ({ data: [] })),
       ]);
 
       const resolvedCourses = Array.isArray(coursesRes?.data)
@@ -150,67 +141,15 @@ export function ManagerProvider({ children }) {
       const resolvedEnrolls = Array.isArray(enrollsRes?.data)
         ? enrollsRes.data
         : [];
-      const allProgress = Array.isArray(progressRes?.data)
-        ? progressRes.data
-        : [];
-      const allAttempts = Array.isArray(quizAttemptsRes?.data)
-        ? quizAttemptsRes.data
-        : [];
 
+      // Trust the backend-persisted progressPercentage (single source of truth,
+      // recalculated server-side on every lesson/quiz completion) so this value
+      // is identical to what the Student, Instructor, and Admin dashboards see.
       const enhancedEnrolls = resolvedEnrolls.map((e) => {
         if (!e.course || !e.student) return e;
-        const studentId = e.student.id;
-        const studentDocId = e.student.documentId;
-
-        const lessons = (e.course.modules || []).flatMap(
-          (m) => m.lessons || [],
-        );
-        const quizzes = e.course.quizzes || [];
-        const totalUnits = Math.max(1, lessons.length + quizzes.length);
-
-        const lessonIds = new Set(lessons.map((l) => String(l.id)));
-        const lessonDocIds = new Set(
-          lessons.map((l) => String(l.documentId || "")),
-        );
-
-        const completedLessonsCount = allProgress.filter((p) => {
-          if (!p.isCompleted || !p.lesson || !p.student) return false;
-          const pStudentId = p.student.id;
-          const isSameStudent =
-            pStudentId === studentId || p.student.documentId === studentDocId;
-          if (!isSameStudent) return false;
-          const lId = String(p.lesson.id);
-          const lDocId = String(p.lesson.documentId || "");
-          return lessonIds.has(lId) || lessonDocIds.has(lDocId);
-        }).length;
-
-        const quizIds = new Set(quizzes.map((q) => String(q.id)));
-        const quizDocIds = new Set(
-          quizzes.map((q) => String(q.documentId || "")),
-        );
-
-        const passedQuizzes = allAttempts.filter((a) => {
-          if (!a.passed || !a.quiz || !a.student) return false;
-          const aStudentId = a.student.id;
-          const isSameStudent =
-            aStudentId === studentId || a.student.documentId === studentDocId;
-          if (!isSameStudent) return false;
-          const qId = String(a.quiz.id);
-          const qDocId = String(a.quiz.documentId || "");
-          return quizIds.has(qId) || quizDocIds.has(qDocId);
-        });
-        const passedQuizzesCount = new Set(
-          passedQuizzes.map((a) => a.quiz.documentId || String(a.quiz.id)),
-        ).size;
-
-        const completedUnits = completedLessonsCount + passedQuizzesCount;
-        const calculatedPct = Math.min(
+        const finalPct = Math.min(
           100,
-          Math.round((completedUnits / totalUnits) * 100),
-        );
-        const finalPct = Math.max(
-          Number(e.progressPercentage || 0),
-          calculatedPct,
+          Math.max(0, Number(e.progressPercentage || 0)),
         );
 
         return {
@@ -244,6 +183,9 @@ export function ManagerProvider({ children }) {
 
   useEffect(() => {
     loadManagerData();
+    // Poll periodically so student progress updates reflect here automatically.
+    const intervalId = setInterval(loadManagerData, 20000);
+    return () => clearInterval(intervalId);
   }, [loadManagerData]);
 
   // Derived Metrics & Filters
@@ -542,7 +484,7 @@ export function ManagerProvider({ children }) {
     setEditingQuizId(null);
     setQuizForm({
       title: "",
-      passingScore: "80",
+      totalScore: "100",
       timeLimitMinutes: "20",
     });
     setIsQuizModalOpen(true);
@@ -553,7 +495,7 @@ export function ManagerProvider({ children }) {
     setEditingQuizId(quiz.documentId || quiz.id);
     setQuizForm({
       title: quiz.title || "",
-      passingScore: String(quiz.passingScore || 80),
+      totalScore: String(quiz.totalScore || 100),
       timeLimitMinutes: String(quiz.timeLimitMinutes || 20),
     });
     setIsQuizModalOpen(true);
@@ -567,7 +509,7 @@ export function ManagerProvider({ children }) {
       const payload = {
         data: {
           title: quizForm.title,
-          passingScore: Number(quizForm.passingScore) || 80,
+          totalScore: Number(quizForm.totalScore) || 100,
           timeLimitMinutes: Number(quizForm.timeLimitMinutes) || 20,
           course: currentCourse.documentId || currentCourse.id,
         },

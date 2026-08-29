@@ -1,14 +1,19 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { api } from "@/lib/api";
+import { ConfirmDeleteModal } from "@/components/dashboard/modals/ConfirmDeleteModal";
 import { CourseModal } from "@/components/dashboard/modals/CourseModal";
 import { LessonModal } from "@/components/dashboard/modals/LessonModal";
-import { QuizModal } from "@/components/dashboard/modals/QuizModal";
 import { ManageQuestionsModal } from "@/components/dashboard/modals/ManageQuestionsModal";
-import { ConfirmDeleteModal } from "@/components/dashboard/modals/ConfirmDeleteModal";
-
+import { QuizModal } from "@/components/dashboard/modals/QuizModal";
+import { useAuth } from "@/context/AuthContext";
+import { api } from "@/lib/api";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 
 const InstructorContext = createContext(null);
 
@@ -60,7 +65,7 @@ export function InstructorProvider({ children }) {
   const [editingQuizId, setEditingQuizId] = useState(null);
   const [quizForm, setQuizForm] = useState({
     title: "",
-    passingScore: "80",
+    totalScore: "100",
     timeLimitMinutes: "20",
   });
 
@@ -88,19 +93,25 @@ export function InstructorProvider({ children }) {
     if (!token) return;
     setIsLoading(true);
     try {
-      const [coursesRes, catsRes, enrollsRes, progressRes, quizAttemptsRes] = await Promise.all([
-        api.get("/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments]=*", { token }).catch(() => ({ data: [] })),
+      const [coursesRes, catsRes, enrollsRes] = await Promise.all([
+        api
+          .get(
+            "/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments]=*",
+            { token },
+          )
+          .catch(() => ({ data: [] })),
         api.get("/categories", { token }).catch(() => ({ data: [] })),
-        api.get("/enrollments?populate[student]=*&populate[course][populate]=modules.lessons&populate[course][populate]=quizzes", { token }).catch(() => ({ data: [] })),
-        api.get("/progresses", { token }).catch(() => ({ data: [] })),
-        api.get("/quiz-attempts", { token }).catch(() => ({ data: [] })),
+        api
+          .get(
+            "/enrollments?populate[student]=*&populate[course][populate]=modules.lessons&populate[course][populate]=quizzes",
+            { token },
+          )
+          .catch(() => ({ data: [] })),
       ]);
 
       const allCourses = Array.isArray(coursesRes?.data) ? coursesRes.data : [];
       const resolvedCats = Array.isArray(catsRes?.data) ? catsRes.data : [];
       const allEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
-      const allProgress = Array.isArray(progressRes?.data) ? progressRes.data : [];
-      const allAttempts = Array.isArray(quizAttemptsRes?.data) ? quizAttemptsRes.data : [];
 
       // Scoped only to instructor's own courses
       const instructorId = currentInstructor?.id;
@@ -116,7 +127,7 @@ export function InstructorProvider({ children }) {
       });
 
       const myCourseIds = new Set(
-        myCourses.map((c) => c.documentId || String(c.id))
+        myCourses.map((c) => c.documentId || String(c.id)),
       );
 
       const enhancedEnrolls = allEnrolls
@@ -126,48 +137,23 @@ export function InstructorProvider({ children }) {
         })
         .map((e) => {
           if (!e.course || !e.student) return e;
-          const studentId = e.student.id;
-          const studentDocId = e.student.documentId;
-
-          const lessons = (e.course.modules || []).flatMap((m) => m.lessons || []);
-          const quizzes = e.course.quizzes || [];
-          const totalUnits = Math.max(1, lessons.length + quizzes.length);
-
-          const lessonIds = new Set(lessons.map((l) => String(l.id)));
-          const lessonDocIds = new Set(lessons.map((l) => String(l.documentId || "")));
-
-          const completedLessonsCount = allProgress.filter((p) => {
-            if (!p.isCompleted || !p.lesson || !p.student) return false;
-            const pStudentId = p.student.id;
-            const isSameStudent = pStudentId === studentId || p.student.documentId === studentDocId;
-            if (!isSameStudent) return false;
-            const lId = String(p.lesson.id);
-            const lDocId = String(p.lesson.documentId || "");
-            return lessonIds.has(lId) || lessonDocIds.has(lDocId);
-          }).length;
-
-          const quizIds = new Set(quizzes.map((q) => String(q.id)));
-          const quizDocIds = new Set(quizzes.map((q) => String(q.documentId || "")));
-
-          const passedQuizzes = allAttempts.filter((a) => {
-            if (!a.passed || !a.quiz || !a.student) return false;
-            const aStudentId = a.student.id;
-            const isSameStudent = aStudentId === studentId || a.student.documentId === studentDocId;
-            if (!isSameStudent) return false;
-            const qId = String(a.quiz.id);
-            const qDocId = String(a.quiz.documentId || "");
-            return quizIds.has(qId) || quizDocIds.has(qDocId);
-          });
-          const passedQuizzesCount = new Set(passedQuizzes.map((a) => a.quiz.documentId || String(a.quiz.id))).size;
-
-          const completedUnits = completedLessonsCount + passedQuizzesCount;
-          const calculatedPct = Math.min(100, Math.round((completedUnits / totalUnits) * 100));
-          const finalPct = Math.max(Number(e.progressPercentage || 0), calculatedPct);
+          // Trust the backend-persisted progressPercentage (single source of truth,
+          // recalculated server-side on every lesson/quiz completion) so this value
+          // is identical to what the Student, Admin, and Content Manager dashboards see.
+          const finalPct = Math.min(
+            100,
+            Math.max(0, Number(e.progressPercentage || 0)),
+          );
 
           return {
             ...e,
             progressPercentage: finalPct,
-            status: finalPct === 100 ? "Completed" : (finalPct > 0 ? "In Progress" : "Enrolled"),
+            status:
+              finalPct === 100
+                ? "Completed"
+                : finalPct > 0
+                  ? "In Progress"
+                  : "Enrolled",
           };
         });
 
@@ -187,22 +173,46 @@ export function InstructorProvider({ children }) {
 
   useEffect(() => {
     loadInstructorData();
+    // Poll periodically so student progress updates reflect here automatically.
+    const intervalId = setInterval(loadInstructorData, 20000);
+    return () => clearInterval(intervalId);
   }, [loadInstructorData]);
 
   // Derived Metrics
   const totalCourses = courses.length;
   const totalLessons = courses.reduce(
-    (acc, c) => acc + (c.modules?.reduce((mAcc, m) => mAcc + (m.lessons?.length || 0), 0) || 0),
-    0
+    (acc, c) =>
+      acc +
+      (c.modules?.reduce((mAcc, m) => mAcc + (m.lessons?.length || 0), 0) || 0),
+    0,
   );
-  const totalQuizzes = courses.reduce((acc, c) => acc + (c.quizzes?.length || 0), 0);
+  const totalQuizzes = courses.reduce(
+    (acc, c) => acc + (c.quizzes?.length || 0),
+    0,
+  );
   const totalStudents = studentsProgress.length;
 
   const stats = [
-    { title: "Authored Tracks", value: totalCourses, subtitle: "Active Curriculum Tracks" },
-    { title: "Video Lessons", value: totalLessons, subtitle: "Published Syllabus Units" },
-    { title: "MCQ Assessments", value: totalQuizzes, subtitle: "Checkpoint Evaluations" },
-    { title: "Students Enrolled", value: totalStudents, subtitle: "Learners in Your Tracks" },
+    {
+      title: "Authored Tracks",
+      value: totalCourses,
+      subtitle: "Active Curriculum Tracks",
+    },
+    {
+      title: "Video Lessons",
+      value: totalLessons,
+      subtitle: "Published Syllabus Units",
+    },
+    {
+      title: "MCQ Assessments",
+      value: totalQuizzes,
+      subtitle: "Checkpoint Evaluations",
+    },
+    {
+      title: "Students Enrolled",
+      value: totalStudents,
+      subtitle: "Learners in Your Tracks",
+    },
   ];
 
   const instructorActivities = [
@@ -210,7 +220,9 @@ export function InstructorProvider({ children }) {
       id: `en-${e.id}`,
       action: "STUDENT_ENROLLED",
       title: `${e.student?.username || "Student"} enrolled in ${e.course?.title || "Course"}`,
-      timestamp: e.createdAt ? new Date(e.createdAt).toLocaleDateString() : "Recent",
+      timestamp: e.createdAt
+        ? new Date(e.createdAt).toLocaleDateString()
+        : "Recent",
       dateObj: e.createdAt ? new Date(e.createdAt) : new Date(0),
       badgeText: "ENROLLED",
       badgeVariant: "primary",
@@ -219,15 +231,21 @@ export function InstructorProvider({ children }) {
       id: `c-${c.id}`,
       action: "COURSE_UPDATED",
       title: `Curriculum updated for "${c.title}"`,
-      timestamp: c.updatedAt ? new Date(c.updatedAt).toLocaleDateString() : "Recent",
+      timestamp: c.updatedAt
+        ? new Date(c.updatedAt).toLocaleDateString()
+        : "Recent",
       dateObj: c.updatedAt ? new Date(c.updatedAt) : new Date(0),
       badgeText: "CURRICULUM",
       badgeVariant: "highlight",
     })),
-  ].sort((a, b) => b.dateObj - a.dateObj).slice(0, 10);
+  ]
+    .sort((a, b) => b.dateObj - a.dateObj)
+    .slice(0, 10);
 
   const currentCourse =
-    courses.find((c) => (c.documentId || String(c.id)) === selectedCourseId) || courses[0] || null;
+    courses.find((c) => (c.documentId || String(c.id)) === selectedCourseId) ||
+    courses[0] ||
+    null;
 
   const currentCourseLessons =
     currentCourse?.modules?.flatMap((m) => m.lessons || []) || [];
@@ -269,7 +287,8 @@ export function InstructorProvider({ children }) {
     setEditingCourseId(course.documentId || course.id);
     setCourseForm({
       title: course.title || "",
-      category: course.category?.documentId || String(course.category?.id) || "",
+      category:
+        course.category?.documentId || String(course.category?.id) || "",
       price: String(course.price || 0),
       difficulty: course.difficulty || "Beginner",
       description: course.description || "",
@@ -367,7 +386,7 @@ export function InstructorProvider({ children }) {
               course: currentCourse.documentId || currentCourse.id,
             },
           },
-          { token }
+          { token },
         );
         targetModule = modRes.data;
       }
@@ -423,7 +442,7 @@ export function InstructorProvider({ children }) {
     setEditingQuizId(null);
     setQuizForm({
       title: "",
-      passingScore: "80",
+      totalScore: "100",
       timeLimitMinutes: "20",
     });
     setIsQuizModalOpen(true);
@@ -434,7 +453,7 @@ export function InstructorProvider({ children }) {
     setEditingQuizId(quiz.documentId || quiz.id);
     setQuizForm({
       title: quiz.title || "",
-      passingScore: String(quiz.passingScore || 80),
+      totalScore: String(quiz.totalScore || 100),
       timeLimitMinutes: String(quiz.timeLimitMinutes || 20),
     });
     setIsQuizModalOpen(true);
@@ -448,7 +467,7 @@ export function InstructorProvider({ children }) {
       const payload = {
         data: {
           title: quizForm.title,
-          passingScore: Number(quizForm.passingScore) || 80,
+          totalScore: Number(quizForm.totalScore) || 100,
           timeLimitMinutes: Number(quizForm.timeLimitMinutes) || 20,
           course: currentCourse.documentId || currentCourse.id,
         },
@@ -524,7 +543,7 @@ export function InstructorProvider({ children }) {
             quiz: quizId,
           },
         },
-        { token }
+        { token },
       );
 
       setNewQuestion({
@@ -539,7 +558,7 @@ export function InstructorProvider({ children }) {
 
       const updatedQuizRes = await api.get(
         `/quizzes/${quizId}?populate=questions`,
-        { token }
+        { token },
       );
       if (updatedQuizRes?.data) {
         setQuizForQuestions(updatedQuizRes.data);
@@ -560,7 +579,7 @@ export function InstructorProvider({ children }) {
       await api.delete(`/questions/${questionId}`, { token });
       const updatedQuizRes = await api.get(
         `/quizzes/${quizId}?populate=questions`,
-        { token }
+        { token },
       );
       if (updatedQuizRes?.data) {
         setQuizForQuestions(updatedQuizRes.data);

@@ -21,9 +21,9 @@
       "targetField": "title",
       "required": true
     },
-    "passingScore": {
+    "totalScore": {
       "type": "integer",
-      "default": 80
+      "default": 100
     },
     "timeLimitMinutes": {
       "type": "integer",
