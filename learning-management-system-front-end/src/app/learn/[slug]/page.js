@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { CoursePlayerSkeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/api";
 import {
   HiOutlinePlay,
@@ -480,14 +481,7 @@ export default function CoursePlayerPage({ params }) {
   const overallProgress = totalItemsCount > 0 ? Math.min(100, Math.round((completedItemsCount / totalItemsCount) * 100)) : 0;
 
   if (isLoading || isAuthLoading) {
-    return (
-      <div className="w-full min-h-[70vh] flex items-center justify-center">
-        <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-3 border-secondary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs text-muted">Loading syllabus and video lessons...</p>
-        </div>
-      </div>
-    );
+    return <CoursePlayerSkeleton />;
   }
 
   if (!course) {
