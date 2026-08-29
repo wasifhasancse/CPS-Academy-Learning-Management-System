@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { getStrapiUrl } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/Card";
@@ -125,7 +126,7 @@ export default function RegisterPage() {
   };
 
   const handleGoogleLogin = () => {
-    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
+    const strapiUrl = getStrapiUrl();
     window.location.href = `${strapiUrl}/api/connect/google`;
   };
 

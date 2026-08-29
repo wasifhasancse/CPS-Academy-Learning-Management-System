@@ -1,4 +1,5 @@
 import { stripe } from "@/lib/stripe";
+import { getStrapiUrl } from "@/lib/api";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
@@ -54,7 +55,7 @@ export default async function Success({ searchParams }) {
   // Auto-sync enrollment in Strapi backend
   if (status === "complete") {
     try {
-      const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
+      const strapiUrl = getStrapiUrl();
       await fetch(`${strapiUrl}/api/orders/webhook`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

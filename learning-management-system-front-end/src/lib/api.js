@@ -1,4 +1,22 @@
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
+/**
+ * Resolves the base Strapi URL safely.
+ * Strips trailing slashes and automatically upgrades http:// to https:// when running
+ * in a secure browser context (preventing Mixed Content browser blocks in production).
+ * @returns {string}
+ */
+export function getStrapiUrl() {
+  let url = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
+  if (
+    typeof window !== "undefined" &&
+    window.location.protocol === "https:" &&
+    url.startsWith("http://") &&
+    !url.includes("localhost") &&
+    !url.includes("127.0.0.1")
+  ) {
+    url = url.replace(/^http:\/\//i, "https://");
+  }
+  return url.replace(/\/+$/, "");
+}
 
 /**
  * Custom API Error class with status code and details
@@ -39,7 +57,8 @@ export async function fetchApi(endpoint, options = {}) {
   const fullEndpoint = normalizedEndpoint.startsWith("/api")
     ? normalizedEndpoint
     : `/api${normalizedEndpoint}`;
-  const url = `${STRAPI_URL}${fullEndpoint}`;
+  const baseUrl = getStrapiUrl();
+  const url = `${baseUrl}${fullEndpoint}`;
 
   const resolvedToken = token || getClientToken();
 
