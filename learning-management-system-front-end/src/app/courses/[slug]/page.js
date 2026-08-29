@@ -94,13 +94,20 @@ export default function CourseDetailPage({ params }) {
           setCourse(foundCourse);
 
           // Check if current authenticated student is already enrolled
-          if (user?.id && Array.isArray(foundCourse.enrollments)) {
-            const hasEnrollment = foundCourse.enrollments.some(
-              (e) =>
-                e.student?.id === user.id ||
-                e.student?.documentId === user.documentId ||
-                e.student === user.id
-            );
+          if (token && user?.id) {
+            const enrollsRes = await api.get("/enrollments", { token }).catch(() => ({ data: [] }));
+            const myEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
+            const hasEnrollment = myEnrolls.some((e) => {
+              const c = e.course;
+              if (!c) return false;
+              const cSlug = (c.slug || "").toLowerCase();
+              const cDocId = (c.documentId || "").toLowerCase();
+              const cId = String(c.id || "").toLowerCase();
+              const targetSlug = (foundCourse.slug || slug).toLowerCase();
+              const targetDocId = (foundCourse.documentId || "").toLowerCase();
+              const targetId = String(foundCourse.id || "").toLowerCase();
+              return cSlug === targetSlug || cDocId === targetDocId || cId === targetId;
+            });
             setIsEnrolled(hasEnrollment);
           }
         } else {
@@ -114,8 +121,10 @@ export default function CourseDetailPage({ params }) {
       }
     }
 
-    loadCourse();
-  }, [slug, user]);
+    if (!isAuthLoading) {
+      loadCourse();
+    }
+  }, [slug, user, token, isAuthLoading]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -473,18 +482,22 @@ export default function CourseDetailPage({ params }) {
                     </div>
                   ) : isStudent ? (
                     isEnrolled ? (
-                      <div className="space-y-2">
+                      <div className="space-y-2.5">
+                        <div className="p-3 rounded-xl bg-secondary/15 border border-secondary/30 text-center space-y-1">
+                          <p className="text-xs font-bold text-foreground flex items-center justify-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-secondary"></span>
+                            <span>Already Enrolled in this Track</span>
+                          </p>
+                          <p className="text-[11px] text-muted">You have lifetime access to all video lessons and quizzes.</p>
+                        </div>
                         <Button
                           href={`/learn/${course.slug || slug}`}
                           variant="primary"
                           size="md"
                           className="w-full font-bold"
                         >
-                          ▶ Resume Course Player
+                          ▶ View Lessons & Quizzes
                         </Button>
-                        <Badge variant="success" size="sm" className="w-full text-center py-1">
-                          ✓ Enrolled in this Course
-                        </Badge>
                       </div>
                     ) : (
                       <Button
