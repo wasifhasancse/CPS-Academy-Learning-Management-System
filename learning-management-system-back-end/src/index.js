@@ -148,6 +148,7 @@ const STUDENT_ACTIONS = [
   'api::question.question.findOne',
   'api::enrollment.enrollment.find',
   'api::enrollment.enrollment.findOne',
+  'api::enrollment.enrollment.create',
   'api::progress.progress.find',
   'api::progress.progress.findOne',
   'api::progress.progress.create',
