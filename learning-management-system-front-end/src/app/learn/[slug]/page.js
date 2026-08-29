@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -12,6 +12,7 @@ import { api } from "@/lib/api";
 import {
   HiOutlinePlay,
   HiOutlineCheckCircle,
+  HiOutlineXCircle,
   HiOutlineArrowLeft,
   HiOutlineChevronRight,
   HiOutlineChevronLeft,
@@ -19,9 +20,11 @@ import {
   HiOutlineChevronUp,
   HiOutlineBookOpen,
   HiOutlineAcademicCap,
-  HiOutlineLockClosed,
   HiOutlineQuestionMarkCircle,
   HiOutlineSparkles,
+  HiOutlineTrophy,
+  HiOutlineXMark,
+  HiOutlineArrowPath,
 } from "react-icons/hi2";
 
 function extractYouTubeId(url) {
@@ -40,19 +43,80 @@ export default function CoursePlayerPage({ params }) {
   const { user, role, token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   const [course, setCourse] = useState(null);
-  const [activeItem, setActiveItem] = useState(null); // { type: 'lesson' | 'quiz', data: object, moduleIndex: number }
+  const [activeItem, setActiveItem] = useState(null);
   const [completedItemIds, setCompletedItemIds] = useState(new Set());
-  const [expandedModules, setExpandedModules] = useState(new Set([0])); // First module open by default
-  const [activeTab, setActiveTab] = useState("overview"); // overview, notes, resources
+  const [storedQuizAttempts, setStoredQuizAttempts] = useState({}); // { [quizKey]: attemptObj }
+  const [expandedModules, setExpandedModules] = useState(new Set([0]));
+  const [activeTab, setActiveTab] = useState("overview");
   const [isLoading, setIsLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
 
   // Quiz Runner States
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
+  const [isSubmittingQuiz, setIsSubmittingQuiz] = useState(false);
 
-  // 1. Fetch Course and Curriculum
+  // Helper to retrieve saved attempt from state or localStorage
+  const getSavedAttemptForQuiz = useCallback((quizData) => {
+    if (!quizData) return null;
+    const docId = quizData.documentId ? String(quizData.documentId) : null;
+    const numId = quizData.id !== undefined ? String(quizData.id) : null;
+    const qSlug = quizData.slug ? String(quizData.slug) : null;
+
+    // 1. Check in-memory attempts map
+    if (docId && storedQuizAttempts[docId]) return storedQuizAttempts[docId];
+    if (numId && storedQuizAttempts[numId]) return storedQuizAttempts[numId];
+    if (qSlug && storedQuizAttempts[qSlug]) return storedQuizAttempts[qSlug];
+
+    // 2. Check local storage fallback
+    if (typeof window !== "undefined") {
+      const keysToCheck = [
+        `cps_quiz_attempt_${user?.id || "guest"}_${docId}`,
+        `cps_quiz_attempt_${user?.id || "guest"}_${numId}`,
+        `cps_quiz_attempt_${user?.id || "guest"}_${qSlug}`,
+      ];
+
+      for (const k of keysToCheck) {
+        try {
+          const raw = localStorage.getItem(k);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === "object") return parsed;
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+
+    return null;
+  }, [storedQuizAttempts, user?.id]);
+
+  // Synchronize Active Item State (Restores submitted answers and score automatically)
+  const syncItemState = useCallback((item) => {
+    if (!item) return;
+    if (item.type === "quiz") {
+      const savedAttempt = getSavedAttemptForQuiz(item.data);
+      if (savedAttempt) {
+        const answers = savedAttempt.submittedAnswers || savedAttempt.answers || {};
+        setSelectedAnswers(answers);
+        setQuizScore(savedAttempt.score !== undefined ? Number(savedAttempt.score) : 0);
+        setQuizSubmitted(true);
+      } else {
+        setSelectedAnswers({});
+        setQuizSubmitted(false);
+        setQuizScore(0);
+      }
+    } else {
+      setSelectedAnswers({});
+      setQuizSubmitted(false);
+      setQuizScore(0);
+    }
+  }, [getSavedAttemptForQuiz]);
+
+  // 1. Fetch Course, Curriculum & Persisted Progress
   useEffect(() => {
     async function loadCoursePlayer() {
       if (!slug) {
@@ -118,27 +182,101 @@ export default function CoursePlayerPage({ params }) {
             });
           });
           (foundCourse.quizzes || []).forEach((q) => {
-            timeline.push({ type: "quiz", data: q, moduleIndex: 0, moduleId: "quizzes" });
+            timeline.push({ type: "quiz", data: q, moduleIndex: (foundCourse.modules || []).length, moduleId: "quizzes" });
           });
 
-          if (timeline.length > 0) {
-            setActiveItem(timeline[0]);
-          }
-
-          // Expand all modules by default for easier discovery
+          // Expand all modules by default
           const allModuleIndices = new Set((foundCourse.modules || []).map((_, idx) => idx));
           setExpandedModules(allModuleIndices);
 
+          // Load Persisted Progress from Backend & LocalStorage
+          const initialCompleted = new Set();
+          const attemptsMap = {};
+          const targetCourseId = foundCourse.id || foundCourse.documentId;
+          const storageKey = `cps_completed_items_${user?.id || "guest"}_${targetCourseId}`;
+
+          if (typeof window !== "undefined") {
+            try {
+              const localSaved = JSON.parse(localStorage.getItem(storageKey) || "[]");
+              if (Array.isArray(localSaved)) {
+                localSaved.forEach((id) => initialCompleted.add(id));
+              }
+            } catch (e) {
+              console.error("Failed to parse local storage progress:", e);
+            }
+          }
+
+          if (token && user?.id) {
+            try {
+              const [progressRes, attemptsRes] = await Promise.all([
+                api.get("/progresses", { token }).catch(() => ({ data: [] })),
+                api.get("/quiz-attempts", { token }).catch(() => ({ data: [] })),
+              ]);
+
+              const progressList = Array.isArray(progressRes?.data) ? progressRes.data : [];
+              progressList.forEach((p) => {
+                if (p.isCompleted && p.lesson) {
+                  initialCompleted.add(`lesson-${p.lesson.documentId || p.lesson.id}`);
+                }
+              });
+
+              const attemptsList = Array.isArray(attemptsRes?.data) ? attemptsRes.data : [];
+              attemptsList.forEach((a) => {
+                if (a.quiz) {
+                  const qDocId = a.quiz.documentId;
+                  const qNumId = String(a.quiz.id);
+                  const qSlug = a.quiz.slug;
+
+                  if (qDocId) attemptsMap[qDocId] = a;
+                  if (qNumId) attemptsMap[qNumId] = a;
+                  if (qSlug) attemptsMap[qSlug] = a;
+
+                  if (a.passed) {
+                    initialCompleted.add(`quiz-${qDocId || qNumId}`);
+                  }
+                }
+              });
+            } catch (err) {
+              console.warn("Backend progress loading error:", err);
+            }
+          }
+
+          setCompletedItemIds(initialCompleted);
+          setStoredQuizAttempts(attemptsMap);
+
+          if (timeline.length > 0) {
+            const firstItem = timeline[0];
+            setActiveItem(firstItem);
+            if (firstItem.type === "quiz") {
+              const qKey = firstItem.data?.documentId || firstItem.data?.id;
+              const prevAttempt = attemptsMap[qKey] || attemptsMap[String(firstItem.data?.id)] || attemptsMap[firstItem.data?.slug];
+              if (prevAttempt) {
+                setSelectedAnswers(prevAttempt.submittedAnswers || prevAttempt.answers || {});
+                setQuizScore(prevAttempt.score !== undefined ? prevAttempt.score : 0);
+                setQuizSubmitted(true);
+              }
+            }
+          }
+
           // Check Access Authorization
           const isStaff = ["Admin", "admin", "Content Manager", "content_manager", "Instructor", "instructor"].includes(role);
-          if (!isStaff && user?.id && Array.isArray(foundCourse.enrollments) && foundCourse.enrollments.length > 0) {
-            const isEnrolled = foundCourse.enrollments.some(
-              (e) =>
-                e.student?.id === user.id ||
-                e.student?.documentId === user.documentId ||
-                e.student === user.id ||
-                e.student?.email === user.email
-            );
+          if (!isStaff) {
+            let isEnrolled = false;
+            if (token) {
+              const enrollsRes = await api.get("/enrollments", { token }).catch(() => ({ data: [] }));
+              const myEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
+              isEnrolled = myEnrolls.some((e) => {
+                const c = e.course;
+                if (!c) return false;
+                const cSlug = (c.slug || "").toLowerCase();
+                const cDocId = (c.documentId || "").toLowerCase();
+                const cId = String(c.id || "").toLowerCase();
+                const targetSlug = (foundCourse.slug || slug).toLowerCase();
+                const targetDocId = (foundCourse.documentId || "").toLowerCase();
+                const targetId = String(foundCourse.id || "").toLowerCase();
+                return cSlug === targetSlug || cDocId === targetDocId || cId === targetId;
+              });
+            }
             if (!isEnrolled && Number(foundCourse.price || 0) > 0) {
               setAccessDenied(true);
             }
@@ -204,54 +342,136 @@ export default function CoursePlayerPage({ params }) {
     });
   };
 
-  // Toggle Item Completion & Sync Progress
-  const markCurrentItemComplete = async (itemId) => {
+  // Switch Active Item and Restore Its State
+  const handleSelectActiveItem = (item) => {
+    setActiveItem(item);
+    syncItemState(item);
+  };
+
+  // Persist Item Completion
+  const markCurrentItemComplete = async (itemId, itemObject = activeItem) => {
     const nextSet = new Set(completedItemIds);
     nextSet.add(itemId);
     setCompletedItemIds(nextSet);
 
-    // Calculate percentage
-    const totalCount = curriculumTimeline.length;
-    const progressPercent = totalCount > 0 ? Math.round((nextSet.size / totalCount) * 100) : 0;
+    // Save to LocalStorage
+    const targetCourseId = course?.id || course?.documentId;
+    const storageKey = `cps_completed_items_${user?.id || "guest"}_${targetCourseId}`;
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(Array.from(nextSet)));
+      } catch (e) {
+        console.error("Local progress save error:", e);
+      }
+    }
+
+    // Save Lesson Progress to Backend
+    if (token && user?.id && itemObject?.type === "lesson") {
+      api
+        .post(
+          "/progresses",
+          {
+            lessonId: itemObject.data?.documentId || itemObject.data?.id,
+            courseId: course?.documentId || course?.id,
+            isCompleted: true,
+          },
+          { token }
+        )
+        .catch((err) => console.warn("Backend progress save error:", err));
+    }
 
     // Advance to next sequential item if available
     if (nextItem) {
-      setActiveItem(nextItem);
-      setSelectedAnswers({});
-      setQuizSubmitted(false);
-      // Auto expand the module of the next item
+      handleSelectActiveItem(nextItem);
       if (nextItem.moduleIndex !== undefined) {
         setExpandedModules((prev) => new Set([...prev, nextItem.moduleIndex]));
       }
     }
   };
 
-  // Handle Quiz Submission
-  const handleQuizSubmit = () => {
+  // Handle Quiz Submission with Server Auto-Grading & Storage
+  const handleQuizSubmit = async () => {
     if (!activeItem || activeItem.type !== "quiz") return;
     const questions = activeItem.data?.questions || [];
-    let correctCount = 0;
+    setIsSubmittingQuiz(true);
 
-    questions.forEach((q) => {
-      const selected = selectedAnswers[q.id || q.documentId];
-      if (selected !== undefined && Number(selected) === Number(q.correctAnswer)) {
-        correctCount += 1;
-      }
-    });
+    let calculatedScore = 0;
+    if (questions.length > 0) {
+      let correctCount = 0;
+      questions.forEach((q) => {
+        const qId = q.id !== undefined ? q.id : q.documentId;
+        const selected = selectedAnswers[qId] !== undefined ? selectedAnswers[qId] : selectedAnswers[q.documentId];
+        if (selected !== undefined && Number(selected) === Number(q.correctAnswer)) {
+          correctCount += 1;
+        }
+      });
+      calculatedScore = Math.round((correctCount / questions.length) * 100);
+    }
 
-    const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 100;
-    setQuizScore(score);
+    setQuizScore(calculatedScore);
     setQuizSubmitted(true);
 
     const passingScore = activeItem.data?.passingScore || 80;
-    if (score >= passingScore) {
-      markCurrentItemComplete(`quiz-${activeItem.data.documentId || activeItem.data.id}`);
+    const isPassed = calculatedScore >= passingScore;
+    const qDocId = activeItem.data?.documentId;
+    const qNumId = String(activeItem.data?.id);
+    const qSlug = activeItem.data?.slug;
+
+    // Cache Attempt Record in state and localStorage
+    const attemptRecord = {
+      score: calculatedScore,
+      passed: isPassed,
+      submittedAnswers: selectedAnswers,
+      answers: selectedAnswers,
+      submittedAt: new Date().toISOString(),
+      quiz: activeItem.data,
+      course: course,
+    };
+
+    setStoredQuizAttempts((prev) => {
+      const updated = { ...prev };
+      if (qDocId) updated[qDocId] = attemptRecord;
+      if (qNumId) updated[qNumId] = attemptRecord;
+      if (qSlug) updated[qSlug] = attemptRecord;
+      return updated;
+    });
+
+    if (typeof window !== "undefined") {
+      const baseKey = `cps_quiz_attempt_${user?.id || "guest"}_`;
+      if (qDocId) localStorage.setItem(`${baseKey}${qDocId}`, JSON.stringify(attemptRecord));
+      if (qNumId) localStorage.setItem(`${baseKey}${qNumId}`, JSON.stringify(attemptRecord));
+      if (qSlug) localStorage.setItem(`${baseKey}${qSlug}`, JSON.stringify(attemptRecord));
     }
+
+    // Persist Quiz Attempt to Backend
+    if (token && user?.id) {
+      try {
+        await api.post(
+          "/quiz-attempts",
+          {
+            quizId: activeItem.data?.documentId || activeItem.data?.id,
+            courseId: course?.documentId || course?.id,
+            score: calculatedScore,
+            passed: isPassed,
+            answers: selectedAnswers,
+            submittedAnswers: selectedAnswers,
+          },
+          { token }
+        );
+      } catch (err) {
+        console.warn("Quiz attempt persistence warning:", err);
+      }
+    }
+
+    if (isPassed) {
+      markCurrentItemComplete(`quiz-${activeItem.data.documentId || activeItem.data.id}`, activeItem);
+    }
+    setIsSubmittingQuiz(false);
   };
 
   const totalItemsCount = curriculumTimeline.length;
   const completedItemsCount = completedItemIds.size;
-  const overallProgress = totalItemsCount > 0 ? Math.round((completedItemsCount / totalItemsCount) * 100) : 0;
+  const overallProgress = totalItemsCount > 0 ? Math.min(100, Math.round((completedItemsCount / totalItemsCount) * 100)) : 0;
 
   if (isLoading || isAuthLoading) {
     return (
@@ -302,6 +522,7 @@ export default function CoursePlayerPage({ params }) {
   const youtubeVideoId = isVideoLesson ? extractYouTubeId(activeItem?.data?.videoUrl) : null;
   const currentActiveId = activeItem ? `${activeItem.type}-${activeItem.data?.documentId || activeItem.data?.id}` : "";
   const isCurrentComplete = completedItemIds.has(currentActiveId);
+  const activeSavedAttempt = isQuizItem ? getSavedAttemptForQuiz(activeItem?.data) : null;
 
   return (
     <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -317,7 +538,7 @@ export default function CoursePlayerPage({ params }) {
               {course.title}
             </h1>
             <p className="text-xs text-muted">
-              {course.category?.name || "Track"} • {course.modules?.length || 0} Modules • {totalItemsCount} Total Learning Units
+              {course.category?.name || "Track"} • {course.modules?.length || 0} Modules • {totalItemsCount} Total Units
             </p>
           </div>
         </div>
@@ -330,7 +551,7 @@ export default function CoursePlayerPage({ params }) {
               </span>
               <span className="font-extrabold text-secondary">({overallProgress}%)</span>
             </div>
-            <div className="w-36">
+            <div className="w-40">
               <ProgressBar progress={overallProgress} />
             </div>
           </div>
@@ -340,17 +561,34 @@ export default function CoursePlayerPage({ params }) {
         </div>
       </div>
 
-      {/* Course Completion Banner */}
+      {/* Decorated Course Completion Banner */}
       {overallProgress === 100 && (
-        <div className="p-4 rounded-xl bg-secondary/15 border border-secondary/30 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <HiOutlineSparkles className="w-6 h-6 text-secondary shrink-0" />
+        <div className="p-5 rounded-2xl bg-secondary/15 border-2 border-secondary/40 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-secondary text-white flex items-center justify-center shrink-0">
+              <HiOutlineTrophy className="w-6 h-6" />
+            </div>
             <div>
-              <h4 className="font-bold text-sm text-foreground">Congratulations! You&apos;ve Completed this Course!</h4>
-              <p className="text-xs text-muted">All modules, lessons, and diagnostic quizzes are 100% completed.</p>
+              <div className="flex items-center gap-2">
+                <Badge variant="primary" size="sm">
+                  Course Completed
+                </Badge>
+                <span className="text-xs text-secondary font-bold">100% Verified Mastery</span>
+              </div>
+              <h4 className="font-extrabold text-base text-foreground mt-0.5">
+                Congratulations, {user?.username || "Student"}! You&apos;ve Finished {course.title}!
+              </h4>
+              <p className="text-xs text-muted">
+                All video lessons and checkpoint quizzes have been successfully completed and recorded.
+              </p>
             </div>
           </div>
-          <Button href="/dashboard/student/courses" variant="primary" size="sm">
+          <Button
+            onClick={() => setShowCertificateModal(true)}
+            variant="primary"
+            size="md"
+            className="font-bold shrink-0"
+          >
             View Certificate Summary
           </Button>
         </div>
@@ -405,6 +643,54 @@ export default function CoursePlayerPage({ params }) {
               </CardHeader>
 
               <CardContent className="p-6 space-y-6">
+                {/* Result Overview Header Banner (Matching Reference Design) */}
+                {quizSubmitted && (
+                  <div className="p-4 rounded-xl bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm shrink-0 ${
+                          quizScore >= (activeItem.data?.passingScore || 80)
+                            ? "bg-secondary text-white"
+                            : "bg-red-500 text-white"
+                        }`}
+                      >
+                        {quizScore}%
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={quizScore >= (activeItem.data?.passingScore || 80) ? "highlight" : "danger"}
+                            size="sm"
+                            className="font-bold"
+                          >
+                            {quizScore >= (activeItem.data?.passingScore || 80) ? "Passed ✓" : "Needs Retake ✕"}
+                          </Badge>
+                          <span className="text-[11px] text-muted">
+                            {activeSavedAttempt?.submittedAt
+                              ? `Submitted on ${new Date(activeSavedAttempt.submittedAt).toLocaleDateString()}`
+                              : "Verified Evaluation"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted mt-1">
+                          Review your submitted answers below. Correct solutions are highlighted in green, and incorrect choices in red.
+                        </p>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={() => {
+                        setQuizSubmitted(false);
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs shrink-0 gap-1.5"
+                    >
+                      <HiOutlineArrowPath className="w-3.5 h-3.5" />
+                      <span>Retake Quiz</span>
+                    </Button>
+                  </div>
+                )}
+
                 {(activeItem?.data?.questions || []).length === 0 ? (
                   <div className="py-12 text-center space-y-2 text-muted">
                     <HiOutlineQuestionMarkCircle className="w-10 h-10 mx-auto text-muted" />
@@ -414,79 +700,118 @@ export default function CoursePlayerPage({ params }) {
                 ) : (
                   <div className="space-y-6">
                     {activeItem.data.questions.map((q, qIdx) => {
-                      const qId = q.id || q.documentId || qIdx;
-                      const selected = selectedAnswers[qId];
-                      const isCorrect = Number(selected) === Number(q.correctAnswer);
+                      const qId = q.id !== undefined ? q.id : (q.documentId || qIdx);
+                      const studentAnswer =
+                        selectedAnswers[q.id] !== undefined
+                          ? selectedAnswers[q.id]
+                          : (selectedAnswers[q.documentId] !== undefined ? selectedAnswers[q.documentId] : selectedAnswers[qId]);
+
+                      const isQuestionCorrect =
+                        studentAnswer !== undefined && Number(studentAnswer) === Number(q.correctAnswer);
 
                       return (
-                        <div key={qId} className="p-4 rounded-xl bg-surface border border-border space-y-3">
-                          <div className="flex items-start gap-2">
-                            <span className="font-mono font-bold text-xs text-secondary mt-0.5">
-                              {qIdx + 1}.
-                            </span>
-                            <h4 className="text-sm font-bold text-foreground leading-snug">
-                              {q.prompt || q.title || `Question ${qIdx + 1}`}
-                            </h4>
+                        <div key={qId} className="p-4 sm:p-5 rounded-2xl bg-surface border border-border space-y-3.5">
+                          {/* Question Header */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-2.5">
+                              <span className="font-mono font-extrabold text-xs text-secondary mt-0.5 px-2 py-0.5 rounded bg-card border border-border shrink-0">
+                                Q{qIdx + 1}
+                              </span>
+                              <h4 className="text-sm font-bold text-foreground leading-snug">
+                                {q.prompt || q.title || `Question ${qIdx + 1}`}
+                              </h4>
+                            </div>
+
+                            {quizSubmitted && (
+                              <Badge
+                                variant={isQuestionCorrect ? "highlight" : "danger"}
+                                size="sm"
+                                className="shrink-0 font-bold"
+                              >
+                                {isQuestionCorrect ? "✓ Correct (+1)" : "✕ Incorrect (0)"}
+                              </Badge>
+                            )}
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                          {/* Options List with Exact Color Coding (Matching Reference 3) */}
+                          <div className="space-y-2 pt-1">
                             {(Array.isArray(q.options) ? q.options : ["Option A", "Option B", "Option C", "Option D"]).map((opt, optIdx) => {
-                              const isOptionSelected = Number(selected) === optIdx;
+                              const isStudentChoice = studentAnswer !== undefined && Number(studentAnswer) === optIdx;
+                              const isActualCorrect = Number(q.correctAnswer) === optIdx;
+
+                              let optionStyles = "bg-card border-border hover:bg-surface/80 text-foreground";
+                              let statusIcon = null;
+                              let badgeText = null;
+
+                              if (quizSubmitted) {
+                                if (isStudentChoice && isActualCorrect) {
+                                  // Case A: Student selected correct answer
+                                  optionStyles = "bg-green-500/10 border-2 border-green-600 text-green-900 dark:text-green-200 font-bold";
+                                  statusIcon = <HiOutlineCheckCircle className="w-5 h-5 text-green-600 shrink-0" />;
+                                  badgeText = <Badge variant="highlight" size="sm">Your Answer (Correct)</Badge>;
+                                } else if (isStudentChoice && !isActualCorrect) {
+                                  // Case B: Student selected wrong answer
+                                  optionStyles = "bg-red-500/10 border-2 border-red-500 text-red-900 dark:text-red-300 font-bold";
+                                  statusIcon = <HiOutlineXCircle className="w-5 h-5 text-red-500 shrink-0" />;
+                                  badgeText = <Badge variant="danger" size="sm">Your Answer (Wrong)</Badge>;
+                                } else if (!isStudentChoice && isActualCorrect) {
+                                  // Case C: The correct answer that student missed
+                                  optionStyles = "bg-green-500/10 border-2 border-green-600/80 text-green-900 dark:text-green-200 font-semibold";
+                                  statusIcon = <HiOutlineCheckCircle className="w-5 h-5 text-green-600 shrink-0" />;
+                                  badgeText = <Badge variant="highlight" size="sm">Correct Solution</Badge>;
+                                } else {
+                                  // Case D: Other options
+                                  optionStyles = "bg-card border-border/60 text-muted opacity-60";
+                                }
+                              } else if (isStudentChoice) {
+                                optionStyles = "bg-secondary/15 border-2 border-secondary text-foreground font-bold ring-1 ring-secondary";
+                              }
 
                               return (
                                 <button
                                   key={optIdx}
                                   type="button"
                                   disabled={quizSubmitted}
-                                  onClick={() => setSelectedAnswers((prev) => ({ ...prev, [qId]: optIdx }))}
-                                  className={`p-3 rounded-lg text-left text-xs font-medium transition-all border cursor-pointer ${
-                                    isOptionSelected
-                                      ? "bg-secondary/15 border-secondary text-foreground font-semibold ring-1 ring-secondary"
-                                      : "bg-card border-border hover:bg-surface/80 text-foreground"
-                                  } ${quizSubmitted && optIdx === Number(q.correctAnswer) ? "!bg-green-500/15 !border-green-600 !text-green-700 dark:!text-green-300" : ""}`}
+                                  onClick={() =>
+                                    setSelectedAnswers((prev) => ({
+                                      ...prev,
+                                      [qId]: optIdx,
+                                      ...(q.id !== undefined ? { [q.id]: optIdx } : {}),
+                                      ...(q.documentId ? { [q.documentId]: optIdx } : {}),
+                                    }))
+                                  }
+                                  className={`w-full p-3.5 rounded-xl text-left text-xs transition-all border flex items-center justify-between gap-3 ${optionStyles}`}
                                 >
-                                  <span className="font-mono text-muted mr-2">
-                                    {String.fromCharCode(65 + optIdx)}.
-                                  </span>
-                                  <span>{typeof opt === "string" ? opt : opt.text || `Option ${optIdx + 1}`}</span>
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <span className="font-mono font-bold text-muted shrink-0 w-5">
+                                      {String.fromCharCode(65 + optIdx)}.
+                                    </span>
+                                    <span className="truncate">
+                                      {typeof opt === "string" ? opt : opt.text || `Option ${optIdx + 1}`}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    {badgeText}
+                                    {statusIcon}
+                                  </div>
                                 </button>
                               );
                             })}
                           </div>
 
+                          {/* Explanation Card */}
                           {quizSubmitted && q.explanation && (
-                            <div className="p-3 rounded-lg bg-surface/80 border border-border text-xs text-muted">
-                              <strong className="text-foreground">Explanation: </strong>
-                              {q.explanation}
+                            <div className="p-3.5 rounded-xl bg-card border border-border text-xs text-muted space-y-1 mt-2">
+                              <strong className="text-foreground flex items-center gap-1.5">
+                                <span>💡 Explanation:</span>
+                              </strong>
+                              <p className="leading-relaxed pl-5">{q.explanation}</p>
                             </div>
                           )}
                         </div>
                       );
                     })}
-
-                    {quizSubmitted && (
-                      <div className="p-4 rounded-xl bg-surface border border-border flex items-center justify-between">
-                        <div>
-                          <p className="text-xs text-muted">Your Score:</p>
-                          <p className="text-xl font-black text-foreground">
-                            {quizScore}%{" "}
-                            <span className={quizScore >= (activeItem.data.passingScore || 80) ? "text-green-600 font-bold text-sm" : "text-red-500 font-bold text-sm"}>
-                              {quizScore >= (activeItem.data.passingScore || 80) ? "(PASSED)" : "(RETRY RECOMMENDED)"}
-                            </span>
-                          </p>
-                        </div>
-                        <Button
-                          onClick={() => {
-                            setQuizSubmitted(false);
-                            setSelectedAnswers({});
-                          }}
-                          variant="outline"
-                          size="sm"
-                        >
-                          Retake Quiz
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 )}
               </CardContent>
@@ -507,11 +832,7 @@ export default function CoursePlayerPage({ params }) {
             <div className="flex items-center gap-2">
               {prevItem && (
                 <Button
-                  onClick={() => {
-                    setActiveItem(prevItem);
-                    setSelectedAnswers({});
-                    setQuizSubmitted(false);
-                  }}
+                  onClick={() => handleSelectActiveItem(prevItem)}
                   variant="outline"
                   size="sm"
                   className="p-2.5"
@@ -534,11 +855,12 @@ export default function CoursePlayerPage({ params }) {
                 !quizSubmitted ? (
                   <Button
                     onClick={handleQuizSubmit}
+                    disabled={isSubmittingQuiz}
                     variant="primary"
                     size="sm"
                     className="text-xs font-bold"
                   >
-                    Submit Quiz Attempt →
+                    {isSubmittingQuiz ? "Auto-Grading..." : "Submit Quiz Attempt →"}
                   </Button>
                 ) : (
                   <Button
@@ -547,18 +869,14 @@ export default function CoursePlayerPage({ params }) {
                     size="sm"
                     className="text-xs font-bold"
                   >
-                    Continue to Next Lesson →
+                    {isCurrentComplete ? "Continue to Next Unit →" : "Save & Continue →"}
                   </Button>
                 )
               ) : null}
 
               {nextItem && isCurrentComplete && (
                 <Button
-                  onClick={() => {
-                    setActiveItem(nextItem);
-                    setSelectedAnswers({});
-                    setQuizSubmitted(false);
-                  }}
+                  onClick={() => handleSelectActiveItem(nextItem)}
                   variant="outline"
                   size="sm"
                   className="p-2.5"
@@ -599,7 +917,7 @@ export default function CoursePlayerPage({ params }) {
           )}
         </div>
 
-        {/* Right Col: Course Syllabus Accordion (Matching Reference Image 2) */}
+        {/* Right Col: Course Syllabus Accordion (Connected Tree Timeline) */}
         <div className="lg:col-span-1 space-y-4">
           <Card className="bg-card border-border overflow-hidden shadow-sm">
             <CardHeader className="py-4 px-5 bg-surface border-b border-border">
@@ -644,7 +962,7 @@ export default function CoursePlayerPage({ params }) {
                       </div>
                     </button>
 
-                    {/* Connected Tree Timeline (Matching Image 2 Reference) */}
+                    {/* Connected Tree Timeline */}
                     {isExpanded && (
                       <div className="px-4 pb-3 pt-1">
                         <div className="relative pl-6 space-y-3 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-[2px] before:bg-border/80">
@@ -677,11 +995,7 @@ export default function CoursePlayerPage({ params }) {
                                 {/* Step Button */}
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    setActiveItem({ type: "lesson", data: lesson, moduleIndex: mIdx });
-                                    setSelectedAnswers({});
-                                    setQuizSubmitted(false);
-                                  }}
+                                  onClick={() => handleSelectActiveItem({ type: "lesson", data: lesson, moduleIndex: mIdx })}
                                   className={`w-full text-left p-2 rounded-lg text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer ${
                                     isSelected
                                       ? "bg-secondary text-white font-semibold shadow-xs"
@@ -746,11 +1060,13 @@ export default function CoursePlayerPage({ params }) {
 
                             <button
                               type="button"
-                              onClick={() => {
-                                setActiveItem({ type: "quiz", data: quiz, moduleIndex: (course.modules || []).length });
-                                setSelectedAnswers({});
-                                setQuizSubmitted(false);
-                              }}
+                              onClick={() =>
+                                handleSelectActiveItem({
+                                  type: "quiz",
+                                  data: quiz,
+                                  moduleIndex: (course.modules || []).length,
+                                })
+                              }
                               className={`w-full text-left p-2 rounded-lg text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer ${
                                 isSelected
                                   ? "bg-secondary text-white font-semibold shadow-xs"
@@ -773,6 +1089,55 @@ export default function CoursePlayerPage({ params }) {
           </Card>
         </div>
       </div>
+
+      {/* Decorated Certificate Modal */}
+      {showCertificateModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-card border border-border p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <HiOutlineTrophy className="w-5 h-5 text-secondary" />
+                <h3 className="font-extrabold text-base text-foreground">Course Completion Certificate</h3>
+              </div>
+              <button
+                onClick={() => setShowCertificateModal(false)}
+                className="p-1 rounded-lg text-muted hover:text-foreground cursor-pointer"
+              >
+                <HiOutlineXMark className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 rounded-xl bg-surface border border-border text-center space-y-3">
+              <span className="text-[10px] uppercase tracking-widest text-secondary font-extrabold">
+                CPS Academy Verified Achievement
+              </span>
+              <h2 className="text-xl font-black text-foreground">
+                Certificate of Completion
+              </h2>
+              <p className="text-xs text-muted">
+                This certifies that <strong>{user?.username || user?.name || "Student"}</strong> has successfully completed all coursework, video lectures, and evaluations for:
+              </p>
+              <div className="py-2 px-4 rounded-lg bg-card border border-border font-extrabold text-sm text-foreground">
+                {course.title}
+              </div>
+              <div className="flex items-center justify-center gap-4 text-xs text-muted pt-1">
+                <span>Verified Curriculum Units: <strong>{totalItemsCount}</strong></span>
+                <span>•</span>
+                <span>Final Mastery: <strong>100%</strong></span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button onClick={() => setShowCertificateModal(false)} variant="outline" size="sm">
+                Close
+              </Button>
+              <Button href="/dashboard/student/courses" variant="primary" size="sm">
+                Return to My Courses
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
