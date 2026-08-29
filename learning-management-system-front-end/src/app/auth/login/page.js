@@ -55,7 +55,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
+    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
     window.location.href = `${strapiUrl}/api/connect/google`;
   };
 
