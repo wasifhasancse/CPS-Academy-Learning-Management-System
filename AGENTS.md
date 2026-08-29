@@ -190,9 +190,18 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 - **Issue**: Running Strapi in containerized/cloud environments (Render, Railway, Docker, AWS ALB) behind an HTTPS reverse proxy triggers `warn: You are using a third party provider for login. Make sure to set an absolute url in config/server.js` and crashes with `Error: Cannot send secure cookie over unencrypted connection` on `/api/connect/google` because Koa receives internal plain HTTP (`0.0.0.0:8080`), disregards `X-Forwarded-Proto: https` if `proxy.koa` is not set, and defaults `strapi::session` cookie `secure: true` in production which fails when internal connection is unencrypted.
 - **Prevention Rule**: In `config/server.js`, configure `url: env('PUBLIC_URL', env('URL', ''))` and `proxy: { koa: env.bool('IS_PROXIED', true) }`. In `config/middlewares.js`, explicitly configure `strapi::session` with `{ secure: false, sameSite: 'lax' }` and dynamically include `FRONTEND_URL` and `PUBLIC_URL` under `strapi::cors` so proxy headers and OAuth session cookies work reliably across all cloud reverse proxy environments.
 
-### 21. Production Mixed Content Browser Blocking for Backend API Calls
-- **Issue**: Deploying the frontend on HTTPS (e.g. `https://cps-academy.vercel.app`) with `NEXT_PUBLIC_STRAPI_URL` set to an insecure `http://` URL (e.g. `http://...railway.app`) causes browsers to block API requests (`/api/auth/local`, `/api/auth/local/register`, etc.) with `Mixed Content: The page was loaded over HTTPS, but requested an insecure resource... This request has been blocked; the content must be served over HTTPS.`
-- **Prevention Rule**: In production environment variables (e.g. Vercel Project Settings), ensure `NEXT_PUBLIC_STRAPI_URL` starts with `https://`. Additionally, use `getStrapiUrl()` in [`src/lib/api.js`](file:///d:/CPS%20Academy/learning-management-system-front-end/src/lib/api.js) to normalize and auto-upgrade insecure URLs to HTTPS whenever executing in secure browser contexts.
+### 22. Strict 4-Color Design System Compliance
+- **Rule**: All UI styling, theme tokens, and component designs must strictly follow [`design.md`](file:///d:/CPS%20Academy/design.md) using only the 4 official project colors:
+  - `#4A628A` (Deep Slate Blue / Dark Base & Headings)
+  - `#7AB2D3` (Sky Steel Blue / Primary Interactive & CTAs)
+  - `#B9E5E8` (Pale Teal / Secondary Surface & Border)
+  - `#DFF2EB` (Soft Mint Neutral / Base Light Canvas & Text)
+- **Constraint**: Never introduce external hex colors or gradients outside this official palette (except standard semantic alerts when necessary). Always update and reference [`design.md`](file:///d:/CPS%20Academy/design.md) for any visual changes.
 
+### 23. Modal Viewport Centering & Height Bounding
+- **Issue**: Centering modal cards with pure `items-center` on an unbounded container pushes top portions of tall modals (e.g. blog creation, quiz question management) into negative viewport coordinates above `top: 0`, cutting off the header, title, and close button.
+- **Prevention Rule**: In `src/components/ui/Modal.jsx`, use a structured scroll shell with `flex min-h-full items-center justify-center p-3 sm:p-6`, enforce `max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-4rem)] flex flex-col` on the card, keep the header pinned with `shrink-0`, and wrap the modal body inside `overflow-y-auto flex-1`.
 
-
+### 24. Date Object to ISO String Conversion & Type Safety in Strapi Controllers
+- **Issue**: Attempting to type-cast a JavaScript `Date` object directly with `/** @type {string | undefined} */ (new Date() || undefined)` triggers TypeScript error `Conversion of type 'Date' to type 'string' may be a mistake because neither type sufficiently overlaps with the other` and sends a `Date` object instead of an ISO string to Strapi attributes.
+- **Prevention Rule**: Always format JavaScript dates as ISO strings using `new Date().toISOString()` (or `new Date(dateValue).toISOString()`) before passing them to Strapi document creation or update payloads.
