@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CourseGridSkeleton } from "@/components/ui/Skeleton";
 import Link from "next/link";
 
 export default function StudentCoursesPage() {
-  const { enrolledCourses } = useStudent();
+  const { enrolledCourses, isLoading } = useStudent();
 
   return (
     <div className="space-y-6">
@@ -25,7 +26,9 @@ export default function StudentCoursesPage() {
         </Link>
       </div>
 
-      {enrolledCourses.length === 0 ? (
+      {isLoading ? (
+        <CourseGridSkeleton count={3} columns="grid-cols-1 md:grid-cols-2 lg:grid-cols-3" />
+      ) : enrolledCourses.length === 0 ? (
         <EmptyState
           icon={
             <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
