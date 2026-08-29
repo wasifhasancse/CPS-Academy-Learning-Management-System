@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
 import { CourseCard } from "@/components/courses/CourseCard";
+import { CourseGridSkeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/api";
 import {
   HiOutlineSparkles,
@@ -197,24 +198,7 @@ export default function Home() {
           )}
 
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((n) => (
-                <div
-                  key={n}
-                  className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between"
-                >
-                  <div className="w-full h-48 bg-surface border-b border-border" />
-                  <div className="p-5 space-y-3">
-                    <div className="flex justify-between">
-                      <div className="w-20 h-4 bg-surface rounded" />
-                      <div className="w-16 h-4 bg-surface rounded" />
-                    </div>
-                    <div className="w-full h-6 bg-surface rounded" />
-                    <div className="w-32 h-4 bg-surface rounded" />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <CourseGridSkeleton count={3} columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" />
           ) : filteredCourses.length === 0 ? (
             <div className="p-12 text-center text-muted text-sm border border-dashed border-border rounded-2xl bg-card">
               No courses matching the selected category.
