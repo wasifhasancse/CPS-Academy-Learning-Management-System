@@ -408,10 +408,11 @@ export function ManagerProvider({ children }) {
       const payload = {
         data: {
           title: lessonForm.title,
-          youtubeUrl: lessonForm.youtubeUrl,
-          duration: lessonForm.duration,
-          isFreePreview: lessonForm.isFreePreview,
-          notes: lessonForm.notes,
+          youtubeUrl: lessonForm.youtubeUrl?.trim() || null,
+          duration: lessonForm.duration?.trim() || "10:00",
+          isFreePreview: Boolean(lessonForm.isFreePreview),
+          notes: lessonForm.notes || lessonForm.content || "",
+          content: lessonForm.notes || lessonForm.content || "",
           module: moduleId,
           course: currentCourse.documentId || currentCourse.id,
         },
