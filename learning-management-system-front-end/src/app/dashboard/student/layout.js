@@ -7,6 +7,7 @@ import {
   HiOutlineHome,
   HiOutlineBookOpen,
   HiOutlineClipboardDocumentCheck,
+  HiOutlineCreditCard,
   HiOutlineMagnifyingGlass,
   HiOutlineUser,
 } from "react-icons/hi2";
@@ -18,6 +19,7 @@ function StudentLayoutShell({ children }) {
     { id: "overview", label: "My Overview", icon: <HiOutlineHome className="w-4 h-4" />, href: "/dashboard/student" },
     { id: "courses", label: "My Courses", icon: <HiOutlineBookOpen className="w-4 h-4" />, href: "/dashboard/student/courses", badge: enrolledCourses.length },
     { id: "quizzes", label: "Quiz Scorecards", icon: <HiOutlineClipboardDocumentCheck className="w-4 h-4" />, href: "/dashboard/student/quizzes", badge: quizAttempts.length },
+    { id: "orders", label: "Purchase Receipts", icon: <HiOutlineCreditCard className="w-4 h-4" />, href: "/dashboard/student/orders" },
     { id: "catalog", label: "Explore Catalog", icon: <HiOutlineMagnifyingGlass className="w-4 h-4" />, href: "/dashboard/student/catalog" },
     { id: "profile", label: "Profile & Security", icon: <HiOutlineUser className="w-4 h-4" />, href: "/dashboard/student/profile" },
   ];
