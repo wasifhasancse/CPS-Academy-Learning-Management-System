@@ -103,7 +103,7 @@ export function InstructorProvider({ children }) {
       const instructorDocumentId = currentInstructor?.documentId;
 
       const myCourses = allCourses.filter((c) => {
-        if (!c.instructor) return true;
+        if (!c.instructor) return false;
         return (
           c.instructor.id === instructorId ||
           c.instructor.documentId === instructorDocumentId ||
