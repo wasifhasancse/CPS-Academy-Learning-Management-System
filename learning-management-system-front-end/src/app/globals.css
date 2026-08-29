@@ -6,38 +6,39 @@
 :root {
   --font-roboto: 'Roboto', sans-serif;
 
-  /* Brand Palette (Constant) */
-  --primary: #285A48;
-  --secondary: #408A71;
-  --highlight: #B0E4CC;
+  /* Official 4-Color Brand Palette */
+  --primary: #4A628A;
+  --secondary: #7AB2D3;
+  --highlight: #B9E5E8;
+  --light-neutral: #DFF2EB;
 
   /* Base Light Theme */
-  --background: #FFFFFF;
-  --foreground: #091413;
-  --surface: #F0F7F4;
+  --background: #DFF2EB;
+  --foreground: #4A628A;
+  --surface: #FFFFFF;
   --card: #FFFFFF;
-  --card-foreground: #091413;
-  --border: #D4E7DF;
-  --muted: #4D6D63;
+  --card-foreground: #4A628A;
+  --border: #B9E5E8;
+  --muted: #5A7BA0;
 
   /* Footer Colors */
-  --footer-bg: #091413;
-  --footer-fg: #F0F7F4;
+  --footer-bg: #4A628A;
+  --footer-fg: #DFF2EB;
 }
 
 .dark {
   /* Base Dark Theme */
-  --background: #091413;
-  --foreground: #F0F7F4;
-  --surface: #122421;
-  --card: #122421;
-  --card-foreground: #F0F7F4;
-  --border: #1E3A33;
-  --muted: #82A79B;
+  --background: #1E2A3A;
+  --foreground: #DFF2EB;
+  --surface: #2A3D5A;
+  --card: #2A3D5A;
+  --card-foreground: #DFF2EB;
+  --border: #7AB2D3;
+  --muted: #B9E5E8;
 
   /* Footer Colors (Dark Mode) */
-  --footer-bg: #050B0A;
-  --footer-fg: #F0F7F4;
+  --footer-bg: #151E2E;
+  --footer-fg: #DFF2EB;
 }
 
 @theme inline {
