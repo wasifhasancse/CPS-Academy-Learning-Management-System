@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 
+import { LoadingScreen } from "@/components/ui/Spinner";
+
 /**
  * RoleGuard Component
  * @param {Object} props
@@ -25,10 +27,11 @@ export function RoleGuard({ allowedRoles, children }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-8 h-8 rounded-full border-2 border-primary dark:border-highlight border-t-transparent animate-spin" />
-        <p className="text-xs text-muted">Verifying authorization...</p>
-      </div>
+      <LoadingScreen
+        title="Verifying Authorization..."
+        description="Authenticating your session permissions and workspace access."
+        minHeight="min-h-[60vh]"
+      />
     );
   }
 

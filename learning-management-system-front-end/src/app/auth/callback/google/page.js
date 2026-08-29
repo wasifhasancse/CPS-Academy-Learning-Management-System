@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Spinner } from "@/components/ui/Spinner";
 
 function GoogleCallbackContent() {
   const router = useRouter();
@@ -89,7 +90,7 @@ function GoogleCallbackContent() {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 rounded-full border-2 border-primary dark:border-highlight border-t-transparent animate-spin" />
+            <Spinner size="lg" color="primary" />
             <p className="text-xs text-muted">Finalizing authentication...</p>
           </div>
         )}
