@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { BlogGridSkeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/api";
 import {
   HiOutlineBookOpen,
@@ -15,48 +16,6 @@ import {
   HiOutlineSparkles,
   HiOutlineArrowRight,
 } from "react-icons/hi2";
-
-const FALLBACK_BLOGS = [
-  {
-    id: 1,
-    documentId: "blog-1",
-    title: "How to Reach Candidate Master on Codeforces in 6 Months",
-    slug: "how-to-reach-candidate-master-on-codeforces",
-    excerpt:
-      "A structured roadmap covering dynamic programming, graph theory, and contest strategies from CPS Academy coaches.",
-    content: `## The Journey to Candidate Master\n\nReaching **Candidate Master (1900+ rating)** on Codeforces requires moving beyond basic syntax to mastering advanced problem-solving techniques.\n\n### 1. Master Core Data Structures\n- Segment Trees with Lazy Propagation\n- Disjoint Set Union (DSU) with Rollbacks\n- Trie and Suffix Automaton\n\n### 2. Deepen Dynamic Programming Intuition\n- Digit DP and Tree DP\n- Bitmask DP with SOS optimizations\n- Matrix Exponentiation for recurrence relations\n\n### 3. Practice Strategy\nSolve 5 problems above your current rating every week and rigorously upsolve contest problems you couldn't solve during the live round.`,
-    coverImageUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200",
-    category: { name: "Competitive Programming", slug: "competitive-programming" },
-    author: { username: "CPS Editorial Team" },
-    publishedAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    documentId: "blog-2",
-    title: "Building Resilient Microservices with Clean Architecture",
-    slug: "building-resilient-microservices-clean-architecture",
-    excerpt:
-      "Key architectural patterns for designing fault-tolerant, scalable distributed systems.",
-    content: `## Scalable Architecture Principles\n\nDesigning microservices requires strict boundary enforcement, idempotent APIs, and robust messaging brokers.\n\n### Key Tenets\n1. **Domain-Driven Design (DDD)**: Separate bounded contexts cleanly.\n2. **Outbox Pattern**: Ensure reliable message delivery to message queues without distributed locks.\n3. **Circuit Breakers**: Gracefully handle downstream service degradation.`,
-    coverImageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200",
-    category: { name: "Software Engineering", slug: "software-engineering" },
-    author: { username: "CPS Editorial Team" },
-    publishedAt: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    documentId: "blog-3",
-    title: "Mastering Segment Trees: From Range Sum to Lazy Propagation",
-    slug: "mastering-segment-trees-lazy-propagation",
-    excerpt:
-      "A comprehensive guide with C++ templates and visualization for range queries and range updates in O(log N).",
-    content: `## Segment Tree Foundations\n\nSegment Trees are one of the most versatile tree data structures in competitive programming, allowing range queries and range updates in logarithmic time.\n\n### Why Segment Trees?\nWhile Fenwick Trees (Binary Indexed Trees) are simpler for prefix sums, Segment Trees support arbitrary associative range operations: Range Minimum Queries (RMQ), GCD, Matrix Multiplication, and Subsegment Maximum Sums.`,
-    coverImageUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200",
-    category: { name: "Competitive Programming", slug: "competitive-programming" },
-    author: { username: "CPS Editorial Team" },
-    publishedAt: new Date().toISOString(),
-  },
-];
 
 function BlogListContent() {
   const searchParams = useSearchParams();
@@ -85,25 +44,24 @@ function BlogListContent() {
           fetchedBlogs = [blogRes.data];
         }
 
-        if (fetchedBlogs.length > 0) {
-          setBlogs(fetchedBlogs);
-        } else {
-          setBlogs(FALLBACK_BLOGS);
-        }
+        // Strictly keep only published articles
+        const checkPublished = (b) => {
+          if (!b) return false;
+          return Boolean(b.publishedAt || b.published_at || (b.status === "published"));
+        };
+        const publishedBlogs = fetchedBlogs.filter(checkPublished);
+        setBlogs(publishedBlogs);
 
         if (Array.isArray(catRes?.data)) {
           setCategories(catRes.data);
         } else if (Array.isArray(catRes)) {
           setCategories(catRes);
         } else {
-          setCategories([
-            { name: "Competitive Programming", slug: "competitive-programming" },
-            { name: "Software Engineering", slug: "software-engineering" },
-          ]);
+          setCategories([]);
         }
       } catch (err) {
-        console.warn("Could not fetch published blogs from API, using fallback:", err);
-        setBlogs(FALLBACK_BLOGS);
+        console.warn("Could not fetch published blogs from API:", err);
+        setBlogs([]);
       } finally {
         setIsLoading(false);
       }
@@ -206,22 +164,7 @@ function BlogListContent() {
 
       {/* Blog Cards Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((n) => (
-            <div key={n} className="rounded-3xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between">
-              <div className="w-full h-48 bg-surface" />
-              <div className="p-6 space-y-3">
-                <div className="w-20 h-4 bg-surface rounded" />
-                <div className="w-full h-6 bg-surface rounded" />
-                <div className="w-3/4 h-4 bg-surface rounded" />
-                <div className="pt-4 border-t border-border flex justify-between">
-                  <div className="w-24 h-4 bg-surface rounded" />
-                  <div className="w-16 h-4 bg-surface rounded" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <BlogGridSkeleton count={6} />
       ) : filteredBlogs.length === 0 ? (
         <EmptyState
           icon={<HiOutlineBookOpen className="w-8 h-8 text-muted" />}
@@ -331,12 +274,12 @@ export default function BlogListPage() {
     <Suspense
       fallback={
         <div className="w-full py-12 px-4 max-w-[1400px] mx-auto space-y-8 animate-pulse">
-          <div className="h-20 bg-surface rounded-2xl max-w-md mx-auto" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-64 bg-surface rounded-2xl" />
-            ))}
+          <div className="p-8 sm:p-12 rounded-3xl bg-surface border border-border space-y-4">
+            <div className="w-32 h-6 rounded-full bg-card" />
+            <div className="w-96 max-w-full h-10 rounded-xl bg-card" />
+            <div className="w-72 max-w-full h-4 rounded bg-card" />
           </div>
+          <BlogGridSkeleton count={6} />
         </div>
       }
     >
