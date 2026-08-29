@@ -127,6 +127,8 @@ const PUBLIC_ACTIONS = [
   'api::quiz.quiz.findOne',
   'api::blog-post.blog-post.find',
   'api::blog-post.blog-post.findOne',
+  'api::order.order.webhook',
+  'api::order.order.getConfig',
 ];
 
 const STUDENT_ACTIONS = [
@@ -155,6 +157,12 @@ const STUDENT_ACTIONS = [
   'api::quiz-attempt.quiz-attempt.create',
   'api::blog-post.blog-post.find',
   'api::blog-post.blog-post.findOne',
+  'api::order.order.find',
+  'api::order.order.findOne',
+  'api::order.order.createCheckoutSession',
+  'api::order.order.verifySession',
+  'api::order.order.myOrders',
+  'api::order.order.getConfig',
 ];
 
 const INSTRUCTOR_ACTIONS = [
@@ -199,6 +207,9 @@ const INSTRUCTOR_ACTIONS = [
   'api::quiz-attempt.quiz-attempt.findOne',
   'api::category.category.find',
   'api::category.category.findOne',
+  'api::order.order.find',
+  'api::order.order.findOne',
+  'api::order.order.myOrders',
 ];
 
 const CONTENT_MANAGER_ACTIONS = [
@@ -225,6 +236,15 @@ const ADMIN_ACTIONS = [
   'plugin::users-permissions.role.create',
   'plugin::users-permissions.role.update',
   'plugin::users-permissions.role.deleteRole',
+  'api::order.order.find',
+  'api::order.order.findOne',
+  'api::order.order.create',
+  'api::order.order.update',
+  'api::order.order.delete',
+  'api::order.order.createCheckoutSession',
+  'api::order.order.verifySession',
+  'api::order.order.myOrders',
+  'api::order.order.getConfig',
 ];
 
 module.exports = {
