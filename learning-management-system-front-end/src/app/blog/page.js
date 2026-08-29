@@ -1,18 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { api } from "@/lib/api";
+import {
+  HiOutlineBookOpen,
+  HiOutlineClock,
+  HiOutlineUser,
+  HiOutlineSparkles,
+  HiOutlineArrowRight,
+} from "react-icons/hi2";
 
-export default function BlogListPage() {
+function BlogListContent() {
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams?.get("search") || searchParams?.get("q") || "";
+
   const [blogs, setBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,9 +59,10 @@ export default function BlogListPage() {
 
   const filteredBlogs = blogs.filter((blog) => {
     const titleMatch =
-      !search ||
-      blog.title?.toLowerCase().includes(search.toLowerCase()) ||
-      blog.excerpt?.toLowerCase().includes(search.toLowerCase());
+      !urlSearch ||
+      blog.title?.toLowerCase().includes(urlSearch.toLowerCase()) ||
+      blog.excerpt?.toLowerCase().includes(urlSearch.toLowerCase()) ||
+      blog.content?.toLowerCase().includes(urlSearch.toLowerCase());
     const catMatch =
       selectedCategory === "all" ||
       blog.category?.slug === selectedCategory ||
@@ -63,48 +73,81 @@ export default function BlogListPage() {
   });
 
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-11/12 mx-auto space-y-8">
-      {/* Header Banner */}
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto space-y-10">
+      {/* Hero Header Banner */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
-        <Badge variant="highlight">CPS Academy Engineering Blog</Badge>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary dark:text-highlight">
+          <HiOutlineSparkles className="w-3.5 h-3.5" />
+          <span>CPS Academy Engineering & Tech Blog</span>
+        </div>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight leading-tight">
           Articles, Roadmaps & Engineering Insights
         </h1>
-        <p className="text-sm sm:text-base text-muted">
-          Deep-dives into Competitive Programming, Full-Stack Architecture, and System Design from our instructors and community.
+        <p className="text-sm sm:text-base text-muted max-w-2xl mx-auto leading-relaxed">
+          Deep-dives into Competitive Programming, Data Structures, Full-Stack Architecture, and System Design from CPS instructors.
         </p>
       </div>
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-surface border border-border">
-        <Input
-          placeholder="Search articles by title or keyword..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:w-80 text-xs"
-        />
-
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-          <Button
-            variant={selectedCategory === "all" ? "primary" : "outline"}
-            size="sm"
+      {/* Clean Category Filter Navigation */}
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-center gap-2 max-w-4xl mx-auto p-1.5 rounded-2xl bg-surface/60 border border-border">
+          <button
+            type="button"
             onClick={() => setSelectedCategory("all")}
-            className="text-xs flex-shrink-0"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              selectedCategory === "all"
+                ? "bg-primary text-white shadow-sm"
+                : "text-muted hover:text-foreground hover:bg-surface"
+            }`}
           >
-            All Topics ({blogs.length})
-          </Button>
-          {categories.map((cat) => (
-            <Button
-              key={cat.documentId || cat.id}
-              variant={selectedCategory === (cat.slug || cat.name) ? "primary" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(cat.slug || cat.name)}
-              className="text-xs flex-shrink-0"
-            >
-              {cat.name}
-            </Button>
-          ))}
+            All Articles ({blogs.length})
+          </button>
+          {categories.map((cat) => {
+            const isSelected = selectedCategory === (cat.slug || cat.name);
+            const categoryArticlesCount = blogs.filter(
+              (b) => b.category?.slug === cat.slug || b.category?.name === cat.name
+            ).length;
+
+            return (
+              <button
+                key={cat.documentId || cat.id}
+                type="button"
+                onClick={() => setSelectedCategory(cat.slug || cat.name)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isSelected
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-muted hover:text-foreground hover:bg-surface"
+                }`}
+              >
+                <span>{cat.name}</span>
+                {categoryArticlesCount > 0 && (
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                      isSelected ? "bg-white/20 text-white" : "bg-card border border-border text-muted"
+                    }`}
+                  >
+                    {categoryArticlesCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
+
+        {/* Active URL Search Indicator */}
+        {urlSearch && (
+          <div className="flex items-center justify-center gap-2 text-xs text-muted">
+            <span>
+              Search results for &ldquo;<strong className="text-foreground">{urlSearch}</strong>&rdquo; ({filteredBlogs.length} articles)
+            </span>
+            <Link
+              href="/blog"
+              className="text-primary dark:text-highlight hover:underline font-bold text-xs ml-1"
+            >
+              Clear Search ✕
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Blog Cards Grid */}
@@ -112,8 +155,8 @@ export default function BlogListPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((n) => (
             <div key={n} className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse flex flex-col justify-between">
-              <div className="w-full h-44 bg-surface" />
-              <div className="p-5 space-y-3">
+              <div className="w-full h-48 bg-surface" />
+              <div className="p-6 space-y-3">
                 <div className="w-20 h-4 bg-surface rounded" />
                 <div className="w-full h-6 bg-surface rounded" />
                 <div className="w-3/4 h-4 bg-surface rounded" />
@@ -127,28 +170,22 @@ export default function BlogListPage() {
         </div>
       ) : filteredBlogs.length === 0 ? (
         <EmptyState
-          icon={
-            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-          }
+          icon={<HiOutlineBookOpen className="w-8 h-8 text-muted" />}
           title="No Matching Articles Found"
           description={
-            search || selectedCategory !== "all"
-              ? "No published engineering articles match your active search terms or category filter."
+            urlSearch || selectedCategory !== "all"
+              ? "No published engineering articles match your active search or category filter."
               : "No blog articles have been published yet on CPS Academy. Check back soon!"
           }
           action={
-            (search || selectedCategory !== "all") && (
+            (urlSearch || selectedCategory !== "all") && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  setSearch("");
-                  setSelectedCategory("all");
-                }}
+                onClick={() => setSelectedCategory("all")}
+                href="/blog"
               >
-                Clear Search & Filters
+                Reset All Filters
               </Button>
             )
           }
@@ -165,51 +202,66 @@ export default function BlogListPage() {
                 })
               : "Recently Published";
 
+            // Approximate read time based on word count
+            const wordCount = (blog.content || blog.excerpt || "").split(/\s+/).length;
+            const readMinutes = Math.max(3, Math.ceil(wordCount / 180));
+
             return (
               <Card
                 key={blog.documentId || blog.id}
-                className="flex flex-col justify-between overflow-hidden hover:border-primary/50 transition-colors group"
+                className="flex flex-col justify-between overflow-hidden hover:border-primary transition-all duration-200 group border-border bg-card shadow-xs"
               >
-                {blog.coverImageUrl && (
-                  <div className="h-44 w-full overflow-hidden bg-muted/20">
+                {blog.coverImageUrl ? (
+                  <div className="h-48 w-full overflow-hidden bg-surface relative">
                     <img
                       src={blog.coverImageUrl}
                       alt={blog.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
+                ) : (
+                  <div className="h-36 w-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center p-6 text-center border-b border-border">
+                    <HiOutlineBookOpen className="w-10 h-10 text-primary dark:text-highlight opacity-60" />
+                  </div>
                 )}
 
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between gap-2 text-[11px] text-muted mb-2">
-                    <Badge variant="secondary" className="text-[10px]">
+                <CardHeader className="pb-3 flex-1">
+                  <div className="flex items-center justify-between gap-2 text-xs text-muted mb-2.5">
+                    <Badge variant="outline" className="text-[11px] font-semibold">
                       {blog.category?.name || "Engineering"}
                     </Badge>
-                    <span>{publishDate}</span>
+                    <span className="flex items-center gap-1 text-[11px]">
+                      <HiOutlineClock className="w-3.5 h-3.5" />
+                      <span>{readMinutes} min read</span>
+                    </span>
                   </div>
 
-                  <CardTitle className="text-base line-clamp-2 group-hover:text-primary transition-colors">
+                  <CardTitle className="text-base sm:text-lg font-bold line-clamp-2 group-hover:text-primary transition-colors leading-snug">
                     <Link href={`/blog/${slug}`}>{blog.title}</Link>
                   </CardTitle>
 
-                  <CardDescription className="line-clamp-3 text-xs mt-1">
+                  <CardDescription className="line-clamp-3 text-xs mt-2 text-muted leading-relaxed">
                     {blog.excerpt || "Read the full technical breakdown on CPS Academy."}
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="pt-0 flex items-center justify-between border-t border-border mt-auto pt-3 text-xs text-muted">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-primary/20 text-primary dark:text-highlight flex items-center justify-center font-bold text-[10px]">
+                <CardContent className="pt-0 flex items-center justify-between border-t border-border mt-auto pt-3.5 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-primary/15 text-primary dark:text-highlight flex items-center justify-center font-bold text-xs shrink-0">
                       {blog.author?.username?.[0]?.toUpperCase() || "C"}
                     </div>
-                    <span className="font-medium text-foreground text-[11px]">
-                      {blog.author?.username || "CPS Team"}
-                    </span>
+                    <div>
+                      <div className="font-semibold text-foreground text-xs leading-none">
+                        {blog.author?.username || "CPS Team"}
+                      </div>
+                      <div className="text-[10px] text-muted mt-0.5">{publishDate}</div>
+                    </div>
                   </div>
 
-                  <Button href={`/blog/${slug}`} variant="outline" size="sm" className="text-xs">
-                    Read Article →
-                  </Button>
+                  <Link href={`/blog/${slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-highlight hover:underline">
+                    <span>Read Article</span>
+                    <HiOutlineArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
                 </CardContent>
               </Card>
             );
@@ -217,5 +269,24 @@ export default function BlogListPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function BlogListPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="w-full py-12 px-4 max-w-[1400px] mx-auto space-y-8 animate-pulse">
+          <div className="h-20 bg-surface rounded-2xl max-w-md mx-auto" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-64 bg-surface rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <BlogListContent />
+    </Suspense>
   );
 }
