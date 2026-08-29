@@ -7,23 +7,40 @@ import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
 import { CourseCard } from "@/components/courses/CourseCard";
 import { api } from "@/lib/api";
+import {
+  HiOutlineSparkles,
+  HiOutlineAcademicCap,
+  HiOutlineArrowRight,
+} from "react-icons/hi2";
+
+import { HeroSection } from "@/components/home/HeroSection";
+import { RoadmapsSection } from "@/components/home/RoadmapsSection";
+import { QuizPreviewSection } from "@/components/home/QuizPreviewSection";
+import { ComparisonSection } from "@/components/home/ComparisonSection";
+import { ImpactMetricsSection } from "@/components/home/ImpactMetricsSection";
+import { TestimonialsSection } from "@/components/home/TestimonialsSection";
+import { HomeBlogsSection } from "@/components/home/HomeBlogsSection";
+import { FaqSection } from "@/components/home/FaqSection";
 
 export default function Home() {
   const [featuredCourses, setFeaturedCourses] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const [selectedCourseCat, setSelectedCourseCat] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadHomeData() {
       setIsLoading(true);
       try {
-        const [courseRes, catRes] = await Promise.all([
+        const [courseRes, catRes, blogRes] = await Promise.all([
           api
             .get(
               "/courses?populate[modules][populate]=lessons&populate[quizzes]=*&populate[category]=*&populate[instructor]=*&populate[enrollments]=*"
             )
             .catch(() => null),
           api.get("/categories").catch(() => null),
+          api.get("/blog-posts?populate=author&populate=category").catch(() => null),
         ]);
 
         if (Array.isArray(courseRes?.data)) {
@@ -39,6 +56,14 @@ export default function Home() {
         } else {
           setCategories([]);
         }
+
+        if (Array.isArray(blogRes?.data)) {
+          setBlogs(blogRes.data);
+        } else if (blogRes?.data) {
+          setBlogs([blogRes.data]);
+        } else {
+          setBlogs([]);
+        }
       } catch (err) {
         console.warn("Could not fetch home data:", err);
       } finally {
@@ -48,103 +73,69 @@ export default function Home() {
     loadHomeData();
   }, []);
 
+  const filteredCourses = featuredCourses.filter((c) => {
+    if (selectedCourseCat === "all") return true;
+    return (
+      c.category?.slug === selectedCourseCat ||
+      c.category?.name === selectedCourseCat ||
+      c.category?.documentId === selectedCourseCat ||
+      String(c.category?.id) === selectedCourseCat
+    );
+  });
+
   return (
     <div className="w-full flex flex-col transition-colors duration-200">
-      {/* 1. HERO SECTION */}
-      <section className="bg-surface py-16 md:py-24 border-b border-border">
-        <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2">
-              <Badge variant="highlight" size="sm">
-                CPS Academy
-              </Badge>
-              <span className="text-xs font-medium text-muted">
-                Structured Computer Science & Competitive Programming
-              </span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground tracking-tight leading-tight">
-              Master Problem Solving & Software Engineering
-            </h1>
-
-            <p className="text-base sm:text-lg text-muted leading-relaxed">
-              Accelerate your programming journey with structured curriculums, interactive video lessons, timed quiz assessments, and verified course certificates.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <Button href="/courses" variant="primary" size="lg">
-                Explore All Courses
-              </Button>
-              <Button href="/auth/register" variant="outline" size="lg">
-                Create Free Account
-              </Button>
-            </div>
-
-            {/* Feature Pills */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-border">
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-foreground">100%</span>
-                <span className="text-xs text-muted">Curated Tracks</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-foreground">Active</span>
-                <span className="text-xs text-muted">Quiz Engine</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-foreground">Direct</span>
-                <span className="text-xs text-muted">Mentor Guidance</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-foreground">Verified</span>
-                <span className="text-xs text-muted">Stripe Checkout</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 1. HERO SECTION WITH IMAGE SLIDER */}
+      <HeroSection />
 
       {/* 2. FEATURED CATEGORIES */}
       {categories.length > 0 && (
-        <section className="py-16 bg-background border-b border-border">
-          <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-16 md:py-20 bg-background border-b border-border">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
               <div>
-                <Badge variant="surface" size="sm" className="mb-2">
+                <Badge variant="highlight" size="sm" className="mb-2">
                   Curated Taxonomies
                 </Badge>
-                <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-                  Browse by Category
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground">
+                  Browse by Academic Track
                 </h2>
               </div>
               <Link
                 href="/courses"
-                className="text-sm font-semibold text-secondary hover:text-foreground transition-colors inline-flex items-center gap-1"
+                className="text-xs font-bold text-secondary hover:text-foreground transition-colors inline-flex items-center gap-1"
               >
-                View all tracks →
+                <span>View all tracks</span>
+                <HiOutlineArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {categories.map((category) => (
-                <Card key={category.documentId || category.id} hoverable className="flex flex-col justify-between">
-                  <CardHeader>
-                    <div className="w-10 h-10 rounded-lg bg-surface text-foreground font-bold flex items-center justify-center mb-3">
+                <Card key={category.documentId || category.id} hoverable className="flex flex-col justify-between p-6 bg-surface border-border">
+                  <div className="space-y-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary dark:bg-highlight/20 dark:text-highlight font-black flex items-center justify-center text-sm">
                       {category.name?.charAt(0) || "C"}
                     </div>
-                    <CardTitle as="h3">{category.name}</CardTitle>
-                    <CardDescription>{category.description || "Structured learning path and problem sets."}</CardDescription>
-                  </CardHeader>
-                  <CardFooter className="justify-between">
-                    <span className="text-xs font-semibold text-secondary">
-                      Active Track
+                    <CardTitle as="h3" className="text-base font-bold text-foreground">
+                      {category.name}
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted leading-relaxed">
+                      {category.description || "Structured learning paths, live problem sets, and checkpoints."}
+                    </CardDescription>
+                  </div>
+                  <div className="pt-4 mt-4 border-t border-border flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-secondary">
+                      Active Curriculum
                     </span>
                     <Link
                       href={`/courses?category=${category.slug || category.documentId || category.id}`}
-                      className="text-xs font-medium text-foreground hover:text-secondary transition-colors"
+                      className="text-xs font-bold text-primary dark:text-highlight hover:underline inline-flex items-center gap-1"
                     >
-                      Explore →
+                      <span>Explore</span>
+                      <HiOutlineArrowRight className="w-3 h-3" />
                     </Link>
-                  </CardFooter>
+                  </div>
                 </Card>
               ))}
             </div>
@@ -152,25 +143,58 @@ export default function Home() {
         </section>
       )}
 
-      {/* 3. FEATURED COURSES */}
-      <section className="py-16 bg-surface border-b border-border">
-        <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-            <div>
-              <Badge variant="highlight" size="sm" className="mb-2">
+      {/* 3. FEATURED & TRENDING COURSES */}
+      <section className="py-16 md:py-24 bg-surface border-b border-border">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-2">
+              <Badge variant="highlight" size="sm">
                 Popular Classes
               </Badge>
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-                Featured Courses
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
+                Featured & Trending Courses
               </h2>
+              <p className="text-sm text-muted">
+                Hand-crafted computer science courses with video lectures, reading notes, and diagnostic quizzes.
+              </p>
             </div>
-            <Link
-              href="/courses"
-              className="text-sm font-semibold text-secondary hover:text-foreground transition-colors inline-flex items-center gap-1"
-            >
-              View all courses →
-            </Link>
+
+            <Button href="/courses" variant="outline" size="sm" className="shrink-0 text-xs font-bold gap-1.5">
+              <span>View All Courses</span>
+              <HiOutlineArrowRight className="w-3.5 h-3.5" />
+            </Button>
           </div>
+
+          {/* Category Filter Pills */}
+          {categories.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedCourseCat("all")}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  selectedCourseCat === "all"
+                    ? "bg-primary text-white shadow-sm"
+                    : "bg-card border border-border text-muted hover:text-foreground"
+                }`}
+              >
+                All Courses ({featuredCourses.length})
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.documentId || cat.id}
+                  type="button"
+                  onClick={() => setSelectedCourseCat(cat.slug || cat.name)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    selectedCourseCat === (cat.slug || cat.name)
+                      ? "bg-primary text-white shadow-sm"
+                      : "bg-card border border-border text-muted hover:text-foreground"
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -191,13 +215,13 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          ) : featuredCourses.length === 0 ? (
-            <div className="p-12 text-center text-muted text-sm border border-dashed border-border rounded-xl">
-              No courses currently published on the platform.
+          ) : filteredCourses.length === 0 ? (
+            <div className="p-12 text-center text-muted text-sm border border-dashed border-border rounded-2xl bg-card">
+              No courses matching the selected category.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredCourses.map((course) => (
+              {filteredCourses.map((course) => (
                 <CourseCard key={course.documentId || course.id} course={course} />
               ))}
             </div>
@@ -205,77 +229,48 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. HOW CPS ACADEMY WORKS */}
-      <section className="py-16 bg-background border-b border-border">
-        <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <Badge variant="surface" size="sm" className="mb-2">
-              Learning Journey
-            </Badge>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-              How You Learn at CPS Academy
-            </h2>
-            <p className="text-sm text-muted mt-2">
-              A systematic 4-step framework built for concrete skill development.
-            </p>
-          </div>
+      {/* 4. NEW SECTION 1: INTERACTIVE LEARNING PATHS / ROADMAPS */}
+      <RoadmapsSection />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-xl border border-border bg-surface flex flex-col">
-              <span className="text-2xl font-black text-secondary mb-3">01</span>
-              <h3 className="text-base font-bold text-foreground mb-1.5">Discover & Enroll</h3>
-              <p className="text-xs text-muted leading-relaxed">
-                Browse classes by topic and difficulty, and enroll seamlessly with Stripe checkout.
-              </p>
-            </div>
+      {/* 5. NEW SECTION 2: INTERACTIVE QUIZ ASSESSMENT PREVIEW WIDGET */}
+      <QuizPreviewSection />
 
-            <div className="p-6 rounded-xl border border-border bg-surface flex flex-col">
-              <span className="text-2xl font-black text-secondary mb-3">02</span>
-              <h3 className="text-base font-bold text-foreground mb-1.5">Stream Video Lessons</h3>
-              <p className="text-xs text-muted leading-relaxed">
-                Watch curated YouTube video lessons with timestamp checkpoints and download class resources.
-              </p>
-            </div>
+      {/* 6. NEW SECTION 3: WHY CPS ACADEMY COMPARISON MATRIX */}
+      <ComparisonSection />
 
-            <div className="p-6 rounded-xl border border-border bg-surface flex flex-col">
-              <span className="text-2xl font-black text-secondary mb-3">03</span>
-              <h3 className="text-base font-bold text-foreground mb-1.5">Take Timed Quizzes</h3>
-              <p className="text-xs text-muted leading-relaxed">
-                Reinforce concepts through automated, server-evaluated quizzes with explanations.
-              </p>
-            </div>
+      {/* 7. NEW SECTION 4: PLATFORM IMPACT & COMMUNITY METRICS */}
+      <ImpactMetricsSection />
 
-            <div className="p-6 rounded-xl border border-border bg-surface flex flex-col">
-              <span className="text-2xl font-black text-secondary mb-3">04</span>
-              <h3 className="text-base font-bold text-foreground mb-1.5">Track & Certify</h3>
-              <p className="text-xs text-muted leading-relaxed">
-                Track completion progress on your dashboard and obtain certified proof of mastery.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 8. NEW SECTION 5: STUDENT SUCCESS STORIES & TESTIMONIALS */}
+      <TestimonialsSection />
 
-      {/* 5. INSTRUCTOR INVITATION CTA */}
-      <section className="py-16 bg-surface border-b border-border">
-        <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-primary text-white border border-secondary/30 rounded-2xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
-            <div className="max-w-xl space-y-3">
-              <Badge variant="highlight" size="sm">
-                Educators & Competitive Programmers
-              </Badge>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+      {/* 9. NEW SECTION 6: LATEST ENGINEERING BLOG ARTICLES */}
+      <HomeBlogsSection blogs={blogs} />
+
+      {/* 10. NEW SECTION 7: INTERACTIVE FAQ ACCORDION */}
+      <FaqSection />
+
+      {/* 11. INSTRUCTOR INVITATION CTA */}
+      <section className="py-16 md:py-24 bg-surface border-b border-border">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-primary text-white border border-secondary/30 rounded-3xl p-8 sm:p-14 flex flex-col md:flex-row items-center justify-between gap-8 shadow-md">
+            <div className="max-w-xl space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-bold text-white">
+                <HiOutlineAcademicCap className="w-4 h-4" />
+                <span>Educators & Competitive Programmers</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
                 Share Your Knowledge with Thousands of Learners
               </h2>
-              <p className="text-sm text-white/80 leading-relaxed">
-                Upload classes, organize modules with YouTube video lessons, create question banks, and manage student assessments.
+              <p className="text-sm sm:text-base text-white/80 leading-relaxed">
+                Upload courses, organize video & text lessons, author diagnostic quiz question banks, and track enrolled students with universal live progress synchronization.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              <Button href="/auth/register" variant="highlight" size="lg">
+            <div className="flex flex-col sm:flex-row gap-3.5 w-full md:w-auto shrink-0">
+              <Button href="/auth/register" variant="highlight" size="lg" className="font-bold text-xs sm:text-sm px-6 py-3.5">
                 Join as Instructor
               </Button>
-              <Button href="/about" variant="outlineSecondary" size="lg" className="text-white border-white/40 hover:bg-white/10 dark:text-white dark:border-white/40 dark:hover:bg-white/10">
+              <Button href="/about" variant="outlineSecondary" size="lg" className="text-white border-white/40 hover:bg-white/10 dark:text-white dark:border-white/40 dark:hover:bg-white/10 font-bold text-xs sm:text-sm px-6 py-3.5">
                 Learn More
               </Button>
             </div>
