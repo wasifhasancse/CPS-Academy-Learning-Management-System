@@ -92,11 +92,10 @@ export function Header() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${
-                  isActive
+                className={`text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${isActive
                     ? "bg-surface text-primary dark:text-highlight font-bold"
                     : "text-foreground/80 hover:text-foreground hover:bg-surface"
-                }`}
+                  }`}
               >
                 {link.name}
               </Link>
@@ -109,11 +108,11 @@ export function Header() {
           <ThemeToggle />
 
           {!mounted ? (
-            <div className="w-20 h-8 rounded-full bg-surface animate-pulse" />
+            <div className="w-20 h-8 rounded-full bg-surface border border-border/40 animate-pulse" />
           ) : user ? (
             <ProfileDropdown />
           ) : isLoading ? (
-            <div className="w-20 h-8 rounded-full bg-surface animate-pulse" />
+            <div className="w-20 h-8 rounded-full bg-surface border border-border/40 animate-pulse" />
           ) : (
             <div className="flex items-center gap-1.5 sm:gap-2">
               <Button href="/auth/login" variant="ghost" size="sm" className="text-xs">
@@ -174,11 +173,10 @@ export function Header() {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${
-                  pathname === link.href
+                className={`text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${pathname === link.href
                     ? "bg-surface text-primary dark:text-highlight font-bold"
                     : "text-foreground/80 hover:text-foreground hover:bg-surface"
-                }`}
+                  }`}
               >
                 {link.name}
               </Link>

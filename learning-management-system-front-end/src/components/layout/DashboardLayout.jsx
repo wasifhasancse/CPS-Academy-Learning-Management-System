@@ -24,17 +24,17 @@ export function DashboardLayout({
       <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           {/* Sidebar Navigation */}
-          <aside className="w-full lg:w-64 shrink-0 bg-card dark:bg-[#091413] text-foreground dark:text-[#F0F7F4] rounded-2xl border border-border dark:border-[#1E3A33] p-3.5 flex flex-col gap-3 lg:sticky lg:top-24 shadow-xs">
+          <aside className="w-full lg:w-64 shrink-0 bg-card dark:bg-[#2A3D5A] text-foreground dark:text-[#DFF2EB] rounded-2xl border border-border dark:border-[#7AB2D3]/40 p-3.5 flex flex-col gap-3 lg:sticky lg:top-24 shadow-xs">
             {/* User Identity Card */}
-            <div className="p-3 rounded-xl bg-surface dark:bg-[#0D1C19] border border-border dark:border-[#1E3A33] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary dark:bg-primary/20 dark:text-highlight border border-primary/20 dark:border-primary/30 flex items-center justify-center font-bold text-lg shrink-0">
+            <div className="p-3 rounded-xl bg-surface dark:bg-[#1E2A3A] border border-border dark:border-[#7AB2D3]/40 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#7AB2D3]/15 text-[#4A628A] dark:bg-[#7AB2D3]/20 dark:text-[#B9E5E8] border border-[#B9E5E8]/40 flex items-center justify-center font-bold text-lg shrink-0">
                 <HiOutlineShieldCheck className="w-5 h-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <span className="font-extrabold text-sm text-foreground dark:text-white truncate block">
                   {user?.username || "User"}
                 </span>
-                <span className="text-[10px] font-black tracking-wider text-primary dark:text-highlight uppercase truncate block">
+                <span className="text-[10px] font-black tracking-wider text-[#7AB2D3] dark:text-[#B9E5E8] uppercase truncate block">
                   {displayRole}
                 </span>
               </div>
@@ -49,8 +49,8 @@ export function DashboardLayout({
 
                 const itemClass = `w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 text-left cursor-pointer ${
                   isActive
-                    ? "bg-[#285A48] text-white shadow-xs"
-                    : "text-muted hover:bg-surface hover:text-foreground dark:text-[#82A79B] dark:hover:bg-[#122421] dark:hover:text-white"
+                    ? "bg-[#7AB2D3] text-white dark:bg-[#7AB2D3] dark:text-[#1E2A3A] shadow-xs font-black"
+                    : "text-muted hover:bg-surface hover:text-foreground dark:text-[#B9E5E8] dark:hover:bg-[#1E2A3A] dark:hover:text-[#DFF2EB]"
                 }`;
 
                 const content = (
@@ -63,8 +63,8 @@ export function DashboardLayout({
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 ${
                           isActive
-                            ? "bg-[#B0E4CC] text-[#091413]"
-                            : "bg-primary/10 text-primary dark:bg-[#B0E4CC] dark:text-[#091413]"
+                            ? "bg-[#DFF2EB] text-[#4A628A]"
+                            : "bg-[#7AB2D3]/15 text-[#4A628A] dark:bg-[#B9E5E8]/20 dark:text-[#B9E5E8]"
                         }`}
                       >
                         {item.badge}
