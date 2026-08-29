@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/Table";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { TableSkeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/api";
 import { HiOutlineCreditCard, HiOutlineArrowTopRightOnSquare } from "react-icons/hi2";
 
@@ -58,10 +59,7 @@ export default function InstructorOrdersPage() {
       </div>
 
       {loading ? (
-        <Card className="p-8 text-center bg-card border-border">
-          <div className="w-8 h-8 border-3 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-muted">Loading your course transactions...</p>
-        </Card>
+        <TableSkeleton rows={5} columns={6} />
       ) : error ? (
         <Card className="p-6 bg-red-500/10 border-red-500/30 text-red-600 text-xs font-semibold">
           {error}
