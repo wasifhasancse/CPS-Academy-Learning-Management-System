@@ -45,11 +45,7 @@ module.exports = createCoreController('api::progress.progress', ({ strapi }) => 
       roleName === 'content manager';
 
     const where = {};
-    if (isInstructorUser && !isAdminOrManagerUser) {
-      where.course = {
-        instructor: user.id,
-      };
-    } else if (!isAdminOrManagerUser) {
+    if (!isAdminOrManagerUser && !isInstructorUser) {
       where.student = user.id;
     }
 
@@ -61,11 +57,26 @@ module.exports = createCoreController('api::progress.progress', ({ strapi }) => 
         },
         lesson: true,
         course: {
-          select: ['id', 'title', 'slug', 'documentId'],
+          populate: ['instructor'],
         },
       },
       orderBy: { completedAt: 'desc' },
     });
+
+    if (isInstructorUser && !isAdminOrManagerUser) {
+      const myCourses = await strapi.db.query('api::course.course').findMany({
+        where: { instructor: user.id },
+        select: ['id'],
+      });
+      const myCourseIdSet = new Set(myCourses.map((c) => c.id));
+
+      const scopedProgresses = progresses.filter((p) => {
+        const cId = p.course?.id || p.course;
+        return cId && myCourseIdSet.has(cId);
+      });
+
+      return { data: scopedProgresses };
+    }
 
     return { data: progresses };
   },
@@ -79,32 +90,45 @@ module.exports = createCoreController('api::progress.progress', ({ strapi }) => 
     const body = ctx.request.body?.data || ctx.request.body || {};
     const { lessonId, courseId, isCompleted = true } = body;
 
+    const rawLessonStr = String(lessonId || '').replace(/^lesson-/, '').trim();
+    const rawCourseStr = String(courseId || '').replace(/^course-/, '').trim();
+
     let targetLesson = null;
-    if (lessonId) {
-      if (!isNaN(Number(lessonId)) && Number(lessonId) > 0) {
+    if (rawLessonStr) {
+      if (!isNaN(Number(rawLessonStr)) && Number(rawLessonStr) > 0) {
         targetLesson = await strapi.db.query('api::lesson.lesson').findOne({
-          where: { id: Number(lessonId) },
+          where: { id: Number(rawLessonStr) },
+          populate: ['course', 'module'],
         });
       } else {
         targetLesson = await strapi.db.query('api::lesson.lesson').findOne({
-          where: { documentId: String(lessonId) },
+          where: { documentId: rawLessonStr },
+          populate: ['course', 'module'],
         });
       }
     }
 
     let targetCourse = null;
-    if (courseId) {
-      if (!isNaN(Number(courseId)) && Number(courseId) > 0) {
+    if (rawCourseStr) {
+      if (!isNaN(Number(rawCourseStr)) && Number(rawCourseStr) > 0) {
         targetCourse = await strapi.db.query('api::course.course').findOne({
-          where: { id: Number(courseId) },
+          where: { id: Number(rawCourseStr) },
+          populate: {
+            modules: { populate: ['lessons'] },
+            quizzes: true,
+          },
         });
       } else {
         targetCourse = await strapi.db.query('api::course.course').findOne({
           where: {
             $or: [
-              { slug: String(courseId) },
-              { documentId: String(courseId) },
+              { slug: rawCourseStr },
+              { documentId: rawCourseStr },
             ],
+          },
+          populate: {
+            modules: { populate: ['lessons'] },
+            quizzes: true,
           },
         });
       }
@@ -114,7 +138,17 @@ module.exports = createCoreController('api::progress.progress', ({ strapi }) => 
       return ctx.badRequest('Target lesson is required.');
     }
 
-    const effectiveCourseId = targetCourse ? targetCourse.id : targetLesson.course;
+    let effectiveCourseId = targetCourse ? targetCourse.id : (targetLesson.course?.id || targetLesson.course);
+
+    if (!effectiveCourseId && targetLesson.module) {
+      const moduleRecord = await strapi.db.query('api::module.module').findOne({
+        where: { id: targetLesson.module.id || targetLesson.module },
+        populate: ['course'],
+      });
+      if (moduleRecord?.course) {
+        effectiveCourseId = moduleRecord.course.id || moduleRecord.course;
+      }
+    }
 
     // Check existing progress record
     const existing = await strapi.db.query('api::progress.progress').findOne({
@@ -139,7 +173,7 @@ module.exports = createCoreController('api::progress.progress', ({ strapi }) => 
         data: {
           student: user.id,
           lesson: targetLesson.id,
-          course: effectiveCourseId,
+          course: effectiveCourseId || null,
           isCompleted: true,
           completedAt: new Date(),
         },
@@ -147,34 +181,64 @@ module.exports = createCoreController('api::progress.progress', ({ strapi }) => 
       });
     }
 
-    // Synchronize Enrollment percentage if course is known
+    // Synchronize Enrollment percentage with full module & quiz traversal
     if (effectiveCourseId) {
-      const allCourseLessons = await strapi.db.query('api::lesson.lesson').findMany({
-        where: { course: effectiveCourseId },
-      });
-      const completedCourseLessons = await strapi.db.query('api::progress.progress').findMany({
-        where: {
-          student: user.id,
-          course: effectiveCourseId,
-          isCompleted: true,
+      const fullCourse = await strapi.db.query('api::course.course').findOne({
+        where: { id: effectiveCourseId },
+        populate: {
+          modules: { populate: ['lessons'] },
+          quizzes: true,
         },
       });
 
-      const totalCount = Math.max(1, allCourseLessons.length);
-      const percentage = Math.min(100, Math.round((completedCourseLessons.length / totalCount) * 100));
+      if (fullCourse) {
+        const allLessons = (fullCourse.modules || []).flatMap((m) => m.lessons || []);
+        const allQuizzes = fullCourse.quizzes || [];
+        const lessonIds = new Set(allLessons.map((l) => l.id));
+        const quizIds = new Set(allQuizzes.map((q) => q.id));
 
-      const enrollment = await strapi.db.query('api::enrollment.enrollment').findOne({
-        where: {
-          student: user.id,
-          course: effectiveCourseId,
-        },
-      });
+        const [studentProgresses, studentAttempts] = await Promise.all([
+          strapi.db.query('api::progress.progress').findMany({
+            where: {
+              student: user.id,
+              isCompleted: true,
+            },
+            populate: ['lesson'],
+          }),
+          strapi.db.query('api::quiz-attempt.quiz-attempt').findMany({
+            where: {
+              student: user.id,
+              passed: true,
+            },
+            populate: ['quiz'],
+          }),
+        ]);
 
-      if (enrollment) {
-        await strapi.db.query('api::enrollment.enrollment').update({
-          where: { id: enrollment.id },
-          data: { progressPercentage: percentage },
+        const completedLessonsCount = new Set(
+          studentProgresses.filter((p) => p.lesson && lessonIds.has(p.lesson.id)).map((p) => p.lesson.id)
+        ).size;
+
+        const passedQuizzesCount = new Set(
+          studentAttempts.filter((a) => a.quiz && quizIds.has(a.quiz.id)).map((a) => a.quiz.id)
+        ).size;
+
+        const totalUnits = Math.max(1, allLessons.length + allQuizzes.length);
+        const completedUnits = completedLessonsCount + passedQuizzesCount;
+        const percentage = Math.min(100, Math.round((completedUnits / totalUnits) * 100));
+
+        const enrollment = await strapi.db.query('api::enrollment.enrollment').findOne({
+          where: {
+            student: user.id,
+            course: effectiveCourseId,
+          },
         });
+
+        if (enrollment) {
+          await strapi.db.query('api::enrollment.enrollment').update({
+            where: { id: enrollment.id },
+            data: { progressPercentage: percentage },
+          });
+        }
       }
     }
 
