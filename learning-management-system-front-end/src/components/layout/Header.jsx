@@ -20,7 +20,8 @@ export function Header() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
+    const targetPath = pathname.startsWith("/blog") ? "/blog" : "/courses";
+    router.push(`${targetPath}?search=${encodeURIComponent(searchQuery.trim())}`);
   };
 
   const navLinks = [
