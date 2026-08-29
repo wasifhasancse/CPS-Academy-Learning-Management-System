@@ -25,6 +25,7 @@ import {
   HiOutlineTrophy,
   HiOutlineXMark,
   HiOutlineArrowPath,
+  HiOutlineDocumentText,
 } from "react-icons/hi2";
 
 function extractYouTubeId(url) {
@@ -600,9 +601,9 @@ export default function CoursePlayerPage({ params }) {
         <div className="lg:col-span-2 space-y-5">
           {/* Main Stage View */}
           {isVideoLesson ? (
-            /* 16:9 Video Player */
-            <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black border border-border shadow-sm">
-              {youtubeVideoId ? (
+            youtubeVideoId ? (
+              /* 16:9 Video Player */
+              <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black border border-border shadow-sm">
                 <iframe
                   className="w-full h-full"
                   src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?rel=0&modestbranding=1&enablejsapi=1`}
@@ -610,18 +611,42 @@ export default function CoursePlayerPage({ params }) {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-[#091413]">
-                  <HiOutlineAcademicCap className="w-12 h-12 text-secondary" />
-                  <h3 className="text-base font-bold text-foreground">
-                    {activeItem?.data?.title || "Video Lesson"}
-                  </h3>
-                  <p className="text-xs text-muted max-w-sm">
-                    {activeItem?.data?.content || "Lesson content and video material are ready for practice."}
-                  </p>
-                </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              /* Text / Article Lesson Reader Stage */
+              <Card className="bg-card border-border overflow-hidden">
+                <CardHeader className="bg-surface/60 border-b border-border py-4 px-6">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" size="sm">
+                          📖 Article / Text Lesson
+                        </Badge>
+                        {activeItem?.data?.isFreePreview && (
+                          <Badge variant="secondary" size="sm">
+                            Free Preview
+                          </Badge>
+                        )}
+                      </div>
+                      <CardTitle className="text-lg font-bold text-foreground mt-1">
+                        {activeItem?.data?.title || "Lesson Content"}
+                      </CardTitle>
+                    </div>
+                    {activeItem?.data?.duration && (
+                      <div className="text-right text-xs text-muted shrink-0">
+                        <span>Est. Reading Time: </span>
+                        <strong className="text-foreground">{activeItem?.data?.duration}</strong>
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap font-sans">
+                    {activeItem?.data?.content || activeItem?.data?.notes || "Welcome to this reading lesson. Study the contents and concepts below, then mark as complete to advance."}
+                  </div>
+                </CardContent>
+              </Card>
+            )
           ) : isQuizItem ? (
             /* Interactive Quiz Runner Stage */
             <Card className="bg-card border-border overflow-hidden">
@@ -987,8 +1012,10 @@ export default function CoursePlayerPage({ params }) {
                                 >
                                   {isComplete ? (
                                     <HiOutlineCheckCircle className="w-3.5 h-3.5" />
-                                  ) : (
+                                  ) : lesson.youtubeUrl ? (
                                     <HiOutlinePlay className="w-2.5 h-2.5" />
+                                  ) : (
+                                    <HiOutlineDocumentText className="w-3 h-3" />
                                   )}
                                 </div>
 
