@@ -8,7 +8,7 @@
     "description": "LMS Community Blog Post Schema"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -30,6 +30,15 @@
     },
     "coverImageUrl": {
       "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["draft", "published"],
+      "default": "draft",
+      "required": true
+    },
+    "publishedDate": {
+      "type": "datetime"
     },
     "category": {
       "type": "relation",

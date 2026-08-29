@@ -553,7 +553,7 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
     singularName: 'blog-post';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     author: Schema.Attribute.Relation<
@@ -574,7 +574,11 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    publishedDate: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
+    status: Schema.Attribute.Enumeration<['draft', 'published']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'draft'>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
