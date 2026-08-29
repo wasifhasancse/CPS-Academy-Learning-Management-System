@@ -5,7 +5,7 @@
     "singularName": "lesson",
     "pluralName": "lessons",
     "displayName": "Lesson",
-    "description": "LMS Video Lesson Schema"
+    "description": "LMS Video & Text Lesson Schema"
   },
   "options": {
     "draftAndPublish": false
@@ -22,8 +22,7 @@
       "required": true
     },
     "youtubeUrl": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "duration": {
       "type": "string",

@@ -737,7 +737,7 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
 export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
   collectionName: 'lessons';
   info: {
-    description: 'LMS Video Lesson Schema';
+    description: 'LMS Video & Text Lesson Schema';
     displayName: 'Lesson';
     pluralName: 'lessons';
     singularName: 'lesson';
@@ -767,7 +767,7 @@ export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    youtubeUrl: Schema.Attribute.String & Schema.Attribute.Required;
+    youtubeUrl: Schema.Attribute.String;
   };
 }
 
