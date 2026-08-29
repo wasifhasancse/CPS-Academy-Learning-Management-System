@@ -15,8 +15,8 @@ export function DashboardStatsGrid({ stats = [] }) {
             key={idx}
             className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
               isAlert
-                ? "bg-[#140D0E] dark:bg-[#1A0E10] border-red-500/30 text-white"
-                : "bg-card dark:bg-[#0D1C19] border-border text-foreground"
+                ? "bg-[#1E2A3A] border-red-500/30 text-[#DFF2EB]"
+                : "bg-card dark:bg-[#2A3D5A] border-border text-foreground"
             }`}
           >
             {/* Top Bar: Label + Top-right Icon Badge */}
@@ -34,7 +34,7 @@ export function DashboardStatsGrid({ stats = [] }) {
                     className={`inline-block mt-1 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${
                       isAlert
                         ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                        : "bg-primary/20 text-secondary border border-primary/30"
+                        : "bg-[#B9E5E8]/40 text-[#4A628A] dark:bg-[#B9E5E8]/20 dark:text-[#B9E5E8] border border-[#B9E5E8]/60 font-bold"
                     }`}
                   >
                     {stat.badge}
@@ -47,7 +47,7 @@ export function DashboardStatsGrid({ stats = [] }) {
                   className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                     isAlert
                       ? "bg-red-500/15 text-red-400 border border-red-500/20"
-                      : "bg-surface dark:bg-[#122421] text-secondary border border-border"
+                      : "bg-surface dark:bg-[#1E2A3A] text-[#7AB2D3] dark:text-[#B9E5E8] border border-border"
                   }`}
                 >
                   {stat.icon}

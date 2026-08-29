@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, getRoleDashboardPath } from "@/context/AuthContext";
+import { LoadingScreen } from "@/components/ui/Spinner";
 
 export default function DashboardIndexPage() {
   const router = useRouter();
@@ -20,9 +21,10 @@ export default function DashboardIndexPage() {
   }, [isLoading, isAuthenticated, role, router]);
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-      <div className="w-8 h-8 rounded-full border-2 border-primary dark:border-highlight border-t-transparent animate-spin" />
-      <p className="text-xs text-muted">Redirecting to your dashboard...</p>
-    </div>
+    <LoadingScreen
+      title="Accessing CPS Portal..."
+      description="Navigating to your role-specific dashboard overview."
+      minHeight="min-h-[70vh]"
+    />
   );
 }
