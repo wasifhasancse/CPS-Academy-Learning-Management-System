@@ -1,0 +1,49 @@
+{
+  "kind": "collectionType",
+  "collectionName": "orders",
+  "info": {
+    "singularName": "order",
+    "pluralName": "orders",
+    "displayName": "Order",
+    "description": "LMS Course Purchases and Stripe Checkout Transactions"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "student": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course"
+    },
+    "stripeSessionId": {
+      "type": "string"
+    },
+    "stripePaymentIntentId": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "decimal",
+      "required": true,
+      "default": 0.00
+    },
+    "currency": {
+      "type": "string",
+      "default": "usd"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "paid", "failed", "refunded"],
+      "default": "pending"
+    },
+    "priceId": {
+      "type": "string"
+    }
+  }
+}
