@@ -37,6 +37,7 @@ module.exports = createCoreController('api::quiz-attempt.quiz-attempt', ({ strap
 
     const roleType = (user.role?.type || '').toLowerCase();
     const roleName = (user.role?.name || '').toLowerCase();
+    const isInstructorUser = roleType === 'instructor' || roleName === 'instructor';
     const isAdminOrManagerUser =
       roleType === 'admin' ||
       roleName === 'admin' ||
@@ -44,7 +45,7 @@ module.exports = createCoreController('api::quiz-attempt.quiz-attempt', ({ strap
       roleName === 'content manager';
 
     const where = {};
-    if (!isAdminOrManagerUser) {
+    if (!isAdminOrManagerUser && !isInstructorUser) {
       where.student = user.id;
     }
 
@@ -61,6 +62,21 @@ module.exports = createCoreController('api::quiz-attempt.quiz-attempt', ({ strap
       orderBy: { submittedAt: 'desc' },
     });
 
+    if (isInstructorUser && !isAdminOrManagerUser) {
+      const myCourses = await strapi.db.query('api::course.course').findMany({
+        where: { instructor: user.id },
+        select: ['id'],
+      });
+      const myCourseIdSet = new Set(myCourses.map((c) => c.id));
+
+      const scopedAttempts = attempts.filter((a) => {
+        const courseId = a.quiz?.course?.id || a.quiz?.course;
+        return courseId && myCourseIdSet.has(courseId);
+      });
+
+      return { data: scopedAttempts };
+    }
+
     return { data: attempts };
   },
 
@@ -73,21 +89,23 @@ module.exports = createCoreController('api::quiz-attempt.quiz-attempt', ({ strap
     const body = ctx.request.body?.data || ctx.request.body || {};
     const { quizId, rawCourseId, courseId = rawCourseId, quiz: rawQuiz, score: clientScore, answers = {}, submittedAnswers = answers } = body;
 
-    const targetQuizId = quizId || (typeof rawQuiz === 'object' ? (rawQuiz?.id || rawQuiz?.documentId) : rawQuiz);
+    const rawQuizStr = String(quizId || (typeof rawQuiz === 'object' ? (rawQuiz?.id || rawQuiz?.documentId) : rawQuiz) || '')
+      .replace(/^quiz-/, '')
+      .trim();
 
     let quiz = null;
-    if (targetQuizId) {
-      if (!isNaN(Number(targetQuizId)) && Number(targetQuizId) > 0) {
+    if (rawQuizStr) {
+      if (!isNaN(Number(rawQuizStr)) && Number(rawQuizStr) > 0) {
         quiz = await strapi.db.query('api::quiz.quiz').findOne({
-          where: { id: Number(targetQuizId) },
+          where: { id: Number(rawQuizStr) },
           populate: ['questions', 'course'],
         });
       } else {
         quiz = await strapi.db.query('api::quiz.quiz').findOne({
           where: {
             $or: [
-              { slug: String(targetQuizId) },
-              { documentId: String(targetQuizId) },
+              { slug: rawQuizStr },
+              { documentId: rawQuizStr },
             ],
           },
           populate: ['questions', 'course'],
@@ -107,7 +125,7 @@ module.exports = createCoreController('api::quiz-attempt.quiz-attempt', ({ strap
       questions.forEach((q) => {
         const studentChoice = submittedAnswers[q.id] !== undefined
           ? submittedAnswers[q.id]
-          : submittedAnswers[q.documentId];
+          : (submittedAnswers[q.documentId] !== undefined ? submittedAnswers[q.documentId] : submittedAnswers[String(q.id)]);
 
         if (studentChoice !== undefined && Number(studentChoice) === Number(q.correctAnswer)) {
           correctCount += 1;
@@ -132,7 +150,7 @@ module.exports = createCoreController('api::quiz-attempt.quiz-attempt', ({ strap
       },
       populate: {
         quiz: {
-          populate: ['questions'],
+          populate: ['questions', 'course'],
         },
         student: {
           select: ['id', 'username', 'email'],
@@ -140,15 +158,16 @@ module.exports = createCoreController('api::quiz-attempt.quiz-attempt', ({ strap
       },
     });
 
-    // Synchronize Enrollment Progress
+    // Synchronize Enrollment Progress with full module & quiz traversal
     let effectiveCourseId = quiz.course?.id || quiz.course;
     if (!effectiveCourseId && courseId) {
+      const cleanCourseStr = String(courseId).replace(/^course-/, '').trim();
       const foundCourse = await strapi.db.query('api::course.course').findOne({
         where: {
           $or: [
-            ...(!isNaN(Number(courseId)) ? [{ id: Number(courseId) }] : []),
-            { slug: String(courseId) },
-            { documentId: String(courseId) },
+            ...(!isNaN(Number(cleanCourseStr)) ? [{ id: Number(cleanCourseStr) }] : []),
+            { slug: cleanCourseStr },
+            { documentId: cleanCourseStr },
           ],
         },
       });
@@ -156,50 +175,62 @@ module.exports = createCoreController('api::quiz-attempt.quiz-attempt', ({ strap
     }
 
     if (effectiveCourseId) {
-      const allCourseLessons = await strapi.db.query('api::lesson.lesson').findMany({
-        where: { course: effectiveCourseId },
-      });
-      const allCourseQuizzes = await strapi.db.query('api::quiz.quiz').findMany({
-        where: { course: effectiveCourseId },
-      });
-
-      const completedLessons = await strapi.db.query('api::progress.progress').findMany({
-        where: {
-          student: user.id,
-          course: effectiveCourseId,
-          isCompleted: true,
+      const fullCourse = await strapi.db.query('api::course.course').findOne({
+        where: { id: effectiveCourseId },
+        populate: {
+          modules: { populate: ['lessons'] },
+          quizzes: true,
         },
       });
 
-      const passedQuizAttempts = await strapi.db.query('api::quiz-attempt.quiz-attempt').findMany({
-        where: {
-          student: user.id,
-          passed: true,
-        },
-        populate: ['quiz'],
-      });
+      if (fullCourse) {
+        const allLessons = (fullCourse.modules || []).flatMap((m) => m.lessons || []);
+        const allQuizzes = fullCourse.quizzes || [];
+        const lessonIds = new Set(allLessons.map((l) => l.id));
+        const quizIds = new Set(allQuizzes.map((q) => q.id));
 
-      const courseQuizIds = new Set(allCourseQuizzes.map((q) => q.id));
-      const passedCourseQuizzes = new Set(
-        passedQuizAttempts.filter((a) => a.quiz && courseQuizIds.has(a.quiz.id)).map((a) => a.quiz.id)
-      );
+        const [studentProgresses, studentAttempts] = await Promise.all([
+          strapi.db.query('api::progress.progress').findMany({
+            where: {
+              student: user.id,
+              isCompleted: true,
+            },
+            populate: ['lesson'],
+          }),
+          strapi.db.query('api::quiz-attempt.quiz-attempt').findMany({
+            where: {
+              student: user.id,
+              passed: true,
+            },
+            populate: ['quiz'],
+          }),
+        ]);
 
-      const totalUnits = Math.max(1, allCourseLessons.length + allCourseQuizzes.length);
-      const completedUnits = completedLessons.length + passedCourseQuizzes.size;
-      const percentage = Math.min(100, Math.round((completedUnits / totalUnits) * 100));
+        const completedLessonsCount = new Set(
+          studentProgresses.filter((p) => p.lesson && lessonIds.has(p.lesson.id)).map((p) => p.lesson.id)
+        ).size;
 
-      const enrollment = await strapi.db.query('api::enrollment.enrollment').findOne({
-        where: {
-          student: user.id,
-          course: effectiveCourseId,
-        },
-      });
+        const passedQuizzesCount = new Set(
+          studentAttempts.filter((a) => a.quiz && quizIds.has(a.quiz.id)).map((a) => a.quiz.id)
+        ).size;
 
-      if (enrollment) {
-        await strapi.db.query('api::enrollment.enrollment').update({
-          where: { id: enrollment.id },
-          data: { progressPercentage: percentage },
+        const totalUnits = Math.max(1, allLessons.length + allQuizzes.length);
+        const completedUnits = completedLessonsCount + passedQuizzesCount;
+        const percentage = Math.min(100, Math.round((completedUnits / totalUnits) * 100));
+
+        const enrollment = await strapi.db.query('api::enrollment.enrollment').findOne({
+          where: {
+            student: user.id,
+            course: effectiveCourseId,
+          },
         });
+
+        if (enrollment) {
+          await strapi.db.query('api::enrollment.enrollment').update({
+            where: { id: enrollment.id },
+            data: { progressPercentage: percentage },
+          });
+        }
       }
     }
 
