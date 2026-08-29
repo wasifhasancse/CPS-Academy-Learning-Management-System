@@ -79,18 +79,19 @@ module.exports = createCoreController('api::enrollment.enrollment', ({ strapi })
 
         try {
           const studentId = e.student.id;
-          const courseId = e.course.id;
-
           const allCourseLessons = (e.course.modules || []).flatMap((m) => m.lessons || []);
           const allCourseQuizzes = e.course.quizzes || [];
 
-          const [completedLessons, passedQuizAttempts] = await Promise.all([
+          const lessonIds = new Set(allCourseLessons.map((l) => l.id));
+          const quizIds = new Set(allCourseQuizzes.map((q) => q.id));
+
+          const [studentProgresses, studentAttempts] = await Promise.all([
             strapi.db.query('api::progress.progress').findMany({
               where: {
                 student: studentId,
-                course: courseId,
                 isCompleted: true,
               },
+              populate: ['lesson'],
             }),
             strapi.db.query('api::quiz-attempt.quiz-attempt').findMany({
               where: {
@@ -101,13 +102,16 @@ module.exports = createCoreController('api::enrollment.enrollment', ({ strapi })
             }),
           ]);
 
-          const courseQuizIds = new Set(allCourseQuizzes.map((q) => q.id));
-          const passedCourseQuizzes = new Set(
-            passedQuizAttempts.filter((a) => a.quiz && courseQuizIds.has(a.quiz.id)).map((a) => a.quiz.id)
-          );
+          const completedLessonsCount = new Set(
+            studentProgresses.filter((p) => p.lesson && lessonIds.has(p.lesson.id)).map((p) => p.lesson.id)
+          ).size;
+
+          const passedQuizzesCount = new Set(
+            studentAttempts.filter((a) => a.quiz && quizIds.has(a.quiz.id)).map((a) => a.quiz.id)
+          ).size;
 
           const totalUnits = Math.max(1, allCourseLessons.length + allCourseQuizzes.length);
-          const completedUnits = completedLessons.length + passedCourseQuizzes.size;
+          const completedUnits = completedLessonsCount + passedQuizzesCount;
           const calculatedPct = Math.min(100, Math.round((completedUnits / totalUnits) * 100));
 
           const finalPercentage = Math.max(Number(e.progressPercentage || 0), calculatedPct);
