@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { uploadToImgBB } from "@/lib/imgbb";
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
 
 export function ImageUpload({
   value = "",
@@ -140,7 +141,7 @@ export function ImageUpload({
         >
           {isUploading ? (
             <div className="flex flex-col items-center justify-center gap-1.5 py-1">
-              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <Spinner size="sm" color="primary" />
               <span className="text-xs font-semibold text-primary dark:text-highlight">
                 Uploading to ImgBB...
               </span>
