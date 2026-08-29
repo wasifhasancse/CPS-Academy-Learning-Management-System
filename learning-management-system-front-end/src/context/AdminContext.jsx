@@ -1,16 +1,21 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { api } from "@/lib/api";
+import { BlogModal } from "@/components/dashboard/modals/BlogModal";
 import { ChangeRoleModal } from "@/components/dashboard/modals/ChangeRoleModal";
+import { ConfirmDeleteModal } from "@/components/dashboard/modals/ConfirmDeleteModal";
 import { CourseModal } from "@/components/dashboard/modals/CourseModal";
 import { LessonModal } from "@/components/dashboard/modals/LessonModal";
-import { QuizModal } from "@/components/dashboard/modals/QuizModal";
 import { ManageQuestionsModal } from "@/components/dashboard/modals/ManageQuestionsModal";
-import { BlogModal } from "@/components/dashboard/modals/BlogModal";
-import { ConfirmDeleteModal } from "@/components/dashboard/modals/ConfirmDeleteModal";
-
+import { QuizModal } from "@/components/dashboard/modals/QuizModal";
+import { useAuth } from "@/context/AuthContext";
+import { api } from "@/lib/api";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 
 const AdminContext = createContext(null);
 
@@ -121,43 +126,81 @@ export function AdminProvider({ children }) {
     if (!token) return;
     setIsLoading(true);
     try {
-      const [usersRes, rolesRes, coursesRes, catsRes, blogsRes, enrollsRes, progressRes, quizAttemptsRes] =
-        await Promise.all([
-          api.get("/users?populate=role", { token }).catch(() => ({ data: [] })),
-          api.get("/users-permissions/roles", { token }).catch(() => ({ roles: [] })),
-          api.get("/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments]=*", { token }).catch(() => ({ data: [] })),
-          api.get("/categories", { token }).catch(() => ({ data: [] })),
-          api.get("/blog-posts?populate=author&populate=category", { token }).catch(() => ({ data: [] })),
-          api.get("/enrollments?populate[student]=*&populate[course][populate]=modules.lessons&populate[course][populate]=quizzes", { token }).catch(() => ({ data: [] })),
-          api.get("/progresses", { token }).catch(() => ({ data: [] })),
-          api.get("/quiz-attempts", { token }).catch(() => ({ data: [] })),
-        ]);
+      const [
+        usersRes,
+        rolesRes,
+        coursesRes,
+        catsRes,
+        blogsRes,
+        enrollsRes,
+        progressRes,
+        quizAttemptsRes,
+      ] = await Promise.all([
+        api.get("/users?populate=role", { token }).catch(() => ({ data: [] })),
+        api
+          .get("/users-permissions/roles", { token })
+          .catch(() => ({ roles: [] })),
+        api
+          .get(
+            "/courses?populate[modules][populate]=lessons&populate[quizzes][populate]=questions&populate[category]=*&populate[instructor]=*&populate[enrollments]=*",
+            { token },
+          )
+          .catch(() => ({ data: [] })),
+        api.get("/categories", { token }).catch(() => ({ data: [] })),
+        api
+          .get("/blog-posts?populate=author&populate=category", { token })
+          .catch(() => ({ data: [] })),
+        api
+          .get(
+            "/enrollments?populate[student]=*&populate[course][populate]=modules.lessons&populate[course][populate]=quizzes",
+            { token },
+          )
+          .catch(() => ({ data: [] })),
+        api.get("/progresses", { token }).catch(() => ({ data: [] })),
+        api.get("/quiz-attempts", { token }).catch(() => ({ data: [] })),
+      ]);
 
-      const resolvedUsers = Array.isArray(usersRes) ? usersRes : usersRes?.data || [];
-      const resolvedRoles = rolesRes?.roles || (Array.isArray(rolesRes) ? rolesRes : []);
-      const resolvedCourses = Array.isArray(coursesRes?.data) ? coursesRes.data : [];
+      const resolvedUsers = Array.isArray(usersRes)
+        ? usersRes
+        : usersRes?.data || [];
+      const resolvedRoles =
+        rolesRes?.roles || (Array.isArray(rolesRes) ? rolesRes : []);
+      const resolvedCourses = Array.isArray(coursesRes?.data)
+        ? coursesRes.data
+        : [];
       const resolvedCats = Array.isArray(catsRes?.data) ? catsRes.data : [];
       const resolvedBlogs = Array.isArray(blogsRes?.data) ? blogsRes.data : [];
-      const resolvedEnrolls = Array.isArray(enrollsRes?.data) ? enrollsRes.data : [];
-      const allProgress = Array.isArray(progressRes?.data) ? progressRes.data : [];
-      const allAttempts = Array.isArray(quizAttemptsRes?.data) ? quizAttemptsRes.data : [];
+      const resolvedEnrolls = Array.isArray(enrollsRes?.data)
+        ? enrollsRes.data
+        : [];
+      const allProgress = Array.isArray(progressRes?.data)
+        ? progressRes.data
+        : [];
+      const allAttempts = Array.isArray(quizAttemptsRes?.data)
+        ? quizAttemptsRes.data
+        : [];
 
       const enhancedEnrolls = resolvedEnrolls.map((e) => {
         if (!e.course || !e.student) return e;
         const studentId = e.student.id;
         const studentDocId = e.student.documentId;
 
-        const lessons = (e.course.modules || []).flatMap((m) => m.lessons || []);
+        const lessons = (e.course.modules || []).flatMap(
+          (m) => m.lessons || [],
+        );
         const quizzes = e.course.quizzes || [];
         const totalUnits = Math.max(1, lessons.length + quizzes.length);
 
         const lessonIds = new Set(lessons.map((l) => String(l.id)));
-        const lessonDocIds = new Set(lessons.map((l) => String(l.documentId || "")));
+        const lessonDocIds = new Set(
+          lessons.map((l) => String(l.documentId || "")),
+        );
 
         const completedLessonsCount = allProgress.filter((p) => {
           if (!p.isCompleted || !p.lesson || !p.student) return false;
           const pStudentId = p.student.id;
-          const isSameStudent = pStudentId === studentId || p.student.documentId === studentDocId;
+          const isSameStudent =
+            pStudentId === studentId || p.student.documentId === studentDocId;
           if (!isSameStudent) return false;
           const lId = String(p.lesson.id);
           const lDocId = String(p.lesson.documentId || "");
@@ -165,27 +208,43 @@ export function AdminProvider({ children }) {
         }).length;
 
         const quizIds = new Set(quizzes.map((q) => String(q.id)));
-        const quizDocIds = new Set(quizzes.map((q) => String(q.documentId || "")));
+        const quizDocIds = new Set(
+          quizzes.map((q) => String(q.documentId || "")),
+        );
 
         const passedQuizzes = allAttempts.filter((a) => {
           if (!a.passed || !a.quiz || !a.student) return false;
           const aStudentId = a.student.id;
-          const isSameStudent = aStudentId === studentId || a.student.documentId === studentDocId;
+          const isSameStudent =
+            aStudentId === studentId || a.student.documentId === studentDocId;
           if (!isSameStudent) return false;
           const qId = String(a.quiz.id);
           const qDocId = String(a.quiz.documentId || "");
           return quizIds.has(qId) || quizDocIds.has(qDocId);
         });
-        const passedQuizzesCount = new Set(passedQuizzes.map((a) => a.quiz.documentId || String(a.quiz.id))).size;
+        const passedQuizzesCount = new Set(
+          passedQuizzes.map((a) => a.quiz.documentId || String(a.quiz.id)),
+        ).size;
 
         const completedUnits = completedLessonsCount + passedQuizzesCount;
-        const calculatedPct = Math.min(100, Math.round((completedUnits / totalUnits) * 100));
-        const finalPct = Math.max(Number(e.progressPercentage || 0), calculatedPct);
+        const calculatedPct = Math.min(
+          100,
+          Math.round((completedUnits / totalUnits) * 100),
+        );
+        const finalPct = Math.max(
+          Number(e.progressPercentage || 0),
+          calculatedPct,
+        );
 
         return {
           ...e,
           progressPercentage: finalPct,
-          status: finalPct === 100 ? "Completed" : (finalPct > 0 ? "In Progress" : "Enrolled"),
+          status:
+            finalPct === 100
+              ? "Completed"
+              : finalPct > 0
+                ? "In Progress"
+                : "Enrolled",
         };
       });
 
@@ -197,7 +256,9 @@ export function AdminProvider({ children }) {
       setStudentsProgress(enhancedEnrolls);
 
       if (resolvedCourses.length > 0 && !selectedCourseId) {
-        setSelectedCourseId(resolvedCourses[0].documentId || String(resolvedCourses[0].id));
+        setSelectedCourseId(
+          resolvedCourses[0].documentId || String(resolvedCourses[0].id),
+        );
       }
     } catch (err) {
       console.error("Failed to load admin data:", err);
@@ -212,27 +273,58 @@ export function AdminProvider({ children }) {
 
   // Derived Metrics & Filters
   const totalUsers = users.length;
-  const adminsCount = users.filter((u) => u.role?.name?.toLowerCase() === "admin").length;
-  const managersCount = users.filter((u) => u.role?.name?.toLowerCase() === "content manager").length;
-  const instructorsCount = users.filter((u) => u.role?.name?.toLowerCase() === "instructor").length;
-  const studentsCount = users.filter((u) => !u.role || u.role?.name?.toLowerCase() === "student").length;
+  const adminsCount = users.filter(
+    (u) => u.role?.name?.toLowerCase() === "admin",
+  ).length;
+  const managersCount = users.filter(
+    (u) => u.role?.name?.toLowerCase() === "content manager",
+  ).length;
+  const instructorsCount = users.filter(
+    (u) => u.role?.name?.toLowerCase() === "instructor",
+  ).length;
+  const studentsCount = users.filter(
+    (u) => !u.role || u.role?.name?.toLowerCase() === "student",
+  ).length;
 
   const totalCourses = courses.length;
   const totalLessons = courses.reduce(
-    (acc, c) => acc + (c.modules?.reduce((mAcc, m) => mAcc + (m.lessons?.length || 0), 0) || 0),
-    0
+    (acc, c) =>
+      acc +
+      (c.modules?.reduce((mAcc, m) => mAcc + (m.lessons?.length || 0), 0) || 0),
+    0,
   );
-  const totalQuizzes = courses.reduce((acc, c) => acc + (c.quizzes?.length || 0), 0);
+  const totalQuizzes = courses.reduce(
+    (acc, c) => acc + (c.quizzes?.length || 0),
+    0,
+  );
   const totalEnrollments = studentsProgress.length;
   const totalBlogs = blogs.length;
-  const publishedBlogsCount = blogs.filter((b) => Boolean(b.publishedAt)).length;
+  const publishedBlogsCount = blogs.filter(
+    (b) => b.status === "published",
+  ).length;
   const draftBlogsCount = totalBlogs - publishedBlogsCount;
 
   const stats = [
-    { title: "Total Users", value: totalUsers, subtitle: `${studentsCount} Students • ${instructorsCount} Instructors • ${adminsCount} Admins` },
-    { title: "Courses & Curricula", value: totalCourses, subtitle: `${totalLessons} Lessons • ${totalQuizzes} Quizzes Published` },
-    { title: "Student Enrollments", value: totalEnrollments, subtitle: "Active Learners Enrolled Platform-Wide" },
-    { title: "Articles & Knowledge", value: totalBlogs, subtitle: `${publishedBlogsCount} Published • ${draftBlogsCount} Drafts` },
+    {
+      title: "Total Users",
+      value: totalUsers,
+      subtitle: `${studentsCount} Students • ${instructorsCount} Instructors • ${adminsCount} Admins`,
+    },
+    {
+      title: "Courses & Curricula",
+      value: totalCourses,
+      subtitle: `${totalLessons} Lessons • ${totalQuizzes} Quizzes Published`,
+    },
+    {
+      title: "Student Enrollments",
+      value: totalEnrollments,
+      subtitle: "Active Learners Enrolled Platform-Wide",
+    },
+    {
+      title: "Articles & Knowledge",
+      value: totalBlogs,
+      subtitle: `${publishedBlogsCount} Published • ${draftBlogsCount} Drafts`,
+    },
   ];
 
   const adminActivities = [
@@ -240,21 +332,28 @@ export function AdminProvider({ children }) {
       id: `u-${u.id}`,
       action: "USER_REGISTRATION",
       title: `${u.username} joined as ${u.role?.name || "Student"}`,
-      timestamp: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "Recent",
+      timestamp: u.createdAt
+        ? new Date(u.createdAt).toLocaleDateString()
+        : "Recent",
       dateObj: u.createdAt ? new Date(u.createdAt) : new Date(0),
       badgeText: u.role?.name?.toUpperCase() || "STUDENT",
-      badgeVariant: u.role?.name?.toLowerCase() === "admin" ? "primary" : "secondary",
+      badgeVariant:
+        u.role?.name?.toLowerCase() === "admin" ? "primary" : "secondary",
     })),
     ...courses.map((c) => ({
       id: `c-${c.id}`,
       action: "COURSE_PUBLISHED",
       title: `Course track "${c.title}" updated`,
-      timestamp: c.updatedAt ? new Date(c.updatedAt).toLocaleDateString() : "Recent",
+      timestamp: c.updatedAt
+        ? new Date(c.updatedAt).toLocaleDateString()
+        : "Recent",
       dateObj: c.updatedAt ? new Date(c.updatedAt) : new Date(0),
       badgeText: "ACTIVE",
       badgeVariant: "highlight",
     })),
-  ].sort((a, b) => b.dateObj - a.dateObj).slice(0, 10);
+  ]
+    .sort((a, b) => b.dateObj - a.dateObj)
+    .slice(0, 10);
 
   const filteredUsers = users.filter((u) => {
     const query = userSearch.toLowerCase();
@@ -283,7 +382,9 @@ export function AdminProvider({ children }) {
   });
 
   const currentCourse =
-    courses.find((c) => (c.documentId || String(c.id)) === selectedCourseId) || courses[0] || null;
+    courses.find((c) => (c.documentId || String(c.id)) === selectedCourseId) ||
+    courses[0] ||
+    null;
 
   const currentCourseLessons =
     currentCourse?.modules?.flatMap((m) => m.lessons || []) || [];
@@ -295,7 +396,7 @@ export function AdminProvider({ children }) {
       !query ||
       b.title?.toLowerCase().includes(query) ||
       b.excerpt?.toLowerCase().includes(query);
-    const isPublished = Boolean(b.publishedAt);
+    const isPublished = b.status === "published";
     const matchStatus =
       blogStatusFilter === "all" ||
       (blogStatusFilter === "published" && isPublished) ||
@@ -331,7 +432,11 @@ export function AdminProvider({ children }) {
     if (!targetUser || !selectedRoleId) return;
     setActionLoading(true);
     try {
-      await api.put(`/users/${targetUser.id}`, { role: selectedRoleId }, { token });
+      await api.put(
+        `/users/${targetUser.id}`,
+        { role: selectedRoleId },
+        { token },
+      );
       setIsRoleModalOpen(false);
       await loadAdminData();
     } catch (err) {
@@ -389,7 +494,8 @@ export function AdminProvider({ children }) {
     setEditingCourseId(course.documentId || course.id);
     setCourseForm({
       title: course.title || "",
-      category: course.category?.documentId || String(course.category?.id) || "",
+      category:
+        course.category?.documentId || String(course.category?.id) || "",
       price: String(course.price || 0),
       difficulty: course.difficulty || "Beginner",
       description: course.description || "",
@@ -486,7 +592,7 @@ export function AdminProvider({ children }) {
               course: currentCourse.documentId || currentCourse.id,
             },
           },
-          { token }
+          { token },
         );
         targetModule = modRes.data;
       }
@@ -643,7 +749,7 @@ export function AdminProvider({ children }) {
             quiz: quizId,
           },
         },
-        { token }
+        { token },
       );
 
       setNewQuestion({
@@ -658,7 +764,7 @@ export function AdminProvider({ children }) {
 
       const updatedQuizRes = await api.get(
         `/quizzes/${quizId}?populate=questions`,
-        { token }
+        { token },
       );
       if (updatedQuizRes?.data) {
         setQuizForQuestions(updatedQuizRes.data);
@@ -679,7 +785,7 @@ export function AdminProvider({ children }) {
       await api.delete(`/questions/${questionId}`, { token });
       const updatedQuizRes = await api.get(
         `/quizzes/${quizId}?populate=questions`,
-        { token }
+        { token },
       );
       if (updatedQuizRes?.data) {
         setQuizForQuestions(updatedQuizRes.data);
@@ -713,7 +819,7 @@ export function AdminProvider({ children }) {
     setBlogForm({
       title: blog.title || "",
       category: blog.category?.documentId || String(blog.category?.id) || "",
-      status: blog.publishedAt ? "published" : "draft",
+      status: blog.status || (blog.publishedAt ? "published" : "draft"),
       excerpt: blog.excerpt || "",
       content: blog.content || "",
       coverImageUrl: blog.coverImageUrl || "",
@@ -725,7 +831,6 @@ export function AdminProvider({ children }) {
     e.preventDefault();
     setActionLoading(true);
     try {
-      const isPublishing = blogForm.status === "published";
       const payload = {
         data: {
           title: blogForm.title,
@@ -733,7 +838,7 @@ export function AdminProvider({ children }) {
           excerpt: blogForm.excerpt,
           content: blogForm.content,
           coverImageUrl: blogForm.coverImageUrl,
-          publishedAt: isPublishing ? new Date().toISOString() : null,
+          status: blogForm.status,
           author: currentAdmin?.id,
         },
       };
@@ -762,10 +867,10 @@ export function AdminProvider({ children }) {
         `/blog-posts/${blogId}`,
         {
           data: {
-            publishedAt: isCurrentlyPublished ? null : new Date().toISOString(),
+            status: isCurrentlyPublished ? "draft" : "published",
           },
         },
-        { token }
+        { token },
       );
       await loadAdminData();
     } catch (err) {
@@ -895,7 +1000,9 @@ export function AdminProvider({ children }) {
         onConfirm={handleDeleteUser}
         title="Delete User Account"
         description="Are you sure you want to permanently delete this user account? All access and records will be removed."
-        itemName={userToDelete ? `${userToDelete.username} (${userToDelete.email})` : ""}
+        itemName={
+          userToDelete ? `${userToDelete.username} (${userToDelete.email})` : ""
+        }
         isLoading={actionLoading}
       />
 

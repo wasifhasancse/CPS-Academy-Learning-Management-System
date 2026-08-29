@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { TableSkeleton } from "@/components/ui/Skeleton";
 
 export default function AdminUsersPage() {
   const {
     users,
     filteredUsers,
+    isLoading,
     userSearch,
     setUserSearch,
     userRoleFilter,
@@ -57,7 +59,9 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Users Table */}
-      {filteredUsers.length === 0 ? (
+      {isLoading ? (
+        <TableSkeleton rows={6} columns={5} />
+      ) : filteredUsers.length === 0 ? (
         <EmptyState
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
