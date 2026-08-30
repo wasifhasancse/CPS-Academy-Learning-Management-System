@@ -205,3 +205,11 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 ### 24. Date Object to ISO String Conversion & Type Safety in Strapi Controllers
 - **Issue**: Attempting to type-cast a JavaScript `Date` object directly with `/** @type {string | undefined} */ (new Date() || undefined)` triggers TypeScript error `Conversion of type 'Date' to type 'string' may be a mistake because neither type sufficiently overlaps with the other` and sends a `Date` object instead of an ISO string to Strapi attributes.
 - **Prevention Rule**: Always format JavaScript dates as ISO strings using `new Date().toISOString()` (or `new Date(dateValue).toISOString()`) before passing them to Strapi document creation or update payloads.
+
+### 25. Dashboard Data Fetching & Skeleton Loader Guarding
+- **Issue**: Checking empty list conditions (e.g. `filteredStudents.length === 0 ? <EmptyState> : <Table>`) without checking `isLoading` causes dashboard views on initial load or reload to flash empty state messages before data fetching completes.
+- **Prevention Rule**: Always destructure and check `isLoading` from role contexts (`useAdmin`, `useManager`, `useInstructor`, `useStudent`), and render `<TableSkeleton rows={...} columns={...} />` or appropriate skeleton loaders while `isLoading` is true before checking empty list conditions.
+
+### 26. Dashboard Polling & Automatic Refresh Prevention
+- **Issue**: Setting background `setInterval` timers (e.g. `setInterval(loadData, 20000)`) inside dashboard context providers (`AdminContext`, `ManagerContext`, `InstructorContext`, `StudentContext`) causes entire dashboard views to repeatedly reload, flicker, and re-fetch data every few seconds while users are interacting with the page.
+- **Prevention Rule**: Never set unrequested background interval pollers in role context providers. Fetch data strictly on component mount or manual user actions/reloads.

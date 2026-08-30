@@ -116,9 +116,6 @@ export function StudentProvider({ children }) {
 
   useEffect(() => {
     loadStudentData();
-    // Poll periodically so this student's own progress bar stays fresh after actions elsewhere (e.g. quiz grading).
-    const intervalId = setInterval(loadStudentData, 20000);
-    return () => clearInterval(intervalId);
   }, [loadStudentData]);
 
   // Derived Enrolled Courses — trusts the backend-persisted progressPercentage

@@ -209,9 +209,6 @@ export function AdminProvider({ children }) {
 
   useEffect(() => {
     loadAdminData();
-    // Poll periodically so student progress updates reflect here automatically.
-    const intervalId = setInterval(loadAdminData, 20000);
-    return () => clearInterval(intervalId);
   }, [loadAdminData]);
 
   // Derived Metrics & Filters

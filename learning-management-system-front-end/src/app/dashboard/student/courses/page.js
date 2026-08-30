@@ -16,7 +16,7 @@ export default function StudentCoursesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-foreground">Enrolled Courses ({enrolledCourses.length})</h2>
+          <h2 className="text-base font-bold text-foreground">Enrolled Courses {isLoading ? "" : `(${enrolledCourses.length})`}</h2>
           <p className="text-xs text-muted">Courses you are currently learning on CPS Academy</p>
         </div>
         <Link href="/dashboard/student/catalog">

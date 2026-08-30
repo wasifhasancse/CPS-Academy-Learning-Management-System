@@ -173,9 +173,6 @@ export function InstructorProvider({ children }) {
 
   useEffect(() => {
     loadInstructorData();
-    // Poll periodically so student progress updates reflect here automatically.
-    const intervalId = setInterval(loadInstructorData, 20000);
-    return () => clearInterval(intervalId);
   }, [loadInstructorData]);
 
   // Derived Metrics

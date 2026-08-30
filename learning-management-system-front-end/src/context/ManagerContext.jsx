@@ -183,9 +183,6 @@ export function ManagerProvider({ children }) {
 
   useEffect(() => {
     loadManagerData();
-    // Poll periodically so student progress updates reflect here automatically.
-    const intervalId = setInterval(loadManagerData, 20000);
-    return () => clearInterval(intervalId);
   }, [loadManagerData]);
 
   // Derived Metrics & Filters

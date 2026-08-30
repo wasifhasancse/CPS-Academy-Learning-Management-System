@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { TableSkeleton } from "@/components/ui/Skeleton";
 import {
   Table,
   TableBody,
@@ -18,7 +19,7 @@ import { useState } from "react";
 import { HiOutlineEye, HiOutlineXMark } from "react-icons/hi2";
 
 export default function StudentQuizzesPage() {
-  const { quizAttempts } = useStudent();
+  const { quizAttempts, isLoading } = useStudent();
   const [selectedAttempt, setSelectedAttempt] = useState(null);
 
   return (
@@ -26,7 +27,7 @@ export default function StudentQuizzesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-foreground">
-            Quiz Evaluations ({quizAttempts.length})
+            Quiz Evaluations {isLoading ? "" : `(${quizAttempts.length})`}
           </h2>
           <p className="text-xs text-muted">
             Your verified assessment attempts, scorecards, and stored answers
@@ -34,7 +35,9 @@ export default function StudentQuizzesPage() {
         </div>
       </div>
 
-      {quizAttempts.length === 0 ? (
+      {isLoading ? (
+        <TableSkeleton rows={4} columns={7} />
+      ) : quizAttempts.length === 0 ? (
         <EmptyState
           icon={
             <svg

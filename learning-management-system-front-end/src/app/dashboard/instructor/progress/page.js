@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton, TableSkeleton } from "@/components/ui/Skeleton";
 
 export default function InstructorProgressPage() {
   const {
@@ -16,6 +17,7 @@ export default function InstructorProgressPage() {
     setProgressCourseFilter,
     searchStudent,
     setSearchStudent,
+    isLoading,
   } = useInstructor();
 
   return (
@@ -44,12 +46,18 @@ export default function InstructorProgressPage() {
         </div>
 
         <div className="text-xs text-muted font-semibold">
-          Tracking {filteredStudents.length} enrolled students
+          {isLoading ? (
+            <Skeleton className="w-36 h-4 rounded inline-block" />
+          ) : (
+            `Tracking ${filteredStudents.length} enrolled students`
+          )}
         </div>
       </div>
 
       {/* Progress Table */}
-      {filteredStudents.length === 0 ? (
+      {isLoading ? (
+        <TableSkeleton rows={5} columns={5} />
+      ) : filteredStudents.length === 0 ? (
         <EmptyState
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
