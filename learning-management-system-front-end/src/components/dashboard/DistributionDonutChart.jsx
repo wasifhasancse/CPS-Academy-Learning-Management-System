@@ -3,14 +3,14 @@
 import React from "react";
 
 const SEGMENT_COLORS = [
-  "#285A48",
-  "#408A71",
-  "#B0E4CC",
-  "#3B82F6",
-  "#F59E0B",
-  "#8B5CF6",
-  "#EC4899",
-  "#EF4444",
+  "#4A628A",
+  "#7AB2D3",
+  "#5A88A8",
+  "#3A5272",
+  "#B9E5E8",
+  "#88C2C9",
+  "#2E415E",
+  "#6299B8",
 ];
 
 export function DistributionDonutChart({
@@ -18,18 +18,25 @@ export function DistributionDonutChart({
   subtitle = "",
   items = [],
   categories = [],
+  groupBy = "category",
+  className = "",
 }) {
-  // Build distribution from real items grouped by category
-  const categoryMap = {};
+  // Build distribution from real items grouped by category or course title
+  const distributionMap = {};
   items.forEach((item) => {
-    const catName = item.category?.name || "Uncategorized";
-    if (!categoryMap[catName]) {
-      categoryMap[catName] = 0;
+    let groupKey = "Uncategorized";
+    if (groupBy === "course") {
+      groupKey = item.course?.title || item.title || "Course Track";
+    } else {
+      groupKey = item.category?.name || item.name || "Uncategorized";
     }
-    categoryMap[catName] += 1;
+    if (!distributionMap[groupKey]) {
+      distributionMap[groupKey] = 0;
+    }
+    distributionMap[groupKey] += 1;
   });
 
-  const segments = Object.entries(categoryMap).map(([label, value], idx) => ({
+  const segments = Object.entries(distributionMap).map(([label, value], idx) => ({
     label,
     value,
     color: SEGMENT_COLORS[idx % SEGMENT_COLORS.length],
@@ -37,8 +44,8 @@ export function DistributionDonutChart({
 
   const totalValue = segments.reduce((acc, s) => acc + s.value, 0);
 
-  const size = 180;
-  const strokeWidth = 28;
+  const size = 170;
+  const strokeWidth = 24;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
 
@@ -59,30 +66,30 @@ export function DistributionDonutChart({
   const hasData = totalValue > 0;
 
   return (
-    <div className="p-5 sm:p-6 rounded-2xl bg-card dark:bg-[#0D1C19] border border-border flex flex-col justify-between">
+    <div className={`p-5 sm:p-6 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-xs ${className}`}>
       {/* Header */}
-      <div className="mb-4">
-        <h3 className="text-base font-extrabold text-foreground dark:text-white tracking-tight">
+      <div className="mb-3">
+        <h3 className="text-base font-extrabold text-foreground tracking-tight">
           {title}
         </h3>
         {subtitle && <p className="text-xs text-muted mt-0.5">{subtitle}</p>}
       </div>
 
       {!hasData ? (
-        <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="w-12 h-12 rounded-xl bg-surface dark:bg-[#122421] border border-border flex items-center justify-center text-muted mb-3">
+        <div className="flex flex-col items-center justify-center py-10 text-center my-auto">
+          <div className="w-12 h-12 rounded-xl bg-surface border border-border flex items-center justify-center text-muted mb-3">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
             </svg>
           </div>
-          <p className="text-xs font-bold text-foreground dark:text-white">No distribution data</p>
-          <p className="text-[11px] text-muted mt-1">Categories will appear as items are added</p>
+          <p className="text-xs font-bold text-foreground">No distribution data</p>
+          <p className="text-[11px] text-muted mt-1">Categories and records will appear as content is added</p>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-6 my-auto">
+        <div className="flex flex-col items-center gap-4 my-auto">
           {/* SVG Donut Ring */}
-          <div className="relative flex items-center justify-center">
+          <div className="relative flex items-center justify-center py-1">
             <svg
               width={size}
               height={size}
@@ -119,26 +126,31 @@ export function DistributionDonutChart({
 
             {/* Center Info */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-xl font-black text-foreground dark:text-white leading-none">
+              <span className="text-2xl font-black text-foreground leading-none">
                 {totalValue}
               </span>
-              <span className="text-[10px] uppercase font-bold text-muted mt-0.5">Total</span>
+              <span className="text-[10px] uppercase font-bold text-muted mt-1">Total</span>
             </div>
           </div>
 
-          {/* Legend */}
-          <div className="w-full space-y-2 pt-2 border-t border-border">
+          {/* Vertical scroll list - Exactly 5 items visible at a time */}
+          <div className="w-full space-y-1.5 pt-3 border-t border-border max-h-[148px] overflow-y-auto scrollbar-thin pr-1">
             {computed.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
+              <div
+                key={idx}
+                className="flex items-center justify-between text-xs py-1 px-1.5 rounded-lg hover:bg-surface transition-colors"
+              >
+                <div className="flex items-center gap-2 max-w-[70%]">
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="text-muted font-medium truncate">{item.label}</span>
+                  <span className="text-muted font-medium truncate" title={item.label}>
+                    {item.label}
+                  </span>
                 </div>
-                <span className="font-bold text-foreground dark:text-white font-mono">
-                  {item.value} ({item.percent}%)
+                <span className="font-bold text-foreground font-mono shrink-0">
+                  {item.value} <span className="text-[10px] text-muted font-normal">({item.percent}%)</span>
                 </span>
               </div>
             ))}

@@ -16,6 +16,12 @@ import {
     useEffect,
     useState,
 } from "react";
+import {
+    HiOutlineAcademicCap,
+    HiOutlineBookOpen,
+    HiOutlineDocumentText,
+    HiOutlineUsers,
+} from "react-icons/hi2";
 
 const AdminContext = createContext(null);
 
@@ -214,16 +220,24 @@ export function AdminProvider({ children }) {
   // Derived Metrics & Filters
   const totalUsers = users.length;
   const adminsCount = users.filter(
-    (u) => u.role?.name?.toLowerCase() === "admin",
+    (u) => u.role?.name?.toLowerCase() === "admin" || u.role?.type === "admin",
   ).length;
   const managersCount = users.filter(
-    (u) => u.role?.name?.toLowerCase() === "content manager",
+    (u) =>
+      u.role?.name?.toLowerCase() === "content manager" ||
+      u.role?.type === "content_manager",
   ).length;
   const instructorsCount = users.filter(
-    (u) => u.role?.name?.toLowerCase() === "instructor",
+    (u) =>
+      u.role?.name?.toLowerCase() === "instructor" ||
+      u.role?.type === "instructor",
   ).length;
   const studentsCount = users.filter(
-    (u) => !u.role || u.role?.name?.toLowerCase() === "student",
+    (u) =>
+      !u.role ||
+      u.role?.name?.toLowerCase() === "student" ||
+      u.role?.type === "student" ||
+      u.role?.type === "authenticated",
   ).length;
 
   const totalCourses = courses.length;
@@ -238,40 +252,49 @@ export function AdminProvider({ children }) {
     0,
   );
   const totalEnrollments = studentsProgress.length;
+  const completedEnrollments = studentsProgress.filter(
+    (e) => Number(e.progressPercentage) === 100,
+  ).length;
+  const inProgressEnrollments = totalEnrollments - completedEnrollments;
+
   const totalBlogs = blogs.length;
   const publishedBlogsCount = blogs.filter(
-    (b) => b.status === "published",
+    (b) => b.status === "published" || b.publishedAt,
   ).length;
   const draftBlogsCount = totalBlogs - publishedBlogsCount;
 
   const stats = [
     {
-      title: "Total Users",
+      title: "Total Accounts",
       value: totalUsers,
       subtitle: `${studentsCount} Students • ${instructorsCount} Instructors • ${adminsCount} Admins`,
+      icon: <HiOutlineUsers className="w-4 h-4" />,
     },
     {
-      title: "Courses & Curricula",
+      title: "Course Tracks",
       value: totalCourses,
       subtitle: `${totalLessons} Lessons • ${totalQuizzes} Quizzes Published`,
+      icon: <HiOutlineBookOpen className="w-4 h-4" />,
     },
     {
       title: "Student Enrollments",
       value: totalEnrollments,
-      subtitle: "Active Learners Enrolled Platform-Wide",
+      subtitle: `${completedEnrollments} Completed • ${inProgressEnrollments} Active Learners`,
+      icon: <HiOutlineAcademicCap className="w-4 h-4" />,
     },
     {
-      title: "Articles & Knowledge",
+      title: "Knowledge Library",
       value: totalBlogs,
-      subtitle: `${publishedBlogsCount} Published • ${draftBlogsCount} Drafts`,
+      subtitle: `${publishedBlogsCount} Published • ${draftBlogsCount} Draft Articles`,
+      icon: <HiOutlineDocumentText className="w-4 h-4" />,
     },
   ];
 
   const adminActivities = [
     ...users.map((u) => ({
-      id: `u-${u.id}`,
+      id: `u-${u.id || u.documentId}`,
       action: "USER_REGISTRATION",
-      title: `${u.username} joined as ${u.role?.name || "Student"}`,
+      title: `${u.username || "User"} joined as ${u.role?.name || "Student"}`,
       timestamp: u.createdAt
         ? new Date(u.createdAt).toLocaleDateString()
         : "Recent",
@@ -281,19 +304,66 @@ export function AdminProvider({ children }) {
         u.role?.name?.toLowerCase() === "admin" ? "primary" : "secondary",
     })),
     ...courses.map((c) => ({
-      id: `c-${c.id}`,
+      id: `c-${c.id || c.documentId}`,
       action: "COURSE_PUBLISHED",
-      title: `Course track "${c.title}" updated`,
-      timestamp: c.updatedAt
-        ? new Date(c.updatedAt).toLocaleDateString()
+      title: `Course track "${c.title}" published`,
+      timestamp: c.createdAt || c.updatedAt
+        ? new Date(c.createdAt || c.updatedAt).toLocaleDateString()
         : "Recent",
-      dateObj: c.updatedAt ? new Date(c.updatedAt) : new Date(0),
-      badgeText: "ACTIVE",
+      dateObj: c.createdAt || c.updatedAt
+        ? new Date(c.createdAt || c.updatedAt)
+        : new Date(0),
+      badgeText: "COURSE",
       badgeVariant: "highlight",
     })),
-  ]
-    .sort((a, b) => b.dateObj - a.dateObj)
-    .slice(0, 10);
+    ...blogs.map((b) => ({
+      id: `b-${b.id || b.documentId}`,
+      action: "BLOG_SAVED",
+      title: `Article "${b.title}" (${b.status === "published" || b.publishedAt ? "Published" : "Draft"})`,
+      timestamp: b.createdAt || b.updatedAt
+        ? new Date(b.createdAt || b.updatedAt).toLocaleDateString()
+        : "Recent",
+      dateObj: b.createdAt || b.updatedAt
+        ? new Date(b.createdAt || b.updatedAt)
+        : new Date(0),
+      badgeText: b.status === "published" || b.publishedAt ? "PUBLISHED" : "DRAFT",
+      badgeVariant: b.status === "published" || b.publishedAt ? "highlight" : "secondary",
+    })),
+    ...studentsProgress.map((e) => ({
+      id: `e-${e.id || e.documentId}`,
+      action: "STUDENT_ENROLLED",
+      title: `${e.student?.username || "Student"} enrolled in "${e.course?.title || "Course Track"}"`,
+      timestamp: e.createdAt
+        ? new Date(e.createdAt).toLocaleDateString()
+        : "Recent",
+      dateObj: e.createdAt ? new Date(e.createdAt) : new Date(0),
+      badgeText: "ENROLLMENT",
+      badgeVariant: "primary",
+    })),
+  ].sort((a, b) => b.dateObj - a.dateObj);
+
+  const adminSeries = [
+    {
+      name: "Accounts",
+      color: "#7AB2D3",
+      dataPoints: users,
+    },
+    {
+      name: "Courses",
+      color: "#4A628A",
+      dataPoints: courses,
+    },
+    {
+      name: "Enrollments",
+      color: "#5B93B5",
+      dataPoints: studentsProgress,
+    },
+    {
+      name: "Articles",
+      color: "#94C8CD",
+      dataPoints: blogs,
+    },
+  ];
 
   const filteredUsers = users.filter((u) => {
     const query = userSearch.toLowerCase();
@@ -848,6 +918,7 @@ export function AdminProvider({ children }) {
     actionLoading,
     stats,
     adminActivities,
+    adminSeries,
     totalUsers,
     adminsCount,
     managersCount,

@@ -16,6 +16,7 @@ export default function StudentOverviewPage() {
   const {
     stats,
     studentActivities,
+    studentSeries,
     enrolledCourses,
     catalogCourses,
     categories,
@@ -154,22 +155,23 @@ export default function StudentOverviewPage() {
         </Card>
       )}
 
-      {/* Analytics Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      {/* Analytics Charts Row with Equalized Height */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
           <GrowthLineChart
-            title="Study Milestones"
-            subtitle="Your course enrollments and quiz completions"
-            dataPoints={studentActivities}
-            metricLabel="Milestones"
+            title="Study Milestones Trend"
+            subtitle="Your course enrollments and quiz checkpoint completions"
+            series={studentSeries}
+            className="h-full"
           />
         </div>
-        <div>
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col">
           <DistributionDonutChart
-            title="Course Distribution"
-            subtitle="Categories of your enrolled courses"
+            title="Course Tracks by Category"
+            subtitle="Categories of your active courses"
             items={enrolledCourses.length > 0 ? enrolledCourses : catalogCourses}
             categories={categories}
+            className="h-full"
           />
         </div>
       </div>

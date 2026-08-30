@@ -13,8 +13,10 @@ export default function InstructorOverviewPage() {
   const {
     stats,
     instructorActivities,
+    instructorSeries,
     courses,
     categories,
+    studentsProgress,
     isLoading,
     handleOpenAddCourse,
   } = useInstructor();
@@ -104,22 +106,24 @@ export default function InstructorOverviewPage() {
         </div>
       </Card>
 
-      {/* Analytics Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      {/* Analytics Charts Row with Equalized Height */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
           <GrowthLineChart
-            title="Student Enrollment Trend"
-            subtitle="Cumulative learner registrations across your courses"
-            dataPoints={instructorActivities}
-            metricLabel="Enrollments"
+            title="Student Enrollment & Content Trend"
+            subtitle="Learner registrations and curriculum additions over time"
+            series={instructorSeries}
+            className="h-full"
           />
         </div>
-        <div>
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col">
           <DistributionDonutChart
-            title="Your Authored Tracks"
-            subtitle="Category breakdown of your courses"
-            items={courses}
+            title="Students by Course"
+            subtitle="Enrollment distribution across your tracks"
+            items={studentsProgress.length > 0 ? studentsProgress : courses}
             categories={categories}
+            groupBy={studentsProgress.length > 0 ? "course" : "category"}
+            className="h-full"
           />
         </div>
       </div>

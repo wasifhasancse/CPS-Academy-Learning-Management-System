@@ -15,6 +15,12 @@ import {
     useEffect,
     useState,
 } from "react";
+import {
+    HiOutlineBookOpen,
+    HiOutlineChartBar,
+    HiOutlineClipboardDocumentCheck,
+    HiOutlinePencilSquare,
+} from "react-icons/hi2";
 
 const ManagerContext = createContext(null);
 
@@ -198,61 +204,101 @@ export function ManagerProvider({ children }) {
     0,
   );
   const totalEnrollments = studentsProgress.length;
+  const completedEnrollments = studentsProgress.filter(
+    (e) => Number(e.progressPercentage) === 100,
+  ).length;
+  const inProgressEnrollments = totalEnrollments - completedEnrollments;
+
   const totalBlogs = blogs.length;
   const publishedBlogsCount = blogs.filter(
-    (b) => b.status === "published",
+    (b) => b.status === "published" || b.publishedAt,
   ).length;
   const draftBlogsCount = totalBlogs - publishedBlogsCount;
 
   const stats = [
     {
-      title: "Course Tracks",
+      title: "Published Tracks",
       value: totalCourses,
-      subtitle: `Organized into ${categories.length} Technical Categories`,
+      subtitle: `${totalLessons} Lessons across ${categories.length} Categories`,
+      icon: <HiOutlineBookOpen className="w-4 h-4" />,
     },
     {
       title: "Curriculum Units",
       value: `${totalLessons} / ${totalQuizzes}`,
-      subtitle: "Active Lessons & Checkpoint Quizzes",
+      subtitle: "Video Lectures & Checkpoint Quizzes",
+      icon: <HiOutlineClipboardDocumentCheck className="w-4 h-4" />,
     },
     {
-      title: "Articles & Knowledge",
+      title: "Knowledge Hub",
       value: totalBlogs,
       subtitle: `${publishedBlogsCount} Published • ${draftBlogsCount} In Draft`,
+      icon: <HiOutlinePencilSquare className="w-4 h-4" />,
     },
     {
       title: "Learners Monitored",
       value: totalEnrollments,
-      subtitle: "Students Enrolled Across All Tracks",
+      subtitle: `${completedEnrollments} Completed • ${inProgressEnrollments} Active`,
+      icon: <HiOutlineChartBar className="w-4 h-4" />,
     },
   ];
 
   const managerActivities = [
     ...courses.map((c) => ({
-      id: `c-${c.id}`,
+      id: `c-${c.id || c.documentId}`,
       action: "COURSE_UPDATED",
       title: `Course track "${c.title}" updated`,
-      timestamp: c.updatedAt
-        ? new Date(c.updatedAt).toLocaleDateString()
+      timestamp: c.updatedAt || c.createdAt
+        ? new Date(c.updatedAt || c.createdAt).toLocaleDateString()
         : "Recent",
-      dateObj: c.updatedAt ? new Date(c.updatedAt) : new Date(0),
+      dateObj: c.updatedAt || c.createdAt
+        ? new Date(c.updatedAt || c.createdAt)
+        : new Date(0),
       badgeText: "COURSE",
       badgeVariant: "primary",
     })),
     ...blogs.map((b) => ({
-      id: `b-${b.id}`,
+      id: `b-${b.id || b.documentId}`,
       action: "BLOG_SAVED",
-      title: `Article "${b.title}" ${b.status === "published" ? "published" : "drafted"}`,
-      timestamp: b.updatedAt
-        ? new Date(b.updatedAt).toLocaleDateString()
+      title: `Article "${b.title}" (${b.status === "published" || b.publishedAt ? "Published" : "Draft"})`,
+      timestamp: b.updatedAt || b.createdAt
+        ? new Date(b.updatedAt || b.createdAt).toLocaleDateString()
         : "Recent",
-      dateObj: b.updatedAt ? new Date(b.updatedAt) : new Date(0),
-      badgeText: b.status === "published" ? "PUBLISHED" : "DRAFT",
-      badgeVariant: b.status === "published" ? "highlight" : "secondary",
+      dateObj: b.updatedAt || b.createdAt
+        ? new Date(b.updatedAt || b.createdAt)
+        : new Date(0),
+      badgeText: b.status === "published" || b.publishedAt ? "PUBLISHED" : "DRAFT",
+      badgeVariant: b.status === "published" || b.publishedAt ? "highlight" : "secondary",
     })),
-  ]
-    .sort((a, b) => b.dateObj - a.dateObj)
-    .slice(0, 10);
+    ...studentsProgress.map((e) => ({
+      id: `e-${e.id || e.documentId}`,
+      action: "STUDENT_ENROLLED",
+      title: `${e.student?.username || "Student"} enrolled in "${e.course?.title || "Course Track"}"`,
+      timestamp: e.createdAt
+        ? new Date(e.createdAt).toLocaleDateString()
+        : "Recent",
+      dateObj: e.createdAt ? new Date(e.createdAt) : new Date(0),
+      badgeText: "ENROLLMENT",
+      badgeVariant: "primary",
+    })),
+  ].sort((a, b) => b.dateObj - a.dateObj);
+
+  const managerSeries = [
+    {
+      name: "Courses",
+      color: "#7AB2D3",
+      dataPoints: courses,
+    },
+    {
+      name: "Articles",
+      color: "#4A628A",
+      dataPoints: blogs,
+    },
+    {
+      name: "Enrollments",
+      color: "#5B93B5",
+      dataPoints: studentsProgress,
+    },
+  ];
 
   const filteredCourses = courses.filter((c) => {
     const query = courseSearch.toLowerCase();
@@ -739,6 +785,7 @@ export function ManagerProvider({ children }) {
     actionLoading,
     stats,
     managerActivities,
+    managerSeries,
     totalCourses,
     totalBlogs,
     publishedBlogsCount,

@@ -14,6 +14,7 @@ export default function AdminOverviewPage() {
   const {
     stats,
     adminActivities,
+    adminSeries,
     courses,
     categories,
     isLoading,
@@ -79,13 +80,22 @@ export default function AdminOverviewPage() {
       href = "/dashboard/admin/users";
     } else if (a.action === "COURSE_PUBLISHED") {
       href = "/dashboard/admin/curriculum";
+    } else if (a.action === "BLOG_SAVED") {
+      href = "/dashboard/admin/blogs";
+    } else if (a.action === "STUDENT_ENROLLED") {
+      href = "/dashboard/admin/progress";
     }
     return {
       id: a.id,
       item: a.title,
       user: a.timestamp,
       category: a.badgeText,
-      status: a.action === "USER_REGISTRATION" ? "Active" : "Published",
+      status:
+        a.action === "USER_REGISTRATION"
+          ? "Active"
+          : a.action === "STUDENT_ENROLLED"
+          ? "Enrolled"
+          : "Published",
       actionLabel: "View",
       href,
     };
@@ -121,22 +131,23 @@ export default function AdminOverviewPage() {
         </div>
       </Card>
 
-      {/* Analytics Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      {/* Analytics Charts Row with Equalized Height */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
           <GrowthLineChart
             title="Platform Activity Trend"
-            subtitle="Cumulative user registrations and course publications"
-            dataPoints={adminActivities}
-            metricLabel="Events"
+            subtitle="Cumulative registrations, course tracks, enrollments, and articles"
+            series={adminSeries}
+            className="h-full"
           />
         </div>
-        <div>
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col">
           <DistributionDonutChart
             title="Courses by Category"
             subtitle="Platform course track distribution"
             items={courses}
             categories={categories}
+            className="h-full"
           />
         </div>
       </div>

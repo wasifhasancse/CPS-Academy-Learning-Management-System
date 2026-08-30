@@ -14,6 +14,12 @@ import {
     useEffect,
     useState,
 } from "react";
+import {
+    HiOutlineBookOpen,
+    HiOutlineChartBar,
+    HiOutlineClipboardDocumentCheck,
+    HiOutlineUsers,
+} from "react-icons/hi2";
 
 const InstructorContext = createContext(null);
 
@@ -188,35 +194,53 @@ export function InstructorProvider({ children }) {
     0,
   );
   const totalStudents = studentsProgress.length;
+  const completedStudents = studentsProgress.filter(
+    (e) => Number(e.progressPercentage) === 100,
+  ).length;
+  const inProgressStudents = totalStudents - completedStudents;
+
+  const avgCompletion =
+    studentsProgress.length > 0
+      ? Math.round(
+          studentsProgress.reduce(
+            (acc, e) => acc + Number(e.progressPercentage || 0),
+            0,
+          ) / studentsProgress.length,
+        )
+      : 0;
 
   const stats = [
     {
       title: "Authored Tracks",
       value: totalCourses,
-      subtitle: "Active Curriculum Tracks",
-    },
-    {
-      title: "Video Lessons",
-      value: totalLessons,
-      subtitle: "Published Syllabus Units",
+      subtitle: `${totalLessons} Lessons in Your Catalog`,
+      icon: <HiOutlineBookOpen className="w-4 h-4" />,
     },
     {
       title: "MCQ Assessments",
       value: totalQuizzes,
-      subtitle: "Checkpoint Evaluations",
+      subtitle: "Active Checkpoint Quizzes",
+      icon: <HiOutlineClipboardDocumentCheck className="w-4 h-4" />,
     },
     {
       title: "Students Enrolled",
       value: totalStudents,
-      subtitle: "Learners in Your Tracks",
+      subtitle: `${completedStudents} Completed • ${inProgressStudents} Active`,
+      icon: <HiOutlineUsers className="w-4 h-4" />,
+    },
+    {
+      title: "Avg Progress Rate",
+      value: `${avgCompletion}%`,
+      subtitle: "Overall Student Syllabus Progress",
+      icon: <HiOutlineChartBar className="w-4 h-4" />,
     },
   ];
 
   const instructorActivities = [
     ...studentsProgress.map((e) => ({
-      id: `en-${e.id}`,
+      id: `en-${e.id || e.documentId}`,
       action: "STUDENT_ENROLLED",
-      title: `${e.student?.username || "Student"} enrolled in ${e.course?.title || "Course"}`,
+      title: `${e.student?.username || "Student"} enrolled in "${e.course?.title || "Course Track"}"`,
       timestamp: e.createdAt
         ? new Date(e.createdAt).toLocaleDateString()
         : "Recent",
@@ -225,19 +249,32 @@ export function InstructorProvider({ children }) {
       badgeVariant: "primary",
     })),
     ...courses.map((c) => ({
-      id: `c-${c.id}`,
+      id: `c-${c.id || c.documentId}`,
       action: "COURSE_UPDATED",
       title: `Curriculum updated for "${c.title}"`,
-      timestamp: c.updatedAt
-        ? new Date(c.updatedAt).toLocaleDateString()
+      timestamp: c.updatedAt || c.createdAt
+        ? new Date(c.updatedAt || c.createdAt).toLocaleDateString()
         : "Recent",
-      dateObj: c.updatedAt ? new Date(c.updatedAt) : new Date(0),
+      dateObj: c.updatedAt || c.createdAt
+        ? new Date(c.updatedAt || c.createdAt)
+        : new Date(0),
       badgeText: "CURRICULUM",
       badgeVariant: "highlight",
     })),
-  ]
-    .sort((a, b) => b.dateObj - a.dateObj)
-    .slice(0, 10);
+  ].sort((a, b) => b.dateObj - a.dateObj);
+
+  const instructorSeries = [
+    {
+      name: "Enrollments",
+      color: "#7AB2D3",
+      dataPoints: studentsProgress,
+    },
+    {
+      name: "Curricula",
+      color: "#4A628A",
+      dataPoints: courses,
+    },
+  ];
 
   const currentCourse =
     courses.find((c) => (c.documentId || String(c.id)) === selectedCourseId) ||
@@ -598,6 +635,7 @@ export function InstructorProvider({ children }) {
     actionLoading,
     stats,
     instructorActivities,
+    instructorSeries,
     totalCourses,
     totalStudents,
     currentCourse,

@@ -13,6 +13,7 @@ export default function ManagerOverviewPage() {
   const {
     stats,
     managerActivities,
+    managerSeries,
     courses,
     categories,
     isLoading,
@@ -76,13 +77,20 @@ export default function ManagerOverviewPage() {
     let href = "/dashboard/manager/curriculum";
     if (a.action === "BLOG_SAVED") {
       href = "/dashboard/manager/blogs";
+    } else if (a.action === "STUDENT_ENROLLED") {
+      href = "/dashboard/manager/progress";
     }
     return {
       id: a.id,
       item: a.title,
       user: a.timestamp,
       category: a.badgeText,
-      status: a.action === "COURSE_PUBLISHED" ? "Published" : "Updated",
+      status:
+        a.action === "STUDENT_ENROLLED"
+          ? "Enrolled"
+          : a.action === "COURSE_PUBLISHED"
+          ? "Published"
+          : "Active",
       actionLabel: "View",
       href,
     };
@@ -113,22 +121,23 @@ export default function ManagerOverviewPage() {
         </div>
       </Card>
 
-      {/* Analytics Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      {/* Analytics Charts Row with Equalized Height */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
           <GrowthLineChart
-            title="Content Publishing Trend"
-            subtitle="Recent course and article publication activity"
-            dataPoints={managerActivities}
-            metricLabel="Publications"
+            title="Content Activity Trend"
+            subtitle="Curriculum updates, article publishing, and student enrollments"
+            series={managerSeries}
+            className="h-full"
           />
         </div>
-        <div>
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col">
           <DistributionDonutChart
             title="Courses by Category"
             subtitle="Platform course track distribution"
             items={courses}
             categories={categories}
+            className="h-full"
           />
         </div>
       </div>
