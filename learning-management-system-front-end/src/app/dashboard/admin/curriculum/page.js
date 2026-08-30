@@ -12,6 +12,41 @@ import {
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useAdmin } from "@/context/AdminContext";
 
+function CurriculumSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
+      {[0, 1].map((col) => (
+        <div key={col} className="rounded-2xl border border-border bg-card p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="h-4 w-40 rounded bg-surface" />
+              <div className="h-3 w-56 rounded bg-surface" />
+            </div>
+            <div className="h-8 w-24 rounded-lg bg-surface" />
+          </div>
+          <div className="space-y-3 pt-2">
+            {[0, 1, 2].map((row) => (
+              <div key={row} className="flex items-center justify-between p-3 rounded-lg border border-border bg-surface">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full bg-card" />
+                  <div className="space-y-1.5">
+                    <div className="h-3 w-36 rounded bg-card" />
+                    <div className="h-2.5 w-24 rounded bg-card" />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-7 w-14 rounded-lg bg-card" />
+                  <div className="h-7 w-14 rounded-lg bg-card" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AdminCurriculumPage() {
   const {
     courses,
@@ -28,6 +63,8 @@ export default function AdminCurriculumPage() {
     handleOpenEditQuiz,
     handleOpenDeleteQuizModal,
     handleOpenManageQuestions,
+    isLoading,
+    actionLoading,
   } = useAdmin();
 
   return (
@@ -83,7 +120,9 @@ export default function AdminCurriculumPage() {
         </div>
       </Card>
 
-      {courses.length === 0 ? (
+      {isLoading || actionLoading ? (
+        <CurriculumSkeleton />
+      ) : courses.length === 0 ? (
         <EmptyState
           icon={
             <svg
