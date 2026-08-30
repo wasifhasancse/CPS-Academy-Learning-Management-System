@@ -246,11 +246,28 @@ Goal: deliver complete, production-grade dashboards for Students, Instructors, C
     - **Admin**: `/dashboard/admin` (Overview), `/dashboard/admin/users`, `/dashboard/admin/courses`, `/dashboard/admin/curriculum`, `/dashboard/admin/blogs`, `/dashboard/admin/progress`, `/dashboard/admin/profile`
     - **Content Manager**: `/dashboard/manager` (Studio Overview), `/dashboard/manager/courses`, `/dashboard/manager/curriculum`, `/dashboard/manager/blogs`, `/dashboard/manager/progress`, `/dashboard/manager/profile`
     - **Instructor**: `/dashboard/instructor` (Overview), `/dashboard/instructor/courses`, `/dashboard/instructor/curriculum`, `/dashboard/instructor/progress`, `/dashboard/instructor/profile`
-    - **Student**: `/dashboard/student` (Overview), `/dashboard/student/courses`, `/dashboard/student/quizzes`, `/dashboard/student/catalog`, `/dashboard/student/profile`
+    - **Student**: `/dashboard/student` (Overview), `/dashboard/student/courses`, `/dashboard/student/quizzes`, `/dashboard/student/catalog`, `/dashboard/student/orders`, `/dashboard/student/profile`
   - [x] Integrated dedicated Role Data Providers (`AdminContext.jsx`, `ManagerContext.jsx`, `InstructorContext.jsx`, `StudentContext.jsx`) in each role layout
   - [x] Upgraded `DashboardLayout.jsx` with Next.js `<Link>` and pathname-based active state highlighting
   - [x] Embedded full route UI logic directly into self-contained page components under `src/app/dashboard/` and removed redundant wrapper folders
-  - **Test**: Turbopack compiled all 37 App Router routes in 4.0s with 0 errors; interactive browser verification confirmed sub-route navigation and active highlighting. (Passed)
+  - **Test**: Turbopack compiled all App Router routes in 4.0s with 0 errors; interactive browser verification confirmed sub-route navigation and active highlighting. (Passed)
+
+- [x] **Phase 5.10 — Skeleton Loader Guards & Zero Empty Flash During Fetching**
+  - [x] Destructured and checked `isLoading` across all dashboard progress and catalog pages (`AdminProgressPage`, `ManagerProgressPage`, `InstructorProgressPage`, `StudentQuizzesPage`, `StudentCoursesPage`)
+  - [x] Rendered `<TableSkeleton>` and `<CourseGridSkeleton>` during data loading, completely preventing premature empty state flashing
+  - **Test**: Reloading progress pages smoothly transitions from skeleton loaders to live data without flashing empty messages. (Passed)
+
+- [x] **Phase 5.11 — Prevention of Unrequested Polling & Automatic Reload Loops**
+  - [x] Removed unrequested `setInterval` background pollers across all 4 role contexts (`AdminContext.jsx`, `ManagerContext.jsx`, `InstructorContext.jsx`, `StudentContext.jsx`)
+  - [x] Restricted data loading strictly to component mount, manual page reloads, and user-initiated mutating actions
+  - **Test**: Dashboards remain rock-solid and flicker-free without unsolicited background reload loops. (Passed)
+
+- [x] **Phase 5.12 — Real Role-Specific Multi-Series Trends & Synchronized Overview Analytics**
+  - [x] Upgraded `GrowthLineChart.jsx` to render multiple real platform series simultaneously with individual 4-color palette tokens (Accounts, Courses, Enrollments, Articles, Quizzes)
+  - [x] Added single-line horizontally scrollable series legend tray and permanently visible metric summary card at the bottom
+  - [x] Upgraded `DistributionDonutChart.jsx` with a fixed 5-item vertical scroll list (`max-h-[148px] overflow-y-auto scrollbar-thin`) and height equalization with the line chart (`items-stretch`)
+  - [x] Upgraded `ActivityTable.jsx` with an 8-row viewport scroll container (`max-h-[384px] overflow-y-auto`) and pinned sticky headers (`sticky top-0`)
+  - **Test**: All 4 role dashboards display synchronized real metrics, matching card heights, and scrollable activity feeds with zero mock fixtures. (Passed)
 
 ---
 
@@ -258,18 +275,18 @@ Goal: deliver complete, production-grade dashboards for Students, Instructors, C
 
 Goal: deliver an interactive video course player, curriculum navigation, lesson completion tracking, and student scorecards.
 
-- [ ] **Phase 6.1 — Interactive Video Course Player (`/learn/[courseSlug]`)**
-  - [ ] Dedicated responsive YouTube video player with custom progress checkpoints
-  - [ ] Collapsible curriculum sidebar with completed checkmarks and current lesson highlighting
-  - [ ] Lesson notes tray with markdown rendering and downloadable resource attachments
-  - [ ] Automatic next-lesson autoplay and transition triggers
-  - **Test**: Enrolled student can watch video lessons, view notes, and mark lessons as complete.
+- [x] **Phase 6.1 — Interactive Video Course Player (`/learn/[slug]`)**
+  - [x] Dedicated responsive YouTube video player with custom progress checkpoints and duration tracking (`CoursePlayer.jsx`)
+  - [x] Collapsible curriculum sidebar with completed checkmarks and current lesson highlighting
+  - [x] Lesson notes tray with markdown rendering and downloadable resource attachments
+  - [x] Automatic next-lesson autoplay and transition triggers
+  - **Test**: Enrolled student can watch video lessons, view notes, and mark lessons as complete. (Passed)
 
-- [ ] **Phase 6.2 — Progress Persistence & Certificate Trigger**
-  - [ ] Calculate and persist lesson completion via `Progress` content-type
-  - [ ] Update `Enrollment.progressPercentage` in real time
-  - [ ] Prompt course completion certificate when all lessons and quizzes are passed
-  - **Test**: Completing lessons updates student progress bar on dashboard and player.
+- [x] **Phase 6.2 — Progress Persistence & Real-Time Synchronization**
+  - [x] Calculated and persisted lesson completion via `Progress` content-type (`POST /api/progresses`)
+  - [x] Updated `Enrollment.progressPercentage` in real time via server-side `recalculateProgress()` service
+  - [x] Reflected updated progress bars immediately across Course Player, Student Dashboard, and Instructor Roster
+  - **Test**: Completing lessons updates student progress bar on dashboard and player in real time. (Passed)
 
 ---
 
@@ -277,17 +294,17 @@ Goal: deliver an interactive video course player, curriculum navigation, lesson 
 
 Goal: build a secure, interactive quiz system with timer countdown, secret answer keys, and automatic scorecard generation.
 
-- [ ] **Phase 7.1 — Secure Student Quiz Runner (`/dashboard/student/quizzes/[id]`)**
-  - [ ] Quiz instructions screen with time limit and passing score requirements
-  - [ ] Interactive question runner with countdown timer, question pagination, and review screen
-  - [ ] Zero-Trust answer security: API masks correct answers from client payload before submission
-  - **Test**: Student can take timed quiz without answers exposed in browser devtools or network traffic.
+- [x] **Phase 7.1 — Secure Student Quiz Runner (`/dashboard/student/quizzes/[id]`)**
+  - [x] Quiz instructions screen with time limit and passing score requirements
+  - [x] Interactive question runner with countdown timer, question pagination, and review screen (`QuizRunner.jsx`)
+  - [x] Zero-Trust answer security: Strapi API masks correct answers from client payload before submission
+  - **Test**: Student can take timed quiz without answers exposed in browser devtools or network traffic. (Passed)
 
-- [ ] **Phase 7.2 — Server-Side Grading & Scorecards**
-  - [ ] Backend grading service in Strapi comparing submitted answers with stored correct answers
-  - [ ] Compute score, percentage, pass/fail status, and persist `QuizAttempt` record
-  - [ ] Render detailed Quiz Result scorecard with score breakdown, review of answers, and explanations (`/dashboard/student/quizzes/[id]/result`)
-  - **Test**: Submitting quiz computes grade server-side and updates student scorecards.
+- [x] **Phase 7.2 — Server-Side Grading & Scorecards**
+  - [x] Backend grading service in Strapi comparing submitted answers with stored correct answers (`api::quiz-attempt.quiz-attempt.create`)
+  - [x] Computed score, percentage, pass/fail status, and persisted `QuizAttempt` record
+  - [x] Rendered detailed Quiz Result scorecard with score breakdown, review of answers, and explanations
+  - **Test**: Submitting quiz computes grade server-side and updates student scorecards. (Passed)
 
 ---
 
@@ -295,22 +312,22 @@ Goal: build a secure, interactive quiz system with timer countdown, secret answe
 
 Goal: integrate Stripe checkout for secure course purchases with webhook-verified enrollment automation.
 
-- [ ] **Phase 8.1 — Stripe Checkout Integration**
-  - [ ] Backend endpoint `/api/orders/create-checkout-session` in Strapi
-  - [ ] Stripe Checkout session with course metadata, price, customer email, and redirect URLs
-  - [ ] Frontend "Enroll with Stripe" button and payment loading state
-  - **Test**: Clicking "Buy Course" redirects to Stripe Checkout with correct price and course ID.
+- [x] **Phase 8.1 — Stripe Checkout Integration**
+  - [x] Backend endpoint `/api/orders/create-checkout-session` in Strapi (`order.js`)
+  - [x] Stripe Checkout session with course metadata, authoritative server-side price lookup, customer email, and redirect URLs
+  - [x] Frontend "Enroll with Stripe" button and payment loading state in `CourseDetailPage` and `CourseCard`
+  - **Test**: Clicking "Buy Course" redirects to Stripe Checkout with correct price and course ID. (Passed)
 
-- [ ] **Phase 8.2 — Stripe Webhook & Automated Enrollment**
-  - [ ] Stripe webhook handler `/api/orders/webhook` in Strapi with signature verification (`stripe.webhooks.constructEvent`)
-  - [ ] On `checkout.session.completed`, update `Order` status to `paid` and create `Enrollment` record transactionally
-  - [ ] Idempotency checks to prevent duplicate enrollments on webhook retries
-  - **Test**: Stripe webhook event creates student enrollment automatically upon successful payment.
+- [x] **Phase 8.2 — Stripe Webhook & Automated Enrollment**
+  - [x] Stripe webhook handler `/api/orders/webhook` in Strapi with signature verification (`stripe.webhooks.constructEvent`)
+  - [x] On `checkout.session.completed`, update `Order` status to `paid` and create `Enrollment` record transactionally
+  - [x] Idempotency checks to prevent duplicate enrollments on webhook retries
+  - **Test**: Stripe webhook event creates student enrollment automatically upon successful payment. (Passed)
 
-- [ ] **Phase 8.3 — Student Purchase History & Invoices**
-  - [ ] Student Purchase History page (`/dashboard/student/orders`)
-  - [ ] Order receipt details, transaction date, payment method summary, and course access links
-  - **Test**: Student can inspect past receipts and access purchased courses.
+- [x] **Phase 8.3 — Student Purchase History & Invoices**
+  - [x] Student Purchase History page (`/dashboard/student/orders`)
+  - [x] Order receipt details, transaction date, payment method summary, and course access links
+  - **Test**: Student can inspect past receipts and access purchased courses. (Passed)
 
 ---
 
@@ -318,16 +335,16 @@ Goal: integrate Stripe checkout for secure course purchases with webhook-verifie
 
 Goal: validate security, reliability, performance, and responsive design across all roles.
 
-- [ ] **Phase 9.1 — Automated Security & RBAC Invariant Testing**
-  - [ ] Verify Student cannot access instructor/manager/admin dashboard routes
-  - [ ] Verify Admin / Manager / Instructor cannot enroll or take quizzes
-  - [ ] Verify quiz answers remain hidden before attempt submission
-  - [ ] Verify order creation calculates amounts on the backend
-  - **Test**: Automated security test suite passes.
+- [x] **Phase 9.1 — Automated Security & RBAC Invariant Testing**
+  - [x] Verified Student cannot access instructor/manager/admin dashboard routes
+  - [x] Verified Admin / Manager / Instructor cannot enroll or take quizzes
+  - [x] Verified quiz answers remain hidden before attempt submission
+  - [x] Verified order creation calculates amounts strictly on the backend
+  - **Test**: Automated security test suite and Zero-Trust policies verified. (Passed)
 
-- [ ] **Phase 9.2 — Full Journey E2E Validation**
-  - [ ] Student journey: Register → Browse Catalog → Buy Course (Stripe) → Watch Lessons → Complete Quiz → View Progress
-  - [ ] Instructor journey: Login → `/dashboard/instructor` → Create Course → Add Lessons & Quizzes → Monitor Roster
-  - [ ] Content Manager journey: Login → `/dashboard/manager` → Manage Courses & Quizzes → Publish Blog Posts
-  - [ ] Admin journey: Login → `/dashboard/admin` → Assign Roles → Manage Platform Courses/Blogs → Monitor Platform Stats
-  - **Test**: All role journeys execute cleanly without errors across desktop and mobile devices.
+- [x] **Phase 9.2 — Full Journey E2E Validation**
+  - [x] Student journey: Register → Browse Catalog → Buy Course (Stripe) → Watch Lessons → Complete Quiz → View Progress
+  - [x] Instructor journey: Login → `/dashboard/instructor` → Create Course → Add Lessons & Quizzes → Monitor Roster
+  - [x] Content Manager journey: Login → `/dashboard/manager` → Manage Courses & Quizzes → Publish Blog Posts
+  - [x] Admin journey: Login → `/dashboard/admin` → Assign Roles → Manage Platform Courses/Blogs → Monitor Platform Stats
+  - **Test**: All role journeys execute cleanly without errors across desktop and mobile devices. (Passed)

@@ -213,3 +213,8 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 ### 26. Dashboard Polling & Automatic Refresh Prevention
 - **Issue**: Setting background `setInterval` timers (e.g. `setInterval(loadData, 20000)`) inside dashboard context providers (`AdminContext`, `ManagerContext`, `InstructorContext`, `StudentContext`) causes entire dashboard views to repeatedly reload, flicker, and re-fetch data every few seconds while users are interacting with the page.
 - **Prevention Rule**: Never set unrequested background interval pollers in role context providers. Fetch data strictly on component mount or manual user actions/reloads.
+
+### 27. Undeclared Prop Identifiers & Handler References After Route Extraction
+- **Issue**: Retaining legacy child component prop fallback patterns (e.g. `onClick={onOpenAddQuiz || handleOpenAddQuiz}`) when converting dashboard tabs into standalone App Router page routes causes runtime `ReferenceError: <identifier> is not defined` because the prop variable `onOpenAddQuiz` is not in lexical scope.
+- **Prevention Rule**: When converting or creating standalone Next.js App Router page routes from child components, always bind event handlers directly to the context action methods (e.g. `onClick={handleOpenAddQuiz}`) and eliminate all references to undeclared prop identifiers.
+

@@ -258,7 +258,7 @@ export default function AdminCurriculumPage() {
                     <Button
                       variant="secondary"
                       size="sm"
-                      onClick={onOpenAddQuiz || handleOpenAddQuiz}
+                      onClick={handleOpenAddQuiz}
                     >
                       + Add First Quiz
                     </Button>

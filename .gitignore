@@ -73,3 +73,7 @@ coverage/
 # TypeScript cache
 *.tsbuildinfo
 next-env.d.ts
+
+# Local reference documents (not for version control)
+solution.md
+solutioncopi.md
