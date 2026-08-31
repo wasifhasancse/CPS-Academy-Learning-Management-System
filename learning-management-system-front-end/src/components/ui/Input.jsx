@@ -18,10 +18,16 @@ export function Input({
   showPasswordToggle = false,
   ...props
 }) {
-  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
+  const inputId =
+    id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
   const [showPassword, setShowPassword] = useState(false);
 
-  const effectiveType = type === "password" && showPasswordToggle ? (showPassword ? "text" : "password") : type;
+  const effectiveType =
+    type === "password" && showPasswordToggle
+      ? showPassword
+        ? "text"
+        : "password"
+      : type;
 
   return (
     <div className="w-full flex flex-col gap-1.5">
@@ -47,10 +53,12 @@ export function Input({
           disabled={disabled}
           required={required}
           placeholder={placeholder}
-          className={`w-full rounded-xl border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted/60 transition-all duration-200 focus:border-[#309255] focus:ring-2 focus:ring-[#309255]/20 focus:outline-none disabled:bg-surface disabled:cursor-not-allowed ${
+          className={`w-full rounded-xl border bg-background dark:bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted/80 transition-all duration-200 focus:border-[#309255] focus:ring-2 focus:ring-[#309255]/30 focus:outline-none disabled:bg-surface disabled:cursor-not-allowed ${
             Icon ? "pl-11" : ""
           } ${showPasswordToggle || rightElement ? "pr-11" : ""} ${
-            error ? "border-red-500 focus:border-red-500 focus:ring-red-200" : "border-border hover:border-border/80"
+            error
+              ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+              : "border-border hover:border-[#309255]/60"
           } ${className}`}
           {...props}
         />
@@ -101,10 +109,16 @@ export function Input({
         )}
 
         {rightElement && !showPasswordToggle && (
-          <div className="absolute right-3 flex items-center">{rightElement}</div>
+          <div className="absolute right-3 flex items-center">
+            {rightElement}
+          </div>
         )}
       </div>
-      {error && <p className="text-xs text-red-600 dark:text-red-400 font-medium">{error}</p>}
+      {error && (
+        <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

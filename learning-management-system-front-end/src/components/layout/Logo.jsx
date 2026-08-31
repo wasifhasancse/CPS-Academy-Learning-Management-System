@@ -25,11 +25,11 @@ export function LogoIcon({ size = "md", className = "" }) {
 
   return (
     <div
-      className={`${containerClass} bg-[#309255] text-white dark:bg-[#309255] dark:text-white border border-[#309255]/30 flex items-center justify-center shrink-0 shadow-1 group-hover:bg-[#212832] dark:group-hover:bg-[#267544] transition-all duration-300 ${className}`}
+      className={`${containerClass} bg-[#309255] text-white dark:bg-[#309255] dark:text-white border border-[#309255]/30 flex items-center justify-center shrink-0 shadow-1 group-hover:bg-[#267544] dark:group-hover:bg-[#267544] transition-all duration-300 ${className}`}
       aria-hidden="true"
     >
       <svg
-        className={`${svgClass} transition-transform duration-300 group-hover:scale-105`}
+        className={`${svgClass} transition-transform duration-300 group-hover:scale-[1.02]`}
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

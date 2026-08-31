@@ -1,5 +1,6 @@
 "use client";
 
+import { Logo } from "@/components/layout/Logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -17,14 +18,11 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           {/* Brand Col */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#309255] text-white flex items-center justify-center font-black text-sm shadow-xs">
-                CPS
-              </div>
-              <span className="font-extrabold text-base text-white">CPS Academy</span>
-            </div>
+            <Logo variant="footer" />
             <p className="text-xs text-footer-fg/70 leading-relaxed">
-              Empowering students and software engineers through structured competitive programming, algorithms, and practical software engineering courses.
+              Empowering students and software engineers through structured
+              competitive programming, algorithms, and practical software
+              engineering courses.
             </p>
           </div>
 
@@ -35,22 +33,34 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/" className="text-footer-fg/80 hover:text-white transition-colors">
+                <Link
+                  href="/"
+                  className="text-footer-fg/80 hover:text-[#E7F8EE] transition-colors"
+                >
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/courses" className="text-footer-fg/80 hover:text-white transition-colors">
+                <Link
+                  href="/courses"
+                  className="text-footer-fg/80 hover:text-[#E7F8EE] transition-colors"
+                >
                   All Courses
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-footer-fg/80 hover:text-white transition-colors">
+                <Link
+                  href="/blog"
+                  className="text-footer-fg/80 hover:text-[#E7F8EE] transition-colors"
+                >
                   Engineering Blog
                 </Link>
               </li>
               <li>
-                <Link href="/success-story" className="text-footer-fg/80 hover:text-white transition-colors">
+                <Link
+                  href="/success-story"
+                  className="text-footer-fg/80 hover:text-[#E7F8EE] transition-colors"
+                >
                   Success Stories
                 </Link>
               </li>
@@ -64,17 +74,26 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/auth/register" className="text-footer-fg/80 hover:text-highlight transition-colors">
+                <Link
+                  href="/auth/register"
+                  className="text-footer-fg/80 hover:text-highlight transition-colors"
+                >
                   Become an Instructor
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard/instructor" className="text-footer-fg/80 hover:text-highlight transition-colors">
+                <Link
+                  href="/dashboard/instructor"
+                  className="text-footer-fg/80 hover:text-highlight transition-colors"
+                >
                   Instructor Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-footer-fg/80 hover:text-highlight transition-colors">
+                <Link
+                  href="/about"
+                  className="text-footer-fg/80 hover:text-highlight transition-colors"
+                >
                   Curriculum Standards
                 </Link>
               </li>
@@ -88,12 +107,18 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/about" className="text-footer-fg/80 hover:text-highlight transition-colors">
+                <Link
+                  href="/about"
+                  className="text-footer-fg/80 hover:text-highlight transition-colors"
+                >
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/auth/login" className="text-footer-fg/80 hover:text-highlight transition-colors">
+                <Link
+                  href="/auth/login"
+                  className="text-footer-fg/80 hover:text-highlight transition-colors"
+                >
                   Student Portal
                 </Link>
               </li>

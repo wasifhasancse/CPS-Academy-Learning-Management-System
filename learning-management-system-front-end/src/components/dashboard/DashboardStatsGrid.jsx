@@ -23,7 +23,7 @@ export function DashboardStatsGrid({ stats = [] }) {
             className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between shadow-1 transform hover:-translate-y-0.5 hover:shadow-1 ${
               isAlert
                 ? "bg-red-500/10 border-red-500/30 text-foreground"
-                : "bg-card border-border text-foreground hover:border-[#309255]"
+                : "bg-card border-border text-foreground hover:border-[#309255] dark:hover:bg-surface-hover"
             }`}
           >
             {/* Top Bar: Label + Top-right Icon Badge */}

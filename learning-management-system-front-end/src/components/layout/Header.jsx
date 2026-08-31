@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { useAuth, getRoleDashboardPath } from "@/context/AuthContext";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
 import { ProfileDropdown } from "@/components/layout/ProfileDropdown";
+import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { Logo } from "@/components/layout/Logo";
 
@@ -23,7 +22,9 @@ export function Header() {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     const targetPath = pathname.startsWith("/blog") ? "/blog" : "/courses";
-    router.push(`${targetPath}?search=${encodeURIComponent(searchQuery.trim())}`);
+    router.push(
+      `${targetPath}?search=${encodeURIComponent(searchQuery.trim())}`,
+    );
   };
 
   const navLinks = [
@@ -52,7 +53,12 @@ export function Header() {
                 className="w-full pl-9 pr-8 py-1.5 rounded-lg bg-surface border border-border text-xs text-foreground placeholder:text-muted focus:outline-none focus:border-primary transition-colors"
               />
               <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -76,7 +82,10 @@ export function Header() {
         </div>
 
         {/* Center / Nav Items */}
-        <nav className="hidden lg:flex items-center gap-1.5" aria-label="Main Navigation">
+        <nav
+          className="hidden lg:flex items-center gap-1.5"
+          aria-label="Main Navigation"
+        >
           {navLinks.map((link) => {
             const isActive =
               link.href === "/"
@@ -90,7 +99,7 @@ export function Header() {
                 className={`text-xs font-semibold px-3.5 py-2 rounded-xl transition-all duration-200 ${
                   isActive
                     ? "bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] font-bold shadow-2xs"
-                    : "text-foreground/80 hover:text-[#309255] hover:bg-[#E7F8EE]/50 dark:hover:bg-surface dark:hover:text-[#E7F8EE]"
+                    : "text-foreground/80 hover:text-[#309255] hover:bg-[#E7F8EE]/50 dark:text-[#F5FBF7]/85 dark:hover:bg-surface-hover dark:hover:text-[#E7F8EE]"
                 }`}
               >
                 {link.name}
@@ -111,27 +120,53 @@ export function Header() {
             <div className="w-20 h-8 rounded-full bg-surface border border-border/40 animate-pulse" />
           ) : (
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <Button href="/auth/login" variant="ghost" size="sm" className="text-xs">
+              <Button
+                href="/auth/login"
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+              >
                 Log In
               </Button>
-              <Button href="/auth/register" variant="primary" size="sm" className="text-xs">
+              <Button
+                href="/auth/register"
+                variant="primary"
+                size="sm"
+                className="text-xs"
+              >
                 Sign Up
               </Button>
             </div>
           )}
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Trigger */}
           <button
             type="button"
-            className="lg:hidden p-2 rounded-lg text-foreground hover:bg-surface transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle navigation menu"
+            className="lg:hidden p-2 rounded-lg bg-surface border border-border text-foreground hover:bg-surface-hover dark:hover:text-[#E7F8EE] transition-colors"
+            aria-label="Toggle Navigation Menu"
+            aria-expanded={isMobileMenuOpen}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               {isMobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
@@ -151,7 +186,12 @@ export function Header() {
               className="w-full pl-9 pr-8 py-2 rounded-lg bg-surface border border-border text-xs text-foreground placeholder:text-muted focus:outline-none focus:border-primary"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -169,10 +209,11 @@ export function Header() {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${pathname === link.href
-                    ? "bg-surface text-primary dark:text-highlight font-bold"
-                    : "text-foreground/80 hover:text-foreground hover:bg-surface"
-                  }`}
+                className={`text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${
+                  pathname === link.href
+                    ? "bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] font-bold"
+                    : "text-foreground/80 hover:text-[#309255] hover:bg-[#E7F8EE]/50 dark:hover:bg-surface-hover dark:hover:text-[#E7F8EE]"
+                }`}
               >
                 {link.name}
               </Link>
@@ -181,7 +222,9 @@ export function Header() {
 
           {isAuthenticated && (
             <div className="pt-2 border-t border-border flex items-center justify-between">
-              <span className="text-xs text-muted">Logged in as {user?.username}</span>
+              <span className="text-xs text-muted">
+                Logged in as {user?.username}
+              </span>
               <button
                 type="button"
                 onClick={logout}

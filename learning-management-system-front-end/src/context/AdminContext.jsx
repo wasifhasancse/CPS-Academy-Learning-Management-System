@@ -8,6 +8,7 @@ import { LessonModal } from "@/components/dashboard/modals/LessonModal";
 import { ManageQuestionsModal } from "@/components/dashboard/modals/ManageQuestionsModal";
 import { QuizModal } from "@/components/dashboard/modals/QuizModal";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { api } from "@/lib/api";
 import {
     createContext,
@@ -27,6 +28,7 @@ const AdminContext = createContext(null);
 
 export function AdminProvider({ children }) {
   const { user: currentAdmin, token } = useAuth();
+  const { toast } = useToast();
 
   // Core Data States
   const [users, setUsers] = useState([]);
@@ -447,10 +449,12 @@ export function AdminProvider({ children }) {
         { role: selectedRoleId },
         { token },
       );
+      toast.success("User role updated successfully.", "Role Saved");
       setIsRoleModalOpen(false);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to update user role:", err);
+      toast.error("Failed to update user role. Please try again.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -461,9 +465,14 @@ export function AdminProvider({ children }) {
     setActionLoading(true);
     try {
       await api.put(`/users/${u.id}`, { blocked: nextBlocked }, { token });
+      toast.info(
+        nextBlocked ? "User account has been blocked." : "User account unblocked.",
+        "Access Status"
+      );
       await loadAdminData();
     } catch (err) {
       console.error("Failed to update block state:", err);
+      toast.error("Failed to update user access state.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -474,11 +483,13 @@ export function AdminProvider({ children }) {
     setActionLoading(true);
     try {
       await api.delete(`/users/${userToDelete.id}`, { token });
+      toast.success("User removed from the system.", "User Deleted");
       setIsDeleteUserModalOpen(false);
       setUserToDelete(null);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to delete user:", err);
+      toast.error("Failed to delete user.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -531,14 +542,17 @@ export function AdminProvider({ children }) {
 
       if (isEditingCourse && editingCourseId) {
         await api.put(`/courses/${editingCourseId}`, payload, { token });
+        toast.success("Course details updated successfully.", "Course Updated");
       } else {
         await api.post("/courses", payload, { token });
+        toast.success("New track published successfully.", "Course Created");
       }
 
       setIsCourseModalOpen(false);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to save course:", err);
+      toast.error("Failed to save course. Please check all fields.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -550,11 +564,13 @@ export function AdminProvider({ children }) {
     try {
       const courseId = courseToDelete.documentId || courseToDelete.id;
       await api.delete(`/courses/${courseId}`, { token });
+      toast.success("Course deleted successfully.", "Course Removed");
       setIsDeleteCourseModalOpen(false);
       setCourseToDelete(null);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to delete course:", err);
+      toast.error("Failed to delete course.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -623,14 +639,17 @@ export function AdminProvider({ children }) {
 
       if (isEditingLesson && editingLessonId) {
         await api.put(`/lessons/${editingLessonId}`, payload, { token });
+        toast.success("Lesson details updated.", "Lesson Updated");
       } else {
         await api.post("/lessons", payload, { token });
+        toast.success("Lesson added to curriculum track.", "Lesson Created");
       }
 
       setIsLessonModalOpen(false);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to save lesson:", err);
+      toast.error("Failed to save lesson.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -642,11 +661,13 @@ export function AdminProvider({ children }) {
     try {
       const lessonId = lessonToDelete.documentId || lessonToDelete.id;
       await api.delete(`/lessons/${lessonId}`, { token });
+      toast.success("Lesson deleted successfully.", "Lesson Removed");
       setIsDeleteLessonModalOpen(false);
       setLessonToDelete(null);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to delete lesson:", err);
+      toast.error("Failed to delete lesson.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -691,14 +712,17 @@ export function AdminProvider({ children }) {
 
       if (isEditingQuiz && editingQuizId) {
         await api.put(`/quizzes/${editingQuizId}`, payload, { token });
+        toast.success("Quiz checkpoint updated.", "Quiz Updated");
       } else {
         await api.post("/quizzes", payload, { token });
+        toast.success("Quiz checkpoint added to track.", "Quiz Created");
       }
 
       setIsQuizModalOpen(false);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to save quiz:", err);
+      toast.error("Failed to save quiz.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -710,11 +734,13 @@ export function AdminProvider({ children }) {
     try {
       const quizId = quizToDelete.documentId || quizToDelete.id;
       await api.delete(`/quizzes/${quizId}`, { token });
+      toast.success("Quiz checkpoint removed.", "Quiz Deleted");
       setIsDeleteQuizModalOpen(false);
       setQuizToDelete(null);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to delete quiz:", err);
+      toast.error("Failed to delete quiz.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -762,6 +788,8 @@ export function AdminProvider({ children }) {
         { token },
       );
 
+      toast.success("MCQ question added to quiz.", "Question Saved");
+
       setNewQuestion({
         prompt: "",
         optionA: "",
@@ -782,6 +810,7 @@ export function AdminProvider({ children }) {
       await loadAdminData();
     } catch (err) {
       console.error("Failed to add question:", err);
+      toast.error("Failed to add question.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -793,6 +822,7 @@ export function AdminProvider({ children }) {
     try {
       const quizId = quizForQuestions.documentId || quizForQuestions.id;
       await api.delete(`/questions/${questionId}`, { token });
+      toast.success("Question removed from quiz.", "Question Deleted");
       const updatedQuizRes = await api.get(
         `/quizzes/${quizId}?populate=questions`,
         { token },
@@ -803,6 +833,7 @@ export function AdminProvider({ children }) {
       await loadAdminData();
     } catch (err) {
       console.error("Failed to delete question:", err);
+      toast.error("Failed to delete question.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -855,14 +886,17 @@ export function AdminProvider({ children }) {
 
       if (isEditingBlog && editingBlogId) {
         await api.put(`/blog-posts/${editingBlogId}`, payload, { token });
+        toast.success("Blog post updated.", "Article Saved");
       } else {
         await api.post("/blog-posts", payload, { token });
+        toast.success("New blog article published.", "Article Published");
       }
 
       setIsBlogModalOpen(false);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to save blog post:", err);
+      toast.error("Failed to save blog post.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -882,9 +916,14 @@ export function AdminProvider({ children }) {
         },
         { token },
       );
+      toast.info(
+        isCurrentlyPublished ? "Article moved to drafts." : "Article published.",
+        "Status Updated"
+      );
       await loadAdminData();
     } catch (err) {
       console.error("Failed to toggle blog status:", err);
+      toast.error("Failed to toggle blog status.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -896,11 +935,13 @@ export function AdminProvider({ children }) {
     try {
       const blogId = blogToDelete.documentId || blogToDelete.id;
       await api.delete(`/blog-posts/${blogId}`, { token });
+      toast.success("Blog article deleted.", "Article Removed");
       setIsDeleteBlogModalOpen(false);
       setBlogToDelete(null);
       await loadAdminData();
     } catch (err) {
       console.error("Failed to delete blog:", err);
+      toast.error("Failed to delete blog.", "Error");
     } finally {
       setActionLoading(false);
     }

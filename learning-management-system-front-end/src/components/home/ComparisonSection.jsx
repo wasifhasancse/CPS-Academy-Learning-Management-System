@@ -72,7 +72,7 @@ export function ComparisonSection() {
         </div>
 
         {/* Comparison Table Card */}
-        <div className="rounded-3xl border border-border bg-surface overflow-hidden shadow-xs">
+        <div className="rounded-3xl border border-border bg-surface overflow-hidden shadow-1">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>

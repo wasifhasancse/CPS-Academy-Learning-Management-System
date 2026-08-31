@@ -6,6 +6,7 @@ import { LessonModal } from "@/components/dashboard/modals/LessonModal";
 import { ManageQuestionsModal } from "@/components/dashboard/modals/ManageQuestionsModal";
 import { QuizModal } from "@/components/dashboard/modals/QuizModal";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { api } from "@/lib/api";
 import {
     createContext,
@@ -25,6 +26,7 @@ const InstructorContext = createContext(null);
 
 export function InstructorProvider({ children }) {
   const { user: currentInstructor, token } = useAuth();
+  const { toast } = useToast();
 
   // Core Data States
   const [courses, setCourses] = useState([]);
@@ -349,14 +351,17 @@ export function InstructorProvider({ children }) {
 
       if (isEditingCourse && editingCourseId) {
         await api.put(`/courses/${editingCourseId}`, payload, { token });
+        toast.success("Course details updated successfully.", "Course Updated");
       } else {
         await api.post("/courses", payload, { token });
+        toast.success("New course submitted to your catalog.", "Course Created");
       }
 
       setIsCourseModalOpen(false);
       await loadInstructorData();
     } catch (err) {
       console.error("Failed to save course:", err);
+      toast.error("Failed to save course. Please check all required fields.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -368,11 +373,13 @@ export function InstructorProvider({ children }) {
     try {
       const courseId = courseToDelete.documentId || courseToDelete.id;
       await api.delete(`/courses/${courseId}`, { token });
+      toast.success("Course deleted successfully.", "Course Removed");
       setIsDeleteCourseModalOpen(false);
       setCourseToDelete(null);
       await loadInstructorData();
     } catch (err) {
       console.error("Failed to delete course:", err);
+      toast.error("Failed to delete course.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -441,14 +448,17 @@ export function InstructorProvider({ children }) {
 
       if (isEditingLesson && editingLessonId) {
         await api.put(`/lessons/${editingLessonId}`, payload, { token });
+        toast.success("Lesson updated successfully.", "Lesson Updated");
       } else {
         await api.post("/lessons", payload, { token });
+        toast.success("Lesson published to curriculum.", "Lesson Created");
       }
 
       setIsLessonModalOpen(false);
       await loadInstructorData();
     } catch (err) {
       console.error("Failed to save lesson:", err);
+      toast.error("Failed to save lesson.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -460,11 +470,13 @@ export function InstructorProvider({ children }) {
     try {
       const lessonId = lessonToDelete.documentId || lessonToDelete.id;
       await api.delete(`/lessons/${lessonId}`, { token });
+      toast.success("Lesson deleted.", "Lesson Removed");
       setIsDeleteLessonModalOpen(false);
       setLessonToDelete(null);
       await loadInstructorData();
     } catch (err) {
       console.error("Failed to delete lesson:", err);
+      toast.error("Failed to delete lesson.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -509,14 +521,17 @@ export function InstructorProvider({ children }) {
 
       if (isEditingQuiz && editingQuizId) {
         await api.put(`/quizzes/${editingQuizId}`, payload, { token });
+        toast.success("Quiz updated.", "Quiz Updated");
       } else {
         await api.post("/quizzes", payload, { token });
+        toast.success("Quiz created.", "Quiz Created");
       }
 
       setIsQuizModalOpen(false);
       await loadInstructorData();
     } catch (err) {
       console.error("Failed to save quiz:", err);
+      toast.error("Failed to save quiz.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -528,11 +543,13 @@ export function InstructorProvider({ children }) {
     try {
       const quizId = quizToDelete.documentId || quizToDelete.id;
       await api.delete(`/quizzes/${quizId}`, { token });
+      toast.success("Quiz removed.", "Quiz Deleted");
       setIsDeleteQuizModalOpen(false);
       setQuizToDelete(null);
       await loadInstructorData();
     } catch (err) {
       console.error("Failed to delete quiz:", err);
+      toast.error("Failed to delete quiz.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -580,6 +597,8 @@ export function InstructorProvider({ children }) {
         { token },
       );
 
+      toast.success("Question added to checkpoint.", "Question Saved");
+
       setNewQuestion({
         prompt: "",
         optionA: "",
@@ -600,6 +619,7 @@ export function InstructorProvider({ children }) {
       await loadInstructorData();
     } catch (err) {
       console.error("Failed to add question:", err);
+      toast.error("Failed to add question.", "Error");
     } finally {
       setActionLoading(false);
     }
@@ -611,6 +631,7 @@ export function InstructorProvider({ children }) {
     try {
       const quizId = quizForQuestions.documentId || quizForQuestions.id;
       await api.delete(`/questions/${questionId}`, { token });
+      toast.success("Question removed from quiz.", "Question Deleted");
       const updatedQuizRes = await api.get(
         `/quizzes/${quizId}?populate=questions`,
         { token },
@@ -621,6 +642,7 @@ export function InstructorProvider({ children }) {
       await loadInstructorData();
     } catch (err) {
       console.error("Failed to delete question:", err);
+      toast.error("Failed to delete question.", "Error");
     } finally {
       setActionLoading(false);
     }

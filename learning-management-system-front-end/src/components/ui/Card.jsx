@@ -5,7 +5,7 @@ export function Card({
   ...props
 }) {
   const hoverClass = hoverable
-    ? "transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-1 hover:border-[#309255]"
+    ? "transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-1 hover:border-[#309255] dark:hover:bg-surface-hover"
     : "transition-colors duration-200";
   return (
     <article
@@ -25,9 +25,17 @@ export function CardHeader({ children, className = "", ...props }) {
   );
 }
 
-export function CardTitle({ children, className = "", as: Component = "h3", ...props }) {
+export function CardTitle({
+  children,
+  className = "",
+  as: Component = "h3",
+  ...props
+}) {
   return (
-    <Component className={`text-lg font-bold text-foreground ${className}`} {...props}>
+    <Component
+      className={`text-lg font-bold text-foreground ${className}`}
+      {...props}
+    >
       {children}
     </Component>
   );
@@ -35,7 +43,10 @@ export function CardTitle({ children, className = "", as: Component = "h3", ...p
 
 export function CardDescription({ children, className = "", ...props }) {
   return (
-    <p className={`text-sm text-muted mt-1 leading-relaxed ${className}`} {...props}>
+    <p
+      className={`text-sm text-muted mt-1 leading-relaxed ${className}`}
+      {...props}
+    >
       {children}
     </p>
   );
@@ -51,7 +62,10 @@ export function CardContent({ children, className = "", ...props }) {
 
 export function CardFooter({ children, className = "", ...props }) {
   return (
-    <footer className={`p-5 pt-3 border-t border-border flex items-center ${className}`} {...props}>
+    <footer
+      className={`p-5 pt-3 border-t border-border flex items-center ${className}`}
+      {...props}
+    >
       {children}
     </footer>
   );

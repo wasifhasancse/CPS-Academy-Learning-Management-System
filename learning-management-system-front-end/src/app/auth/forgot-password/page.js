@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { useToast } from "@/context/ToastContext";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 
 export default function ForgotPasswordPage() {
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState("");
@@ -22,8 +24,11 @@ export default function ForgotPasswordPage() {
     try {
       await api.post("/auth/forgot-password", { email });
       setIsSent(true);
+      toast.success("Password reset instructions dispatched.", "Reset Email Sent");
     } catch (err) {
-      setError(err?.message || "Failed to send reset email. Please verify your address.");
+      const msg = err?.message || "Failed to send reset email. Please verify your address.";
+      setError(msg);
+      toast.error(msg, "Error");
     } finally {
       setIsSubmitting(false);
     }

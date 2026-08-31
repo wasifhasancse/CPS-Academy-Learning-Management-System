@@ -71,7 +71,7 @@ export function ActivityTable({
           <button
             type="button"
             onClick={onViewAll}
-            className="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-border/60 text-foreground text-xs font-bold border border-border transition-colors cursor-pointer shadow-2xs"
+            className="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-surface-hover hover:border-[#309255]/60 hover:text-[#309255] dark:hover:text-[#E7F8EE] text-foreground text-xs font-bold border border-border transition-colors cursor-pointer shadow-2xs"
           >
             {viewAllLabel}
           </button>
@@ -82,7 +82,7 @@ export function ActivityTable({
       <div className="overflow-x-auto">
         <div className="max-h-[384px] overflow-y-auto scrollbar-thin">
           <table className="w-full text-left border-collapse text-xs">
-            <thead className="sticky top-0 z-10 bg-surface border-b border-border shadow-2xs">
+            <thead className="sticky top-0 z-10 bg-[#F8FAF9] dark:bg-background border-b border-border shadow-2xs">
               <tr>
                 {columns.map((col, idx) => (
                   <th
@@ -107,7 +107,7 @@ export function ActivityTable({
                 data.map((row, idx) => (
                   <tr
                     key={row.id || idx}
-                    className="hover:bg-surface/60 transition-colors"
+                    className="hover:bg-[#E7F8EE]/20 dark:hover:bg-surface-hover transition-colors"
                   >
                     <td className="py-3 px-4 font-bold text-foreground max-w-[260px] truncate">
                       {row.item}
@@ -139,7 +139,7 @@ export function ActivityTable({
                       ) : row.href ? (
                         <Link
                           href={row.href}
-                          className="px-3 py-1 rounded-lg bg-surface hover:bg-border text-foreground text-[11px] font-semibold border border-border transition-colors inline-block cursor-pointer"
+                          className="px-3 py-1 rounded-lg bg-surface hover:bg-surface-hover hover:border-[#309255]/60 hover:text-[#309255] dark:hover:text-[#E7F8EE] text-foreground text-[11px] font-semibold border border-border transition-colors inline-block cursor-pointer"
                         >
                           {row.actionLabel || "View"}
                         </Link>
@@ -147,7 +147,7 @@ export function ActivityTable({
                         <button
                           type="button"
                           onClick={row.onAction}
-                          className="px-3 py-1 rounded-lg bg-surface hover:bg-border text-foreground text-[11px] font-semibold border border-border transition-colors cursor-pointer"
+                          className="px-3 py-1 rounded-lg bg-surface hover:bg-surface-hover hover:border-[#309255]/60 hover:text-[#309255] dark:hover:text-[#E7F8EE] text-foreground text-[11px] font-semibold border border-border transition-colors cursor-pointer"
                         >
                           {row.actionLabel || "View"}
                         </button>

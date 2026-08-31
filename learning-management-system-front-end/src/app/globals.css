@@ -1,44 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
-@variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --font-roboto: 'Roboto', sans-serif;
+  --font-roboto: "Roboto", sans-serif;
 
   /* Edule-Inspired Modern Brand Palette */
   --primary: #309255;
   --secondary: #212832;
-  --highlight: #E7F8EE;
-  --light-neutral: #F8FAF9;
+  --highlight: #e7f8ee;
+  --light-neutral: #f8faf9;
 
   /* Base Light Theme */
-  --background: #F8FAF9;
+  --background: #f8faf9;
   --foreground: #212832;
-  --surface: #FFFFFF;
-  --card: #FFFFFF;
+  --surface: #ffffff;
+  --surface-hover: #e7f8ee;
+  --card: #ffffff;
   --card-foreground: #212832;
-  --border: #E2ECE6;
-  --muted: #52565B;
+  --border: #e2ece6;
+  --muted: #52565b;
 
   /* Footer Colors */
   --footer-bg: #212832;
-  --footer-fg: #F8FAF9;
+  --footer-fg: #f8faf9;
 }
 
 .dark {
   /* Base Dark Theme */
-  --background: #181E27;
-  --foreground: #F5FBF7;
+  --background: #181e27;
+  --foreground: #f5fbf7;
   --surface: #212832;
+  --surface-hover: #2e3846;
   --card: #212832;
-  --card-foreground: #F5FBF7;
-  --border: #2E3846;
-  --muted: #9BA4B4;
+  --card-foreground: #f5fbf7;
+  --border: #2e3846;
+  --muted: #9ba4b4;
 
   /* Footer Colors (Dark Mode) */
-  --footer-bg: #11161D;
-  --footer-fg: #F5FBF7;
+  --footer-bg: #11161d;
+  --footer-fg: #f5fbf7;
+}
+
+.dark {
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -46,6 +52,7 @@
   --color-secondary: var(--secondary);
   --color-highlight: var(--highlight);
   --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
@@ -74,4 +81,15 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+input,
+select,
+textarea {
+  caret-color: var(--primary);
 }

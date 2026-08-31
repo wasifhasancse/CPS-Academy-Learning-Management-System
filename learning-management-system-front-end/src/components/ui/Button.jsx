@@ -2,21 +2,21 @@ import Link from "next/link";
 
 const variantStyles = {
   primary:
-    "bg-[#309255] text-white hover:bg-[#212832] dark:bg-[#309255] dark:hover:bg-[#212832] shadow-1 hover:shadow-1 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/40 font-bold",
+    "bg-[#309255] text-white hover:bg-[#267544] dark:bg-[#309255] dark:hover:bg-[#267544] shadow-1 hover:shadow-1 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/40 font-bold",
   secondary:
-    "bg-[#212832] text-white hover:bg-[#309255] dark:bg-[#309255] dark:text-white dark:hover:bg-[#267544] shadow-1 hover:shadow-1 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#212832]/40 font-semibold",
+    "bg-[#212832] text-white hover:bg-[#309255] dark:bg-[#212832] dark:text-white dark:hover:bg-[#309255] shadow-1 hover:shadow-1 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#212832]/40 font-semibold",
   highlight:
     "bg-[#E7F8EE] text-[#309255] hover:bg-[#309255] hover:text-white dark:bg-[#E7F8EE]/10 dark:text-[#E7F8EE] dark:hover:bg-[#309255] dark:hover:text-white border border-[#309255]/20 shadow-1 hover:shadow-1 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/30 font-bold",
   outline:
-    "border-2 border-[#309255] text-[#309255] hover:bg-[#309255] hover:text-white dark:border-[#309255] dark:text-[#309255] dark:hover:bg-[#309255] dark:hover:text-white hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/30 font-bold",
+    "border-2 border-[#309255] text-[#309255] hover:bg-[#309255] hover:text-white dark:border-[#309255] dark:text-[#E7F8EE] dark:hover:bg-[#309255] dark:hover:text-white hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/30 font-bold",
   outlineSecondary:
-    "border border-[#212832]/20 text-[#212832] dark:border-[#E7F8EE]/20 dark:text-[#E7F8EE] hover:bg-[#E7F8EE]/40 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#212832]/30 font-semibold",
+    "border border-border text-foreground hover:border-[#309255] hover:text-[#309255] hover:bg-surface-hover dark:hover:text-[#E7F8EE] hover:-translate-y-0.5 active:translate-y-0 font-semibold",
   ghost:
-    "text-foreground hover:bg-[#E7F8EE] hover:text-[#309255] dark:text-foreground dark:hover:bg-[#212832] dark:hover:text-[#E7F8EE] focus-visible:ring-[#309255]/20",
+    "text-foreground hover:bg-surface-hover hover:text-[#309255] dark:text-foreground dark:hover:bg-surface-hover dark:hover:text-[#E7F8EE] focus-visible:ring-[#309255]/20",
   surface:
-    "bg-surface text-foreground hover:bg-[#E7F8EE] hover:text-[#309255] border border-border dark:bg-surface dark:text-foreground dark:hover:bg-border/60 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/20",
+    "bg-surface text-foreground hover:bg-surface-hover hover:text-[#309255] hover:border-[#309255]/40 border border-border dark:bg-surface dark:text-foreground dark:hover:bg-surface-hover dark:hover:text-[#E7F8EE] hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/20",
   danger:
-    "bg-red-600/10 text-red-500 hover:bg-red-600/20 border border-red-500/20 focus-visible:ring-red-500/30",
+    "bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 font-semibold transition-colors",
 };
 
 const sizeStyles = {

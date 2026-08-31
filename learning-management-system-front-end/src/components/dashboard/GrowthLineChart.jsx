@@ -3,10 +3,9 @@
 import React, { useState } from "react";
 
 const DEFAULT_COLORS = [
-  "#309255", // Emerald Green
-  "#212832", // Charcoal Slate
-  "#48BB78", // Vibrant Mint Green
-  "#10B981", // Forest Emerald
+  "#309255",
+  "#E7F8EE",
+  "#F8FAF9",
 ];
 
 export function GrowthLineChart({
@@ -178,8 +177,8 @@ export function GrowthLineChart({
                 onClick={() => toggleSeries(s.id)}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   isHidden
-                    ? "bg-surface/50 border-border text-muted/60 opacity-60"
-                    : "bg-surface border-border text-foreground hover:border-primary/40"
+                    ? "bg-surface-hover border-border text-muted opacity-60"
+                    : "bg-surface border-border text-foreground hover:bg-surface-hover hover:border-primary/60"
                 }`}
                 title={`Click to ${isHidden ? "show" : "hide"} ${s.name}`}
               >
@@ -221,8 +220,8 @@ export function GrowthLineChart({
                     y1={y}
                     x2={width - paddingX}
                     y2={y}
-                    stroke="currentColor"
-                    strokeOpacity="0.08"
+                    stroke="#2E3846"
+                    strokeOpacity="0.8"
                     strokeDasharray="3 3"
                   />
                   <text

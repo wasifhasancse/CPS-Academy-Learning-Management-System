@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { useToast } from "@/context/ToastContext";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/Card";
@@ -13,6 +14,7 @@ function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get("code") || "";
+  const { toast } = useToast();
 
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
@@ -25,17 +27,23 @@ function ResetPasswordForm() {
     setError("");
 
     if (!code) {
-      setError("Reset code is missing. Please use the link sent to your email.");
+      const msg = "Reset code is missing. Please use the link sent to your email.";
+      setError(msg);
+      toast.error(msg, "Invalid Code");
       return;
     }
 
     if (password !== passwordConfirmation) {
-      setError("Passwords do not match.");
+      const msg = "Passwords do not match.";
+      setError(msg);
+      toast.error(msg, "Password Mismatch");
       return;
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      const msg = "Password must be at least 8 characters long.";
+      setError(msg);
+      toast.error(msg, "Password Too Short");
       return;
     }
 
@@ -48,11 +56,14 @@ function ResetPasswordForm() {
         passwordConfirmation,
       });
       setIsSuccess(true);
+      toast.success("Your password has been updated. Redirecting to sign in...", "Password Reset");
       setTimeout(() => {
         router.push("/auth/login");
-      }, 2500);
+      }, 2000);
     } catch (err) {
-      setError(err?.message || "Password reset failed. The code may have expired.");
+      const msg = err?.message || "Password reset failed. The code may have expired.";
+      setError(msg);
+      toast.error(msg, "Reset Failed");
     } finally {
       setIsSubmitting(false);
     }

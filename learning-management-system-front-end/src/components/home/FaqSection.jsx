@@ -82,7 +82,7 @@ export function FaqSection() {
               }}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                 activeCategory === cat
-                  ? "bg-[#309255] text-white shadow-sm"
+                  ? "bg-[#309255] text-white shadow-1"
                   : "bg-surface border border-border text-muted hover:text-[#309255] hover:bg-[#E7F8EE]/30"
               }`}
             >
@@ -98,8 +98,8 @@ export function FaqSection() {
             return (
               <div
                 key={idx}
-                className={`rounded-2xl bg-surface border overflow-hidden transition-all duration-200 ${
-                  isOpen ? "border-[#309255]/40 shadow-xs" : "border-border"
+                className={`rounded-2xl bg-surface border overflow-hidden transition-all duration-200 shadow-1 ${
+                  isOpen ? "border-[#309255]/40" : "border-border"
                 }`}
               >
                 <button

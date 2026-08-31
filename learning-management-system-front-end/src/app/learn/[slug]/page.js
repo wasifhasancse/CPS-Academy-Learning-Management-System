@@ -45,6 +45,7 @@ export default function CoursePlayerPage({ params }) {
   const rawSlug = resolvedParams?.slug;
   const slug = rawSlug ? decodeURIComponent(rawSlug).trim() : "";
   const router = useRouter();
+  const { toast } = useToast();
 
   const {
     user,
@@ -526,6 +527,11 @@ export default function CoursePlayerPage({ params }) {
         .catch((err) => console.warn("Backend progress save error:", err));
     }
 
+    toast.success(
+      itemObject?.data?.title ? `${itemObject.data.title}` : "Progress saved.",
+      "Unit Completed ✓"
+    );
+
     // Advance to next sequential item if available
     if (nextItem) {
       handleSelectActiveItem(nextItem);
@@ -635,6 +641,11 @@ export default function CoursePlayerPage({ params }) {
       }
     }
 
+    toast.success(
+      `Your score: ${calculatedScore} / ${totalScore} pts (${Math.round((calculatedScore / totalScore) * 100)}%)`,
+      isCompleted ? "Quiz Completed 🎉" : "Quiz Submitted"
+    );
+
     if (isCompleted) {
       markCurrentItemComplete(
         `quiz-${activeItem.data.documentId || activeItem.data.id}`,
@@ -663,6 +674,16 @@ export default function CoursePlayerPage({ params }) {
           Math.round((overallProgress / 100) * totalItemsCount),
         )
       : completedItemIds.size;
+
+  const isAllCourseCompleted =
+    totalItemsCount > 0 &&
+    (overallProgress === 100 ||
+      (completedItemsCount >= totalItemsCount &&
+        curriculumTimeline.every((item) =>
+          completedItemIds.has(
+            `${item.type}-${item.data?.documentId || item.data?.id}`,
+          ),
+        )));
 
   if (isLoading || isAuthLoading) {
     return <CoursePlayerSkeleton />;
@@ -848,9 +869,9 @@ export default function CoursePlayerPage({ params }) {
                 <iframe
                   key={youtubeVideoId}
                   className="w-full h-full"
-                  src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?rel=0&modestbranding=1&enablejsapi=1&autoplay=1`}
+                  src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?rel=0&modestbranding=1&enablejsapi=1&autoplay=0`}
                   title={activeItem?.data?.title || "Lesson Video"}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>
@@ -1052,104 +1073,104 @@ export default function CoursePlayerPage({ params }) {
                               let badgeText = null;
 
                               if (quizSubmitted) {
-                                if (isStudentChoice && isActualCorrect) {
-                                  // Case A: Student selected correct answer
-                                  optionStyles =
-                                    "bg-green-500/10 border-2 border-green-600 text-green-900 dark:text-green-200 font-bold";
-                                  statusIcon = (
-                                    <HiOutlineCheckCircle className="w-5 h-5 text-green-600 shrink-0" />
-                                  );
-                                  badgeText = (
-                                    <Badge variant="highlight" size="sm">
-                                      Your Answer (Correct)
-                                    </Badge>
-                                  );
-                                } else if (
-                                  isStudentChoice &&
-                                  !isActualCorrect
-                                ) {
-                                  // Case B: Student selected wrong answer
-                                  optionStyles =
-                                    "bg-red-500/10 border-2 border-red-500 text-red-900 dark:text-red-300 font-bold";
-                                  statusIcon = (
-                                    <HiOutlineXCircle className="w-5 h-5 text-red-500 shrink-0" />
-                                  );
-                                  badgeText = (
-                                    <Badge variant="danger" size="sm">
-                                      Your Answer (Wrong)
-                                    </Badge>
-                                  );
-                                } else if (
-                                  !isStudentChoice &&
-                                  isActualCorrect
-                                ) {
-                                  // Case C: The correct answer that student missed
-                                  optionStyles =
-                                    "bg-green-500/10 border-2 border-green-600/80 text-green-900 dark:text-green-200 font-semibold";
-                                  statusIcon = (
-                                    <HiOutlineCheckCircle className="w-5 h-5 text-green-600 shrink-0" />
-                                  );
-                                  badgeText = (
-                                    <Badge variant="highlight" size="sm">
-                                      Correct Solution
-                                    </Badge>
-                                  );
-                                } else {
-                                  // Case D: Other options
-                                  optionStyles =
-                                    "bg-card border-border/60 text-muted opacity-60";
-                                }
-                              } else if (isStudentChoice) {
-                                optionStyles =
-                                  "bg-secondary/15 border-2 border-secondary text-foreground font-bold ring-1 ring-secondary";
-                              }
-
-                              return (
-                                <button
-                                  key={optIdx}
-                                  type="button"
-                                  disabled={quizSubmitted}
-                                  onClick={() =>
-                                    setSelectedAnswers((prev) => ({
-                                      ...prev,
-                                      [qId]: optIdx,
-                                      ...(q.id !== undefined
-                                        ? { [q.id]: optIdx }
-                                        : {}),
-                                      ...(q.documentId
-                                        ? { [q.documentId]: optIdx }
-                                        : {}),
-                                    }))
+                                  if (isStudentChoice && isActualCorrect) {
+                                    // Case A: Student selected correct answer
+                                    optionStyles =
+                                      "bg-[#E7F8EE] border-2 border-[#309255] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] font-bold";
+                                    statusIcon = (
+                                      <HiOutlineCheckCircle className="w-5 h-5 text-[#309255] shrink-0" />
+                                    );
+                                    badgeText = (
+                                      <span className="px-2.5 py-0.5 rounded-full bg-[#E7F8EE] text-[#309255] border border-[#309255]/30 text-[11px] font-bold whitespace-nowrap shrink-0">
+                                        Your Answer (Correct)
+                                      </span>
+                                    );
+                                  } else if (
+                                    isStudentChoice &&
+                                    !isActualCorrect
+                                  ) {
+                                    // Case B: Student selected wrong answer
+                                    optionStyles =
+                                      "bg-red-500/10 border-2 border-red-500 text-red-600 dark:text-red-400 font-bold";
+                                    statusIcon = (
+                                      <HiOutlineXCircle className="w-5 h-5 text-red-500 shrink-0" />
+                                    );
+                                    badgeText = (
+                                      <span className="px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 text-[11px] font-bold whitespace-nowrap shrink-0">
+                                        Your Answer (Wrong)
+                                      </span>
+                                    );
+                                  } else if (
+                                    !isStudentChoice &&
+                                    isActualCorrect
+                                  ) {
+                                    // Case C: The correct answer that student missed
+                                    optionStyles =
+                                      "bg-[#E7F8EE]/60 border-2 border-[#309255]/70 text-[#309255] dark:bg-[#E7F8EE]/10 dark:text-[#E7F8EE] font-semibold";
+                                    statusIcon = (
+                                      <HiOutlineCheckCircle className="w-5 h-5 text-[#309255] shrink-0" />
+                                    );
+                                    badgeText = (
+                                      <span className="px-2.5 py-0.5 rounded-full bg-[#E7F8EE] text-[#309255] border border-[#309255]/30 text-[11px] font-bold whitespace-nowrap shrink-0">
+                                        Correct Solution
+                                      </span>
+                                    );
+                                  } else {
+                                    // Case D: Other options
+                                    optionStyles =
+                                      "bg-card border-border/60 text-muted opacity-60";
                                   }
-                                  className={`w-full p-3.5 rounded-xl text-left text-xs transition-all border flex items-center justify-between gap-3 ${optionStyles}`}
-                                >
-                                  <div className="flex items-center gap-2.5 min-w-0">
-                                    <span className="font-mono font-bold text-muted shrink-0 w-5">
-                                      {String.fromCharCode(65 + optIdx)}.
-                                    </span>
-                                    <span className="truncate">
-                                      {typeof opt === "string"
-                                        ? opt
-                                        : opt.text || `Option ${optIdx + 1}`}
-                                    </span>
-                                  </div>
+                                } else if (isStudentChoice) {
+                                  optionStyles =
+                                    "bg-[#E7F8EE]/40 border-2 border-[#309255] text-foreground font-bold";
+                                }
 
-                                  <div className="flex items-center gap-2 shrink-0">
-                                    {badgeText}
-                                    {statusIcon}
-                                  </div>
-                                </button>
-                              );
+                                return (
+                                  <button
+                                    key={optIdx}
+                                    type="button"
+                                    disabled={quizSubmitted}
+                                    onClick={() =>
+                                      setSelectedAnswers((prev) => ({
+                                        ...prev,
+                                        [qId]: optIdx,
+                                        ...(q.id !== undefined
+                                          ? { [q.id]: optIdx }
+                                          : {}),
+                                        ...(q.documentId
+                                          ? { [q.documentId]: optIdx }
+                                          : {}),
+                                      }))
+                                    }
+                                    className={`w-full p-3.5 rounded-xl text-left text-xs transition-all border flex items-center justify-between gap-3 ${optionStyles}`}
+                                  >
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      <span className="font-mono font-bold text-muted shrink-0 w-5">
+                                        {String.fromCharCode(65 + optIdx)}.
+                                      </span>
+                                      <span className="truncate">
+                                        {typeof opt === "string"
+                                          ? opt
+                                          : opt.text || `Option ${optIdx + 1}`}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 shrink-0">
+                                      {badgeText}
+                                      {statusIcon}
+                                    </div>
+                                  </button>
+                                );
                             })}
                           </div>
 
                           {/* Explanation Card */}
                           {quizSubmitted && q.explanation && (
-                            <div className="p-3.5 rounded-xl bg-card border border-border text-xs text-muted space-y-1 mt-2">
-                              <strong className="text-foreground flex items-center gap-1.5">
+                            <div className="p-4 rounded-xl bg-[#F8FAF9] dark:bg-[#181E27] border border-border text-xs text-foreground space-y-1.5 mt-3 shadow-2xs">
+                              <strong className="text-foreground flex items-center gap-1.5 font-bold">
                                 <span>💡 Explanation:</span>
                               </strong>
-                              <p className="leading-relaxed pl-5">
+                              <p className="leading-relaxed pl-5 text-muted">
                                 {q.explanation}
                               </p>
                             </div>
@@ -1164,42 +1185,74 @@ export default function CoursePlayerPage({ params }) {
           ) : null}
 
           {/* Player Sequential Controls Bar */}
-          <div className="p-4 rounded-xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 rounded-2xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-1">
             <div className="space-y-0.5">
-              <span className="text-[11px] font-bold text-secondary uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-[#309255] uppercase tracking-wider">
                 {isVideoLesson ? "Current Lesson" : "Current Checkpoint"}
               </span>
-              <h2 className="text-base font-bold text-foreground">
+              <h2 className="text-base font-extrabold text-foreground tracking-tight">
                 {activeItem?.data?.title || "Welcome to the Track"}
               </h2>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
               {prevItem && (
                 <Button
                   onClick={() => handleSelectActiveItem(prevItem)}
                   variant="outline"
                   size="sm"
-                  className="p-2.5"
+                  className="p-2.5 border-border hover:border-[#309255]/40 text-foreground"
                 >
                   <HiOutlineChevronLeft className="w-4 h-4" />
                 </Button>
               )}
 
-              {isVideoLesson ? (
+              {isAllCourseCompleted ? (
                 <Button
-                  onClick={() => markCurrentItemComplete(currentActiveId)}
-                  variant={isCurrentComplete ? "secondary" : "primary"}
+                  onClick={() => setShowCertificateModal(true)}
+                  variant="primary"
                   size="sm"
-                  className="text-xs gap-1.5 font-bold"
+                  className="text-xs gap-1.5 font-bold shadow-1 whitespace-nowrap"
                 >
-                  <HiOutlineCheckCircle className="w-4 h-4" />
-                  <span>
-                    {isCurrentComplete
-                      ? "Completed ✓"
-                      : "Mark Complete & Next →"}
-                  </span>
+                  <HiOutlineTrophy className="w-4 h-4" />
+                  <span>Course Completed 🎉</span>
                 </Button>
+              ) : isVideoLesson ? (
+                isCurrentComplete ? (
+                  nextItem ? (
+                    <Button
+                      onClick={() => handleSelectActiveItem(nextItem)}
+                      variant="primary"
+                      size="sm"
+                      className="text-xs gap-1.5 font-bold shadow-1 whitespace-nowrap"
+                    >
+                      <HiOutlineCheckCircle className="w-4 h-4" />
+                      <span>Continue to Next Unit →</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setShowCertificateModal(true)}
+                      variant="primary"
+                      size="sm"
+                      className="text-xs gap-1.5 font-bold shadow-1 whitespace-nowrap"
+                    >
+                      <HiOutlineTrophy className="w-4 h-4" />
+                      <span>Course Completed 🎉</span>
+                    </Button>
+                  )
+                ) : (
+                  <Button
+                    onClick={() => markCurrentItemComplete(currentActiveId)}
+                    variant="primary"
+                    size="sm"
+                    className="text-xs gap-1.5 font-bold shadow-1 whitespace-nowrap"
+                  >
+                    <HiOutlineCheckCircle className="w-4 h-4" />
+                    <span>
+                      {nextItem ? "Mark Complete & Next →" : "Complete Course 🎉"}
+                    </span>
+                  </Button>
+                )
               ) : isQuizItem ? (
                 !quizSubmitted ? (
                   <Button
@@ -1207,32 +1260,77 @@ export default function CoursePlayerPage({ params }) {
                     disabled={isSubmittingQuiz}
                     variant="primary"
                     size="sm"
-                    className="text-xs font-bold"
+                    className="text-xs font-bold shadow-1 whitespace-nowrap"
                   >
                     {isSubmittingQuiz
                       ? "Auto-Grading..."
                       : "Submit Quiz Attempt →"}
                   </Button>
+                ) : isCurrentComplete ? (
+                  nextItem ? (
+                    <Button
+                      onClick={() => handleSelectActiveItem(nextItem)}
+                      variant="primary"
+                      size="sm"
+                      className="text-xs font-bold shadow-1 whitespace-nowrap"
+                    >
+                      <span>Continue to Next Unit →</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setShowCertificateModal(true)}
+                      variant="primary"
+                      size="sm"
+                      className="text-xs gap-1.5 font-bold shadow-1 whitespace-nowrap"
+                    >
+                      <HiOutlineTrophy className="w-4 h-4" />
+                      <span>Course Completed 🎉</span>
+                    </Button>
+                  )
                 ) : (
-                  <Button
-                    onClick={() => markCurrentItemComplete(currentActiveId)}
-                    variant="primary"
-                    size="sm"
-                    className="text-xs font-bold"
-                  >
-                    {isCurrentComplete
-                      ? "Continue to Next Unit →"
-                      : "Save & Continue →"}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => {
+                        setQuizSubmitted(false);
+                        setSelectedAnswers({});
+                        setQuizScore(null);
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs font-bold border-[#309255]/30 text-[#309255] hover:bg-[#E7F8EE]/40 whitespace-nowrap"
+                    >
+                      <span>Retake Quiz ↻</span>
+                    </Button>
+                    {nextItem ? (
+                      <Button
+                        onClick={() => handleSelectActiveItem(nextItem)}
+                        variant="primary"
+                        size="sm"
+                        className="text-xs font-bold shadow-1 whitespace-nowrap"
+                      >
+                        <span>Continue to Next Unit →</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => setShowCertificateModal(true)}
+                        variant="primary"
+                        size="sm"
+                        className="text-xs gap-1.5 font-bold shadow-1 whitespace-nowrap"
+                      >
+                        <HiOutlineTrophy className="w-4 h-4" />
+                        <span>Course Completed 🎉</span>
+                      </Button>
+                    )}
+                  </div>
                 )
               ) : null}
 
-              {nextItem && isCurrentComplete && (
+              {nextItem && (isCurrentComplete || isAllCourseCompleted) && (
                 <Button
                   onClick={() => handleSelectActiveItem(nextItem)}
                   variant="outline"
                   size="sm"
-                  className="p-2.5"
+                  className="p-2.5 border-border hover:border-[#309255]/40 text-foreground"
                 >
                   <HiOutlineChevronRight className="w-4 h-4" />
                 </Button>

@@ -194,11 +194,11 @@ export function HeroSection() {
                     <img
                       src={slide.image}
                       alt={slide.title}
-                      className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-700"
+                      className="w-full h-full object-cover transform scale-[1.02] group-hover:scale-100 transition-transform duration-700"
                     />
 
-                    {/* Dark Vignette Overlay for Readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#212832]/95 via-[#212832]/50 to-transparent" />
+                    {/* Dark Flat Translucent Overlay for Readability */}
+                    <div className="absolute inset-0 bg-[#212832]/65" />
 
                     {/* Top Floating Badge */}
                     <div className="absolute top-4 left-4 z-20 flex items-center gap-2">

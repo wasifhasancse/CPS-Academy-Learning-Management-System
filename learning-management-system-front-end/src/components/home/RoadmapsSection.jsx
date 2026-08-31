@@ -169,8 +169,8 @@ export function RoadmapsSection() {
                 onClick={() => setActiveTab(roadmap.id)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-primary text-white shadow-sm"
-                    : "text-muted hover:text-foreground hover:bg-surface/80"
+                    ? "bg-[#309255] text-white shadow-1"
+                    : "text-muted hover:text-[#309255] hover:bg-[#E7F8EE]/30"
                 }`}
               >
                 {roadmap.icon}
@@ -181,7 +181,7 @@ export function RoadmapsSection() {
         </div>
 
         {/* Active Roadmap Timeline Card */}
-        <div className="p-6 sm:p-10 rounded-3xl bg-surface border border-border shadow-xs space-y-8">
+        <div className="p-6 sm:p-10 rounded-3xl bg-surface border border-border shadow-1 space-y-8">
           {/* Header Info */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
             <div className="space-y-1.5">
@@ -202,7 +202,7 @@ export function RoadmapsSection() {
               </p>
             </div>
 
-            <Button href="/courses" variant="primary" size="sm" className="shrink-0 text-xs font-bold">
+            <Button href="/courses" variant="primary" size="sm" className="shrink-0 text-xs font-bold shadow-1">
               <span>View All Courses in Track</span>
               <HiOutlineArrowRight className="w-3.5 h-3.5 ml-1" />
             </Button>

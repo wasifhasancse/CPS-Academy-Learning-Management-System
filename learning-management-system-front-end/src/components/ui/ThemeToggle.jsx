@@ -11,7 +11,8 @@ export function ThemeToggle() {
     const storedTheme = localStorage.getItem("theme");
     if (
       storedTheme === "dark" ||
-      (!storedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      (!storedTheme &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
     ) {
       setTheme("dark");
       document.documentElement.classList.add("dark");
@@ -44,7 +45,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-      className="w-8 h-8 sm:w-9 sm:h-9 rounded-full hover:bg-surface border border-transparent hover:border-border text-foreground flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none"
+      className="w-8 h-8 sm:w-9 sm:h-9 rounded-full hover:bg-surface-hover border border-transparent hover:border-border text-foreground flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#309255]/40"
     >
       {theme === "light" ? (
         /* Moon Icon for Light -> Dark switch */

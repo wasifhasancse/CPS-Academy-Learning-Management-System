@@ -1,14 +1,13 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import {
-  HiOutlineShieldCheck,
-  HiOutlineArrowRightOnRectangle,
-  HiOutlineSquares2X2,
-  HiOutlineChevronRight,
-  HiOutlineUserCircle,
+    HiOutlineArrowRightOnRectangle,
+    HiOutlineChevronRight,
+    HiOutlineShieldCheck,
+    HiOutlineSquares2X2
 } from "react-icons/hi2";
 
 export function DashboardLayout({
@@ -39,7 +38,11 @@ export function DashboardLayout({
             {/* User Profile Card */}
             <div className="p-3.5 rounded-xl bg-surface border border-border/80 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] border border-[#309255]/25 flex items-center justify-center font-bold text-lg shrink-0 shadow-2xs">
-                {user?.username ? user.username.charAt(0).toUpperCase() : <HiOutlineShieldCheck className="w-5 h-5" />}
+                {user?.username ? (
+                  user.username.charAt(0).toUpperCase()
+                ) : (
+                  <HiOutlineShieldCheck className="w-5 h-5" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <span className="font-extrabold text-sm text-foreground truncate block leading-tight">
@@ -56,7 +59,10 @@ export function DashboardLayout({
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted px-2.5 block mb-1.5">
                 Navigation
               </span>
-              <nav className="flex flex-col gap-1" aria-label="Dashboard Navigation">
+              <nav
+                className="flex flex-col gap-1"
+                aria-label="Dashboard Navigation"
+              >
                 {navItems.map((item) => {
                   const isActive = item.href
                     ? pathname === item.href
@@ -65,13 +71,17 @@ export function DashboardLayout({
                   const itemClass = `w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-left cursor-pointer ${
                     isActive
                       ? "bg-[#309255] text-white shadow-1 font-black"
-                      : "text-muted hover:bg-[#E7F8EE]/40 hover:text-[#309255] dark:hover:bg-surface dark:hover:text-[#E7F8EE]"
+                      : "text-muted hover:bg-[#E7F8EE]/40 hover:text-[#309255] dark:hover:bg-surface-hover dark:hover:text-[#E7F8EE]"
                   }`;
 
                   const content = (
                     <>
                       <div className="flex items-center gap-2.5 min-w-0">
-                        {item.icon && <span className="shrink-0 text-base flex items-center justify-center">{item.icon}</span>}
+                        {item.icon && (
+                          <span className="shrink-0 text-base flex items-center justify-center">
+                            {item.icon}
+                          </span>
+                        )}
                         <span className="truncate">{item.label}</span>
                       </div>
                       {item.badge !== undefined && item.badge !== null && (
@@ -90,7 +100,11 @@ export function DashboardLayout({
 
                   if (item.href) {
                     return (
-                      <Link key={item.id || item.href} href={item.href} className={itemClass}>
+                      <Link
+                        key={item.id || item.href}
+                        href={item.href}
+                        className={itemClass}
+                      >
                         {content}
                       </Link>
                     );
@@ -142,7 +156,9 @@ export function DashboardLayout({
                   <div className="flex items-center gap-1.5 text-xs text-muted font-medium mb-0.5">
                     <span>Dashboard</span>
                     <HiOutlineChevronRight className="w-3 h-3 text-muted/60" />
-                    <span className="text-foreground font-bold">{subtitle}</span>
+                    <span className="text-foreground font-bold">
+                      {subtitle}
+                    </span>
                   </div>
                   <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight leading-tight">
                     {roleTitle}

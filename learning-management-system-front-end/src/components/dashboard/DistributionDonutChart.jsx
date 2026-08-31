@@ -4,13 +4,10 @@ import React from "react";
 
 const SEGMENT_COLORS = [
   "#309255",
-  "#48BB78",
-  "#212832",
-  "#10B981",
-  "#38A169",
-  "#68D391",
-  "#1F2937",
-  "#059669",
+  "#E7F8EE",
+  "#F8FAF9",
+  "#309255",
+  "#E7F8EE",
 ];
 
 export function DistributionDonutChart({
@@ -102,8 +99,8 @@ export function DistributionDonutChart({
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="currentColor"
-                strokeOpacity="0.06"
+                stroke="#2E3846"
+                strokeOpacity="1"
                 strokeWidth={strokeWidth}
               />
 
@@ -138,7 +135,7 @@ export function DistributionDonutChart({
             {computed.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between text-xs py-1 px-1.5 rounded-lg hover:bg-surface transition-colors"
+                className="flex items-center justify-between text-xs py-1 px-1.5 rounded-lg hover:bg-surface-hover transition-colors"
               >
                 <div className="flex items-center gap-2 max-w-[70%]">
                   <span

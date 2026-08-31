@@ -134,7 +134,7 @@ export default function Home() {
                     </span>
                     <Link
                       href={`/courses?category=${category.slug || category.documentId || category.id}`}
-                      className="text-xs font-bold text-[#309255] hover:text-[#212832] dark:hover:text-white inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+                      className="text-xs font-bold text-[#309255] hover:text-[#267544] dark:hover:text-[#E7F8EE] inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
                     >
                       <span>Explore</span>
                       <HiOutlineArrowRight className="w-3.5 h-3.5" />
