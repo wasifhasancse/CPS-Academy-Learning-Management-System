@@ -1,7 +1,11 @@
 "use client";
 
 
-const SEGMENT_COLORS = ["#309255", "#E7F8EE", "#F8FAF9", "#309255", "#E7F8EE"];
+const SEGMENT_COLORS = [
+  "var(--chart-data-primary)",
+  "var(--chart-data-secondary)",
+  "var(--chart-data-tertiary)",
+];
 
 export function DistributionDonutChart({
   title = "Distribution",
@@ -114,7 +118,7 @@ export function DistributionDonutChart({
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="#2E3846"
+                stroke="var(--chart-track)"
                 strokeOpacity="1"
                 strokeWidth={strokeWidth}
               />

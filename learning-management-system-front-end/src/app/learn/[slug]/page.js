@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { CoursePlayerSkeleton } from "@/components/ui/Skeleton";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";

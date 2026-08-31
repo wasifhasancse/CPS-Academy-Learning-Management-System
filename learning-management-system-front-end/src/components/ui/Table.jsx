@@ -11,7 +11,7 @@ export function Table({ headers, children, className = "", ...props }) {
         {...props}
       >
         {headers && (
-          <thead className="bg-[#F8FAF9] dark:bg-[#181E27] text-[11px] font-extrabold text-muted uppercase tracking-wider border-b border-border">
+          <thead className="bg-background text-[11px] font-extrabold text-muted uppercase tracking-wider border-b border-border">
             <tr>
               {headers.map((h, i) => (
                 <th key={i} className="px-4 py-3.5 sm:px-6 font-extrabold">
@@ -30,7 +30,7 @@ export function Table({ headers, children, className = "", ...props }) {
 export function TableHeader({ children, className = "", ...props }) {
   return (
     <thead
-      className={`bg-[#F8FAF9] dark:bg-[#181E27] text-[11px] font-extrabold text-muted uppercase tracking-wider border-b border-border ${className}`}
+      className={`bg-background text-[11px] font-extrabold text-muted uppercase tracking-wider border-b border-border ${className}`}
       {...props}
     >
       {children}

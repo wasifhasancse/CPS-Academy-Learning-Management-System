@@ -22,6 +22,14 @@
   --border: #e2ece6;
   --muted: #52565b;
 
+  /* Dashboard Data Visualization */
+  --chart-grid: #e2ece6;
+  --chart-track: #e2ece6;
+  --chart-point: #ffffff;
+  --chart-data-primary: #309255;
+  --chart-data-secondary: #212832;
+  --chart-data-tertiary: #52565b;
+
   /* Footer Colors */
   --footer-bg: #212832;
   --footer-fg: #f8faf9;
@@ -37,6 +45,14 @@
   --card-foreground: #f5fbf7;
   --border: #2e3846;
   --muted: #9ba4b4;
+
+  /* Dashboard Data Visualization */
+  --chart-grid: #2e3846;
+  --chart-track: #2e3846;
+  --chart-point: #212832;
+  --chart-data-primary: #309255;
+  --chart-data-secondary: #e7f8ee;
+  --chart-data-tertiary: #9ba4b4;
 
   /* Footer Colors (Dark Mode) */
   --footer-bg: #11161d;
@@ -59,6 +75,9 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-border: var(--border);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-track: var(--chart-track);
+  --color-chart-point: var(--chart-point);
 
   --color-footer-bg: var(--footer-bg);
   --color-footer-fg: var(--footer-fg);
@@ -92,4 +111,26 @@ input,
 select,
 textarea {
   caret-color: var(--primary);
+}
+
+.dashboard-shell select {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--foreground);
+  transition: background-color 200ms, border-color 200ms, box-shadow 200ms;
+}
+
+.dashboard-shell select:hover {
+  border-color: color-mix(in srgb, var(--primary) 60%, var(--border));
+}
+
+.dashboard-shell select:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent);
+  outline: none;
+}
+
+.dashboard-shell option {
+  background-color: var(--surface);
+  color: var(--foreground);
 }

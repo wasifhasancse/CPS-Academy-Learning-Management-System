@@ -30,7 +30,7 @@ export function DashboardLayout({
   });
 
   return (
-    <div className="w-full bg-background text-foreground transition-colors min-h-[calc(100vh-4rem)]">
+    <div className="dashboard-shell w-full bg-background text-foreground transition-colors min-h-[calc(100vh-4rem)]">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           {/* Sidebar Navigation */}

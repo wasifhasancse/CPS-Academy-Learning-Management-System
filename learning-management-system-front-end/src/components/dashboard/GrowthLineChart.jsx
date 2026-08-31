@@ -2,7 +2,11 @@
 
 import React, { useState } from "react";
 
-const DEFAULT_COLORS = ["#309255", "#E7F8EE", "#F8FAF9"];
+const DEFAULT_COLORS = [
+  "var(--chart-data-primary)",
+  "var(--chart-data-secondary)",
+  "var(--chart-data-tertiary)",
+];
 
 export function GrowthLineChart({
   title = "Activity Trend",
@@ -243,8 +247,8 @@ export function GrowthLineChart({
                     y1={y}
                     x2={width - paddingX}
                     y2={y}
-                    stroke="#2E3846"
-                    strokeOpacity="0.8"
+                    stroke="var(--chart-grid)"
+                    strokeOpacity="1"
                     strokeDasharray="3 3"
                   />
                   <text
@@ -292,7 +296,7 @@ export function GrowthLineChart({
                   cx={pt.x}
                   cy={pt.y}
                   r={selectedIdx === idx ? "5" : "3.5"}
-                  fill="#FFFFFF"
+                  fill="var(--chart-point)"
                   stroke={s.color}
                   strokeWidth="2.5"
                   className="cursor-pointer transition-all duration-150"

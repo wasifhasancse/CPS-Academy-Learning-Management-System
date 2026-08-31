@@ -1,27 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
 import { CourseCard } from "@/components/courses/CourseCard";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { CourseGridSkeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/api";
-import {
-  HiOutlineSparkles,
-  HiOutlineAcademicCap,
-  HiOutlineArrowRight,
-} from "react-icons/hi2";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { HiOutlineAcademicCap, HiOutlineArrowRight } from "react-icons/hi2";
 
-import { HeroSection } from "@/components/home/HeroSection";
-import { RoadmapsSection } from "@/components/home/RoadmapsSection";
-import { QuizPreviewSection } from "@/components/home/QuizPreviewSection";
 import { ComparisonSection } from "@/components/home/ComparisonSection";
-import { ImpactMetricsSection } from "@/components/home/ImpactMetricsSection";
-import { TestimonialsSection } from "@/components/home/TestimonialsSection";
-import { HomeBlogsSection } from "@/components/home/HomeBlogsSection";
 import { FaqSection } from "@/components/home/FaqSection";
+import { HeroSection } from "@/components/home/HeroSection";
+import { HomeBlogsSection } from "@/components/home/HomeBlogsSection";
+import { ImpactMetricsSection } from "@/components/home/ImpactMetricsSection";
+import { LearningWorkflowSection } from "@/components/home/LearningWorkflowSection";
+import { QuizPreviewSection } from "@/components/home/QuizPreviewSection";
+import { RoadmapsSection } from "@/components/home/RoadmapsSection";
+import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 
 export default function Home() {
   const [featuredCourses, setFeaturedCourses] = useState([]);
@@ -37,11 +33,13 @@ export default function Home() {
         const [courseRes, catRes, blogRes] = await Promise.all([
           api
             .get(
-              "/courses?populate[modules][populate]=lessons&populate[quizzes]=*&populate[category]=*&populate[instructor]=*&populate[enrollments]=*"
+              "/courses?populate[modules][populate]=lessons&populate[quizzes]=*&populate[category]=*&populate[instructor]=*&populate[enrollments]=*",
             )
             .catch(() => null),
           api.get("/categories").catch(() => null),
-          api.get("/blog-posts?populate=author&populate=category").catch(() => null),
+          api
+            .get("/blog-posts?populate=author&populate=category")
+            .catch(() => null),
         ]);
 
         if (Array.isArray(courseRes?.data)) {
@@ -115,7 +113,7 @@ export default function Home() {
               {categories.map((category) => (
                 <div
                   key={category.documentId || category.id}
-                  className="rounded-2xl border border-border bg-surface hover:bg-card p-6 flex flex-col justify-between transition-all duration-300 transform hover:-translate-y-0.5 shadow-1 hover:shadow-1 hover:border-[#309255] group cursor-pointer"
+                  className="rounded-2xl border border-border bg-surface hover:bg-surface-hover p-6 flex flex-col justify-between transition-all duration-300 transform hover:-translate-y-0.5 shadow-1 hover:shadow-1 hover:border-[#309255] group cursor-pointer"
                 >
                   <div className="space-y-3.5">
                     <div className="w-12 h-12 rounded-2xl bg-[#E7F8EE] dark:bg-[#E7F8EE]/15 text-[#309255] dark:text-[#E7F8EE] font-black flex items-center justify-center text-lg border border-[#309255]/20 shadow-xs group-hover:scale-[1.02] group-hover:bg-[#309255] group-hover:text-white transition-all duration-300">
@@ -125,7 +123,8 @@ export default function Home() {
                       {category.name}
                     </h3>
                     <p className="text-xs text-muted leading-relaxed line-clamp-2">
-                      {category.description || "Structured learning paths, live problem sets, and checkpoints."}
+                      {category.description ||
+                        "Structured learning paths, live problem sets, and checkpoints."}
                     </p>
                   </div>
                   <div className="pt-4 mt-4 border-t border-border flex items-center justify-between">
@@ -159,11 +158,17 @@ export default function Home() {
                 Featured & Trending Courses
               </h2>
               <p className="text-sm text-muted">
-                Hand-crafted computer science courses with video lectures, reading notes, and diagnostic quizzes.
+                Hand-crafted computer science courses with video lectures,
+                reading notes, and diagnostic quizzes.
               </p>
             </div>
 
-            <Button href="/courses" variant="outline" size="sm" className="shrink-0 text-xs font-bold gap-1.5 hover:border-[#309255]">
+            <Button
+              href="/courses"
+              variant="outline"
+              size="sm"
+              className="shrink-0 text-xs font-bold gap-1.5 hover:border-[#309255]"
+            >
               <span>View All Courses</span>
               <HiOutlineArrowRight className="w-3.5 h-3.5" />
             </Button>
@@ -178,7 +183,7 @@ export default function Home() {
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                   selectedCourseCat === "all"
                     ? "bg-[#309255] text-white shadow-sm"
-                    : "bg-card border border-border text-muted hover:text-[#309255] hover:bg-[#E7F8EE]/30"
+                    : "bg-card border border-border text-muted hover:text-[#309255] hover:bg-surface-hover dark:hover:text-[#E7F8EE]"
                 }`}
               >
                 All Courses ({featuredCourses.length})
@@ -191,7 +196,7 @@ export default function Home() {
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                     selectedCourseCat === (cat.slug || cat.name)
                       ? "bg-[#309255] text-white shadow-sm"
-                      : "bg-card border border-border text-muted hover:text-[#309255] hover:bg-[#E7F8EE]/30"
+                      : "bg-card border border-border text-muted hover:text-[#309255] hover:bg-surface-hover dark:hover:text-[#E7F8EE]"
                   }`}
                 >
                   {cat.name}
@@ -201,7 +206,10 @@ export default function Home() {
           )}
 
           {isLoading ? (
-            <CourseGridSkeleton count={3} columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" />
+            <CourseGridSkeleton
+              count={3}
+              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            />
           ) : filteredCourses.length === 0 ? (
             <div className="p-12 text-center text-muted text-sm border border-dashed border-border rounded-2xl bg-card">
               No courses matching the selected category.
@@ -209,7 +217,10 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCourses.map((course) => (
-                <CourseCard key={course.documentId || course.id} course={course} />
+                <CourseCard
+                  key={course.documentId || course.id}
+                  course={course}
+                />
               ))}
             </div>
           )}
@@ -219,25 +230,28 @@ export default function Home() {
       {/* 4. NEW SECTION 1: INTERACTIVE LEARNING PATHS / ROADMAPS */}
       <RoadmapsSection />
 
-      {/* 5. NEW SECTION 2: INTERACTIVE QUIZ ASSESSMENT PREVIEW WIDGET */}
+      {/* 5. LEARNING WORKFLOW */}
+      <LearningWorkflowSection />
+
+      {/* 6. NEW SECTION 2: INTERACTIVE QUIZ ASSESSMENT PREVIEW WIDGET */}
       <QuizPreviewSection />
 
-      {/* 6. NEW SECTION 3: WHY CPS ACADEMY COMPARISON MATRIX */}
+      {/* 7. NEW SECTION 3: WHY CPS ACADEMY COMPARISON MATRIX */}
       <ComparisonSection />
 
-      {/* 7. NEW SECTION 4: PLATFORM IMPACT & COMMUNITY METRICS */}
+      {/* 8. NEW SECTION 4: PLATFORM IMPACT & COMMUNITY METRICS */}
       <ImpactMetricsSection />
 
-      {/* 8. NEW SECTION 5: STUDENT SUCCESS STORIES & TESTIMONIALS */}
+      {/* 9. NEW SECTION 5: STUDENT SUCCESS STORIES & TESTIMONIALS */}
       <TestimonialsSection />
 
-      {/* 9. NEW SECTION 6: LATEST ENGINEERING BLOG ARTICLES */}
+      {/* 10. NEW SECTION 6: LATEST ENGINEERING BLOG ARTICLES */}
       <HomeBlogsSection blogs={blogs} />
 
-      {/* 10. NEW SECTION 7: INTERACTIVE FAQ ACCORDION */}
+      {/* 11. NEW SECTION 7: INTERACTIVE FAQ ACCORDION */}
       <FaqSection />
 
-      {/* 11. INSTRUCTOR INVITATION CTA */}
+      {/* 12. INSTRUCTOR INVITATION CTA */}
       <section className="py-16 md:py-24 bg-surface border-b border-border">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-[#212832] text-white border border-[#2E3846] rounded-3xl p-8 sm:p-14 flex flex-col md:flex-row items-center justify-between gap-8 shadow-1 relative overflow-hidden">
@@ -253,14 +267,26 @@ export default function Home() {
                 Share Your Knowledge with Thousands of Learners
               </h2>
               <p className="text-sm sm:text-base text-white/80 leading-relaxed">
-                Upload courses, organize video & text lessons, author diagnostic quiz question banks, and track enrolled students with universal live progress synchronization.
+                Upload courses, organize video & text lessons, author diagnostic
+                quiz question banks, and track enrolled students with universal
+                live progress synchronization.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3.5 w-full md:w-auto shrink-0 relative z-10">
-              <Button href="/auth/register" variant="primary" size="lg" className="font-bold text-xs sm:text-sm px-6 py-3.5 shadow-1">
+              <Button
+                href="/auth/register"
+                variant="primary"
+                size="lg"
+                className="font-bold text-xs sm:text-sm px-6 py-3.5 shadow-1"
+              >
                 Join as Instructor
               </Button>
-              <Button href="/about" variant="outline" size="lg" className="text-white border-white/30 hover:bg-white/10 dark:text-white dark:border-white/30 dark:hover:bg-white/10 font-bold text-xs sm:text-sm px-6 py-3.5">
+              <Button
+                href="/about"
+                variant="outline"
+                size="lg"
+                className="text-white border-white/30 hover:bg-white/10 dark:text-white dark:border-white/30 dark:hover:bg-white/10 font-bold text-xs sm:text-sm px-6 py-3.5"
+              >
                 Learn More
               </Button>
             </div>

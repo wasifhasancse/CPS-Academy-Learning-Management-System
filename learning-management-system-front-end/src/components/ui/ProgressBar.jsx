@@ -29,7 +29,7 @@ export function ProgressBar({
           <span>{percentage}%</span>
         </div>
       )}
-      <div className={`w-full rounded-full bg-[#E2ECE6] dark:bg-[#2E3846] overflow-hidden ${sizeClasses[size] || sizeClasses.md}`}>
+      <div className={`w-full rounded-full bg-border overflow-hidden ${sizeClasses[size] || sizeClasses.md}`}>
         <div
           className="h-full bg-[#309255] transition-all duration-500 rounded-full"
           style={{
