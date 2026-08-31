@@ -2,27 +2,27 @@ import Link from "next/link";
 
 const variantStyles = {
   primary:
-    "bg-[#7AB2D3] text-white hover:bg-[#4A628A] dark:bg-[#7AB2D3] dark:text-[#1E2A3A] dark:hover:bg-[#B9E5E8] focus-visible:ring-[#7AB2D3]/40 font-bold",
+    "bg-[#309255] text-white hover:bg-[#212832] dark:bg-[#309255] dark:hover:bg-[#212832] shadow-1 hover:shadow-1 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/40 font-bold",
   secondary:
-    "bg-[#4A628A] text-[#DFF2EB] hover:bg-[#5A7BA0] dark:bg-[#5A7BA0] dark:text-[#DFF2EB] dark:hover:bg-[#7AB2D3] focus-visible:ring-[#4A628A]/40 font-semibold",
+    "bg-[#212832] text-white hover:bg-[#309255] dark:bg-[#309255] dark:text-white dark:hover:bg-[#267544] shadow-1 hover:shadow-1 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#212832]/40 font-semibold",
   highlight:
-    "bg-[#B9E5E8] text-[#4A628A] hover:bg-[#DFF2EB] dark:bg-[#B9E5E8] dark:text-[#1E2A3A] dark:hover:bg-[#DFF2EB] focus-visible:ring-[#B9E5E8]/50 font-bold",
+    "bg-[#E7F8EE] text-[#309255] hover:bg-[#309255] hover:text-white dark:bg-[#E7F8EE]/10 dark:text-[#E7F8EE] dark:hover:bg-[#309255] dark:hover:text-white border border-[#309255]/20 shadow-1 hover:shadow-1 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/30 font-bold",
   outline:
-    "border border-[#7AB2D3] text-[#7AB2D3] hover:bg-[#7AB2D3]/10 dark:border-[#B9E5E8] dark:text-[#B9E5E8] dark:hover:bg-[#B9E5E8]/15 focus-visible:ring-[#7AB2D3]/30 font-semibold",
+    "border-2 border-[#309255] text-[#309255] hover:bg-[#309255] hover:text-white dark:border-[#309255] dark:text-[#309255] dark:hover:bg-[#309255] dark:hover:text-white hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/30 font-bold",
   outlineSecondary:
-    "border border-[#B9E5E8] text-[#4A628A] dark:border-[#B9E5E8]/40 dark:text-[#B9E5E8] hover:bg-[#B9E5E8]/10 focus-visible:ring-[#B9E5E8]/30",
+    "border border-[#212832]/20 text-[#212832] dark:border-[#E7F8EE]/20 dark:text-[#E7F8EE] hover:bg-[#E7F8EE]/40 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#212832]/30 font-semibold",
   ghost:
-    "text-foreground hover:bg-surface dark:text-foreground dark:hover:bg-surface focus-visible:ring-[#7AB2D3]/20",
+    "text-foreground hover:bg-[#E7F8EE] hover:text-[#309255] dark:text-foreground dark:hover:bg-[#212832] dark:hover:text-[#E7F8EE] focus-visible:ring-[#309255]/20",
   surface:
-    "bg-surface text-foreground hover:bg-border/60 dark:bg-surface dark:text-foreground dark:hover:bg-border/60 focus-visible:ring-[#7AB2D3]/20",
+    "bg-surface text-foreground hover:bg-[#E7F8EE] hover:text-[#309255] border border-border dark:bg-surface dark:text-foreground dark:hover:bg-border/60 hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-[#309255]/20",
   danger:
     "bg-red-600/10 text-red-500 hover:bg-red-600/20 border border-red-500/20 focus-visible:ring-red-500/30",
 };
 
 const sizeStyles = {
-  sm: "text-xs px-3 py-1.5 rounded-md gap-1.5",
-  md: "text-sm px-4 py-2 rounded-lg gap-2",
-  lg: "text-base px-6 py-3 rounded-lg gap-2.5 font-medium",
+  sm: "text-xs px-3.5 py-1.5 rounded-lg gap-1.5",
+  md: "text-sm px-4.5 py-2 rounded-xl gap-2",
+  lg: "text-base px-6 py-3 rounded-xl gap-2.5 font-medium",
 };
 
 export function Button({
@@ -39,7 +39,7 @@ export function Button({
 }) {
   const isDisabled = disabled || isLoading;
   const baseClasses =
-    "inline-flex items-center justify-center font-medium transition-colors duration-150 select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2";
+    "inline-flex items-center justify-center font-medium transition-all duration-300 select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus-visible:outline-none focus-visible:ring-2";
   const classes = `${baseClasses} ${variantStyles[variant] || variantStyles.primary} ${sizeStyles[size] || sizeStyles.md} ${className}`;
 
   const content = (

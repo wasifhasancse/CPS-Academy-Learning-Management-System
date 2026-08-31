@@ -143,8 +143,8 @@ export function RoadmapsSection() {
   const currentRoadmap = ROADMAPS.find((r) => r.id === activeTab) || ROADMAPS[0];
 
   return (
-    <section className="py-16 md:py-24 bg-background border-b border-border">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <section className="py-16 md:py-24 bg-surface border-b border-border">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <Badge variant="highlight" size="sm">
@@ -213,18 +213,18 @@ export function RoadmapsSection() {
             {currentRoadmap.steps.map((step, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-2xl bg-card border border-border hover:border-primary transition-all flex flex-col justify-between space-y-3 group"
+                className="p-5 rounded-2xl bg-card border border-border hover:border-[#309255] shadow-1 hover:shadow-1 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between space-y-3 group"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-black text-secondary font-mono">
+                    <span className="text-xl font-black text-[#309255] font-mono">
                       {step.step}
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface border border-border text-muted">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E7F8EE] dark:bg-[#E7F8EE]/10 border border-[#309255]/20 text-[#309255] dark:text-[#E7F8EE]">
                       {step.problems}
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
+                  <h4 className="text-sm font-bold text-foreground leading-snug group-hover:text-[#309255] transition-colors">
                     {step.title}
                   </h4>
                   <p className="text-xs text-muted leading-relaxed">
@@ -232,7 +232,7 @@ export function RoadmapsSection() {
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-border/60 flex items-center gap-1.5 text-[11px] font-semibold text-secondary">
+                <div className="pt-2 border-t border-border/60 flex items-center gap-1.5 text-[11px] font-semibold text-[#309255] dark:text-[#E7F8EE]">
                   <HiOutlineCheckCircle className="w-3.5 h-3.5" />
                   <span>Verified Curriculum</span>
                 </div>

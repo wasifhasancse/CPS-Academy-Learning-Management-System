@@ -98,15 +98,15 @@ export default function AdminUsersPage() {
                   return (
                     <TableRow key={u.id}>
                       <TableCell>
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-primary/20 text-primary dark:text-highlight flex items-center justify-center font-bold text-xs">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] flex items-center justify-center font-bold text-xs border border-[#309255]/25 shrink-0 shadow-2xs">
                             {u.username?.[0]?.toUpperCase() || "U"}
                           </div>
                           <div>
-                            <div className="font-semibold text-foreground text-xs">
-                              {u.username} {isCurrentUser && "(You)"}
+                            <div className="font-bold text-foreground text-xs leading-tight">
+                              {u.username} {isCurrentUser && <span className="text-[#309255] font-bold">(You)</span>}
                             </div>
-                            <div className="text-[10px] text-muted">ID: {u.id}</div>
+                            <div className="text-[10px] text-muted font-medium mt-0.5">ID: {u.id}</div>
                           </div>
                         </div>
                       </TableCell>
@@ -114,23 +114,35 @@ export default function AdminUsersPage() {
                         {u.email}
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={
-                            roleName.toLowerCase() === "admin"
-                              ? "primary"
-                              : roleName.toLowerCase() === "instructor"
-                              ? "highlight"
-                              : "secondary"
-                          }
-                        >
-                          {roleName}
-                        </Badge>
+                        {roleName.toLowerCase() === "admin" ? (
+                          <span className="inline-block px-2.5 py-1 rounded-full bg-[#309255] text-white font-bold text-xs shadow-2xs">
+                            Admin
+                          </span>
+                        ) : roleName.toLowerCase().includes("manager") ? (
+                          <span className="inline-block px-2.5 py-1 rounded-full bg-[#212832] text-white dark:bg-[#2E3846] dark:text-[#E7F8EE] font-bold text-xs border border-white/10 shadow-2xs">
+                            Content Manager
+                          </span>
+                        ) : roleName.toLowerCase() === "instructor" ? (
+                          <span className="inline-block px-2.5 py-1 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] font-bold text-xs border border-[#309255]/25">
+                            Instructor
+                          </span>
+                        ) : (
+                          <span className="inline-block px-2.5 py-1 rounded-full bg-surface border border-border text-foreground font-bold text-xs">
+                            Student
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell>
                         {isBlocked ? (
-                          <Badge variant="danger">Blocked</Badge>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-500 border border-red-500/25 font-bold text-xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                            Blocked
+                          </span>
                         ) : (
-                          <Badge variant="secondary">Active</Badge>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] border border-[#309255]/25 font-bold text-xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#309255]"></span>
+                            Active
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="text-xs text-muted">
@@ -141,15 +153,15 @@ export default function AdminUsersPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-xs py-1"
+                            className="text-xs py-1 px-2.5 font-bold border-[#309255]/30 text-[#309255] hover:bg-[#E7F8EE]/40"
                             onClick={() => handleOpenRoleModal(u)}
                           >
                             Change Role
                           </Button>
                           <Button
-                            variant={isBlocked ? "secondary" : "surface"}
+                            variant={isBlocked ? "primary" : "surface"}
                             size="sm"
-                            className="text-xs py-1"
+                            className="text-xs py-1 px-2.5 font-semibold"
                             disabled={isCurrentUser}
                             onClick={() => handleToggleBlockUser(u)}
                           >
@@ -158,7 +170,7 @@ export default function AdminUsersPage() {
                           <Button
                             variant="danger"
                             size="sm"
-                            className="text-xs py-1"
+                            className="text-xs py-1 px-2.5 font-semibold"
                             disabled={isCurrentUser}
                             onClick={() => handleOpenDeleteUserModal(u)}
                           >

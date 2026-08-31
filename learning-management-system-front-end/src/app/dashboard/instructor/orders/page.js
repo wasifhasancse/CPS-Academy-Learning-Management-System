@@ -71,18 +71,18 @@ export default function InstructorOrdersPage() {
           description="When students purchase your courses through Stripe Checkout, their enrollment invoices will appear here."
         />
       ) : (
-        <Card className="bg-card border-border overflow-hidden">
+        <Card className="bg-card border-border shadow-1 overflow-hidden">
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="border-0 shadow-none rounded-none">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order #</TableHead>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Course Track</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead className="w-[110px] min-w-[90px]">Order #</TableHead>
+                  <TableHead className="w-[220px] min-w-[180px]">Student</TableHead>
+                  <TableHead className="min-w-[240px]">Course Track</TableHead>
+                  <TableHead className="w-[130px] min-w-[110px]">Amount</TableHead>
+                  <TableHead className="w-[130px] min-w-[110px]">Status</TableHead>
+                  <TableHead className="w-[130px] min-w-[110px]">Date</TableHead>
+                  <TableHead className="w-[110px] min-w-[90px] text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -108,30 +108,34 @@ export default function InstructorOrdersPage() {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-0.5">
-                          <div className="font-semibold text-xs text-foreground">{studentName}</div>
+                          <div className="font-bold text-xs text-foreground">{studentName}</div>
                           {student.email && (
                             <div className="text-[11px] text-muted">{student.email}</div>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="font-semibold text-xs text-foreground line-clamp-1">
+                        <div className="font-bold text-xs text-foreground line-clamp-1">
                           {course.title || "Assigned Course"}
                         </div>
                       </TableCell>
-                      <TableCell className="font-bold text-xs text-foreground">
+                      <TableCell className="font-bold text-xs text-foreground whitespace-nowrap">
                         ৳{Number(order.amount || 0).toLocaleString()}
                       </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={isPaid ? "success" : order.status === "pending" ? "surface" : "danger"}
-                          size="sm"
-                          className="capitalize"
-                        >
-                          {order.status || "pending"}
-                        </Badge>
+                      <TableCell className="whitespace-nowrap">
+                        {isPaid ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#309255] text-white font-bold text-xs shadow-2xs whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0"></span>
+                            <span>Paid</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] border border-[#309255]/25 font-bold text-xs whitespace-nowrap capitalize">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#309255] shrink-0"></span>
+                            <span>{order.status || "Pending"}</span>
+                          </span>
+                        )}
                       </TableCell>
-                      <TableCell className="text-xs text-muted">{dateStr}</TableCell>
+                      <TableCell className="text-xs text-muted whitespace-nowrap">{dateStr}</TableCell>
                       <TableCell className="text-right">
                         {courseSlug && (
                           <Button
@@ -140,7 +144,7 @@ export default function InstructorOrdersPage() {
                             size="sm"
                             className="text-xs py-1 px-2.5 inline-flex items-center gap-1"
                           >
-                            <span>Course</span>
+                            <span>View</span>
                             <HiOutlineArrowTopRightOnSquare className="w-3.5 h-3.5" />
                           </Button>
                         )}

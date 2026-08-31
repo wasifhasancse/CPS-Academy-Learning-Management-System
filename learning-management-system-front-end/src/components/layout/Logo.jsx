@@ -2,34 +2,60 @@
 
 import React from "react";
 import Link from "next/link";
-import { HiCommandLine } from "react-icons/hi2";
 
 /**
- * Clean Terminal Logo Icon using React-Icons
- * Adheres strictly to the 4-color design system (#4A628A, #7AB2D3, #B9E5E8, #DFF2EB)
+ * Modern SVG Logo Mark for CPS Academy
+ * Represents the fusion of code terminal brackets & academic graduation symbol.
  */
 export function LogoIcon({ size = "md", className = "" }) {
   const containerSizes = {
-    sm: "w-7 h-7 rounded-lg",
-    md: "w-9 h-9 rounded-xl",
-    lg: "w-11 h-11 rounded-2xl",
+    sm: "w-8 h-8 rounded-xl",
+    md: "w-10 h-10 rounded-xl",
+    lg: "w-12 h-12 rounded-2xl",
   };
 
-  const iconSizes = {
-    sm: "w-4 h-4",
-    md: "w-5 h-5",
-    lg: "w-6 h-6",
+  const svgSizes = {
+    sm: "w-4.5 h-4.5",
+    md: "w-5.5 h-5.5",
+    lg: "w-7 h-7",
   };
 
   const containerClass = containerSizes[size] || containerSizes.md;
-  const iconClass = iconSizes[size] || iconSizes.md;
+  const svgClass = svgSizes[size] || svgSizes.md;
 
   return (
     <div
-      className={`${containerClass} bg-[#4A628A] text-[#DFF2EB] dark:bg-[#7AB2D3] dark:text-[#1E2A3A] border border-[#B9E5E8]/40 flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#7AB2D3] dark:group-hover:bg-[#B9E5E8] transition-colors ${className}`}
+      className={`${containerClass} bg-[#309255] text-white dark:bg-[#309255] dark:text-white border border-[#309255]/30 flex items-center justify-center shrink-0 shadow-1 group-hover:bg-[#212832] dark:group-hover:bg-[#267544] transition-all duration-300 ${className}`}
       aria-hidden="true"
     >
-      <HiCommandLine className={`${iconClass} transition-transform duration-200 group-hover:scale-105`} />
+      <svg
+        className={`${svgClass} transition-transform duration-300 group-hover:scale-105`}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Terminal Brackets & Academic Shield Paths */}
+        <path
+          d="M7 8L3 12L7 16"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M17 8L21 12L17 16"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14 4L10 20"
+          stroke="#E7F8EE"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+      </svg>
     </div>
   );
 }
@@ -45,33 +71,34 @@ export function Logo({
   variant = "default", // 'default' | 'footer'
 }) {
   const content = (
-    <div className={`inline-flex items-center gap-2.5 group select-none ${className}`}>
+    <div className={`inline-flex items-center gap-3 group select-none ${className}`}>
       <LogoIcon size={size} />
       {showText && (
-        <div className="flex flex-col justify-center leading-none">
-          <div className="flex items-center gap-1.5">
+        <div className="flex flex-col justify-center leading-tight">
+          <div className="flex items-center gap-1">
             <span
-              className={`font-black tracking-tight text-lg ${
+              className={`font-black tracking-tight text-lg sm:text-xl ${
                 variant === "footer"
-                  ? "text-[#DFF2EB]"
-                  : "text-foreground group-hover:text-[#7AB2D3] dark:group-hover:text-[#B9E5E8] transition-colors"
+                  ? "text-white"
+                  : "text-foreground group-hover:text-[#309255] transition-colors duration-200"
               }`}
             >
               CPS
             </span>
             <span
-              className={`font-bold text-lg ${
+              className={`font-extrabold text-lg sm:text-xl ${
                 variant === "footer"
-                  ? "text-[#B9E5E8]"
-                  : "text-[#7AB2D3] dark:text-[#B9E5E8]"
+                  ? "text-[#E7F8EE]"
+                  : "text-[#309255] dark:text-[#E7F8EE]"
               }`}
             >
               Academy
             </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#309255] shrink-0" />
           </div>
           <span
-            className={`text-[9px] font-bold uppercase tracking-widest mt-0.5 ${
-              variant === "footer" ? "text-[#DFF2EB]/70" : "text-muted"
+            className={`text-[8.5px] font-extrabold uppercase tracking-[0.18em] ${
+              variant === "footer" ? "text-white/70" : "text-muted"
             }`}
           >
             Engineering & Algorithms
@@ -85,7 +112,7 @@ export function Logo({
     return (
       <Link
         href={href}
-        className="inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7AB2D3] rounded-lg"
+        className="inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#309255] rounded-xl"
       >
         {content}
       </Link>

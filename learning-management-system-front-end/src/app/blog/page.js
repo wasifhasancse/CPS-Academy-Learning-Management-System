@@ -85,7 +85,7 @@ function BlogListContent() {
   });
 
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto space-y-10">
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto space-y-10">
       {/* Hero Header Banner */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary dark:text-highlight">
@@ -202,65 +202,83 @@ function BlogListContent() {
             const wordCount = (blog.content || blog.excerpt || "").split(/\s+/).length;
             const readMinutes = Math.max(3, Math.ceil(wordCount / 180));
 
-            return (
-              <Card
-                key={blog.documentId || blog.id || slug}
-                className="flex flex-col justify-between overflow-hidden hover:border-primary transition-all duration-200 group border-2 border-border bg-card shadow-xs rounded-3xl"
-              >
-                {blog.coverImageUrl ? (
-                  <div className="h-48 w-full overflow-hidden bg-surface relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={blog.coverImageUrl}
-                      alt={blog.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                ) : (
-                  <div className="h-36 w-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center p-6 text-center border-b border-border">
-                    <HiOutlineBookOpen className="w-10 h-10 text-primary dark:text-highlight opacity-60" />
-                  </div>
-                )}
+            const authorName = blog.author?.username || "CPS Team";
 
-                <CardHeader className="pb-3 flex-1">
-                  <div className="flex items-center justify-between gap-2 text-xs text-muted mb-2.5">
-                    <Badge variant="outline" className="text-[11px] font-semibold">
+            return (
+              <div
+                key={blog.documentId || blog.id || slug}
+                className="group rounded-2xl border border-border bg-card overflow-hidden flex flex-col justify-between hover:border-[#309255] transition-all duration-300 transform hover:-translate-y-0.5 shadow-1 hover:shadow-1"
+              >
+                {/* 1. Top Image & Badges */}
+                <div className="h-44 sm:h-48 w-full overflow-hidden bg-surface relative flex items-center justify-center border-b border-border">
+                  {blog.coverImageUrl ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={blog.coverImageUrl}
+                        alt={blog.title}
+                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                      />
+                    </>
+                  ) : (
+                    <div className="w-full h-full bg-[#E7F8EE] dark:bg-[#181E27] flex items-center justify-center p-5 text-center">
+                      <HiOutlineBookOpen className="w-9 h-9 text-[#309255] opacity-60" />
+                    </div>
+                  )}
+
+                  {/* Top Left Category Badge */}
+                  <div className="absolute top-3 left-3 z-10">
+                    <span className="px-3 py-1 rounded-full bg-[#309255] text-white font-bold text-[11px] tracking-wide shadow-1 border border-white/20">
                       {blog.category?.name || "Engineering"}
-                    </Badge>
-                    <span className="flex items-center gap-1 text-[11px]">
-                      <HiOutlineClock className="w-3.5 h-3.5 text-secondary" />
-                      <span>{readMinutes} min read</span>
                     </span>
                   </div>
 
-                  <CardTitle className="text-base sm:text-lg font-bold line-clamp-2 group-hover:text-primary transition-colors leading-snug">
-                    <Link href={`/blog/${slug}`}>{blog.title}</Link>
-                  </CardTitle>
+                  {/* Top Right Read Duration */}
+                  <div className="absolute top-3 right-3 z-10">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#212832]/85 backdrop-blur-md text-white font-medium text-[11px] border border-white/20 shadow-1">
+                      <HiOutlineClock className="w-3 h-3 text-[#E7F8EE]" />
+                      <span>{readMinutes} min read</span>
+                    </span>
+                  </div>
+                </div>
 
-                  <CardDescription className="line-clamp-3 text-xs mt-2 text-muted leading-relaxed">
-                    {blog.excerpt || "Read the full technical breakdown on CPS Academy."}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="pt-0 flex items-center justify-between border-t border-border mt-auto pt-3.5 text-xs">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-primary/15 text-primary dark:text-highlight flex items-center justify-center font-bold text-xs shrink-0">
-                      {blog.author?.username?.[0]?.toUpperCase() || "C"}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-foreground text-xs leading-none">
-                        {blog.author?.username || "CPS Team"}
-                      </div>
-                      <div className="text-[10px] text-muted mt-0.5">{publishDate}</div>
-                    </div>
+                {/* 2. Middle Body */}
+                <div className="p-4.5 sm:p-5 flex-1 flex flex-col justify-between space-y-3.5">
+                  <div className="space-y-2">
+                    <Link href={`/blog/${slug}`} className="block">
+                      <h3 className="text-[15px] sm:text-base font-bold text-foreground leading-snug group-hover:text-[#309255] transition-colors line-clamp-2">
+                        {blog.title}
+                      </h3>
+                    </Link>
+                    <p className="line-clamp-3 text-xs text-muted leading-relaxed">
+                      {blog.excerpt || "Read the full technical breakdown on CPS Academy."}
+                    </p>
                   </div>
 
-                  <Link href={`/blog/${slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-secondary hover:text-foreground transition-colors">
-                    <span>Read Article</span>
-                    <HiOutlineArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                </CardContent>
-              </Card>
+                  {/* 3. Footer Attribution & Action */}
+                  <div className="pt-3 border-t border-border flex items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] flex items-center justify-center font-bold text-[10px] shrink-0 border border-[#309255]/25">
+                        {authorName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-foreground text-[11px] leading-none truncate max-w-[110px]">
+                          {authorName}
+                        </span>
+                        <span className="text-[9.5px] text-muted mt-0.5">{publishDate}</span>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/blog/${slug}`}
+                      className="text-xs font-bold text-[#309255] dark:text-[#E7F8EE] hover:underline inline-flex items-center gap-1 shrink-0"
+                    >
+                      <span>Read Article</span>
+                      <HiOutlineArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
             );
           })}
         </div>

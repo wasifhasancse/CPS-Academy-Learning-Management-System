@@ -5,11 +5,11 @@ export function Card({
   ...props
 }) {
   const hoverClass = hoverable
-    ? "transition-all duration-200 hover:border-secondary hover:shadow-sm"
-    : "";
+    ? "transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-1 hover:border-[#309255]"
+    : "transition-colors duration-200";
   return (
     <article
-      className={`bg-card text-card-foreground rounded-xl border border-border overflow-hidden ${hoverClass} ${className}`}
+      className={`bg-card text-card-foreground rounded-2xl border border-border shadow-1 overflow-hidden ${hoverClass} ${className}`}
       {...props}
     >
       {children}

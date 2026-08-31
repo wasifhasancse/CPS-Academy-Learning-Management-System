@@ -80,10 +80,10 @@ export function FaqSection() {
                 setActiveCategory(cat);
                 setOpenIndex(0);
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                 activeCategory === cat
-                  ? "bg-primary text-white shadow-sm"
-                  : "bg-surface border border-border text-muted hover:text-foreground"
+                  ? "bg-[#309255] text-white shadow-sm"
+                  : "bg-surface border border-border text-muted hover:text-[#309255] hover:bg-[#E7F8EE]/30"
               }`}
             >
               {cat}
@@ -98,7 +98,9 @@ export function FaqSection() {
             return (
               <div
                 key={idx}
-                className="rounded-2xl bg-surface border border-border overflow-hidden transition-all"
+                className={`rounded-2xl bg-surface border overflow-hidden transition-all duration-200 ${
+                  isOpen ? "border-[#309255]/40 shadow-xs" : "border-border"
+                }`}
               >
                 <button
                   type="button"
@@ -109,8 +111,10 @@ export function FaqSection() {
                     {faq.question}
                   </span>
                   <div
-                    className={`w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center text-muted shrink-0 transition-transform duration-200 ${
-                      isOpen ? "rotate-180 text-primary dark:text-highlight border-primary" : ""
+                    className={`w-7 h-7 rounded-lg bg-card border flex items-center justify-center shrink-0 transition-transform duration-300 ${
+                      isOpen
+                        ? "rotate-180 text-[#309255] bg-[#E7F8EE] dark:bg-[#E7F8EE]/20 border-[#309255]"
+                        : "text-muted border-border"
                     }`}
                   >
                     <HiOutlineChevronDown className="w-4 h-4" />
@@ -118,7 +122,7 @@ export function FaqSection() {
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 sm:px-6 pb-6 pt-1 text-xs sm:text-sm text-muted leading-relaxed border-t border-border/50">
+                  <div className="px-5 sm:px-6 pb-6 pt-1 text-xs sm:text-sm text-muted leading-relaxed border-t border-border/50 bg-card/30">
                     <p>{faq.answer}</p>
                   </div>
                 )}

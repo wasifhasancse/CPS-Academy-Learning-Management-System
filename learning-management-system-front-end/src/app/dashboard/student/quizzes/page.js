@@ -65,18 +65,18 @@ export default function StudentQuizzesPage() {
           }
         />
       ) : (
-        <Card>
+        <Card className="shadow-1 overflow-hidden">
           <CardContent className="p-0">
-            <Table>
+            <Table className="border-0 shadow-none rounded-none">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Quiz Name</TableHead>
-                  <TableHead>Course Track</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Total Score</TableHead>
-                  <TableHead>Result</TableHead>
-                  <TableHead className="text-right">Date Taken</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead className="min-w-[220px]">Quiz Name</TableHead>
+                  <TableHead className="min-w-[220px]">Course Track</TableHead>
+                  <TableHead className="w-[120px] min-w-[100px]">Score</TableHead>
+                  <TableHead className="w-[120px] min-w-[100px]">Total Score</TableHead>
+                  <TableHead className="w-[140px] min-w-[120px]">Result</TableHead>
+                  <TableHead className="w-[130px] min-w-[110px] text-right">Date Taken</TableHead>
+                  <TableHead className="w-[140px] min-w-[120px] text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -91,40 +91,48 @@ export default function StudentQuizzesPage() {
                   return (
                     <TableRow key={attempt.documentId || attempt.id}>
                       <TableCell>
-                        <span className="font-semibold text-xs text-foreground">
+                        <span className="font-bold text-xs sm:text-sm text-foreground">
                           {quiz?.title || "Quiz Evaluation"}
                         </span>
                       </TableCell>
                       <TableCell className="text-xs text-muted">
                         {course?.title || "CPS Course Track"}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <span
                           className={`font-bold text-xs ${
                             isCompleted
-                              ? "text-primary dark:text-highlight"
+                              ? "text-[#309255] dark:text-[#E7F8EE]"
                               : "text-red-500"
                           }`}
                         >
                           {attempt.score || 0} pts
                         </span>
                       </TableCell>
-                      <TableCell className="text-xs text-muted">
+                      <TableCell className="text-xs text-muted whitespace-nowrap">
                         {totalScore} pts
                       </TableCell>
-                      <TableCell>
-                        <Badge variant={isCompleted ? "highlight" : "danger"}>
-                          {isCompleted ? "COMPLETED" : "INCOMPLETE"}
-                        </Badge>
+                      <TableCell className="whitespace-nowrap">
+                        {isCompleted ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#309255] text-white font-bold text-xs shadow-2xs whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0"></span>
+                            <span>Completed</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 font-bold text-xs whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span>
+                            <span>Incomplete</span>
+                          </span>
+                        )}
                       </TableCell>
-                      <TableCell className="text-xs text-muted text-right">
+                      <TableCell className="text-xs text-muted text-right whitespace-nowrap">
                         {attempt.submittedAt || attempt.createdAt
                           ? new Date(
                               attempt.submittedAt || attempt.createdAt,
                             ).toLocaleDateString()
                           : "Recent"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right whitespace-nowrap">
                         <Button
                           onClick={() => setSelectedAttempt(attempt)}
                           variant="outline"
@@ -147,7 +155,7 @@ export default function StudentQuizzesPage() {
       {/* View Stored Answers Modal */}
       {selectedAttempt && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl rounded-2xl bg-card border border-border p-6 shadow-2xl space-y-5 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-full max-w-2xl rounded-2xl bg-card border border-border p-6 shadow-1 space-y-5 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="space-y-0.5">
                 <Badge

@@ -3,14 +3,14 @@
 import React from "react";
 
 const SEGMENT_COLORS = [
-  "#4A628A",
-  "#7AB2D3",
-  "#5A88A8",
-  "#3A5272",
-  "#B9E5E8",
-  "#88C2C9",
-  "#2E415E",
-  "#6299B8",
+  "#309255",
+  "#48BB78",
+  "#212832",
+  "#10B981",
+  "#38A169",
+  "#68D391",
+  "#1F2937",
+  "#059669",
 ];
 
 export function DistributionDonutChart({
@@ -66,7 +66,7 @@ export function DistributionDonutChart({
   const hasData = totalValue > 0;
 
   return (
-    <div className={`p-5 sm:p-6 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-xs ${className}`}>
+    <div className={`p-5 sm:p-6 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-1 ${className}`}>
       {/* Header */}
       <div className="mb-3">
         <h3 className="text-base font-extrabold text-foreground tracking-tight">

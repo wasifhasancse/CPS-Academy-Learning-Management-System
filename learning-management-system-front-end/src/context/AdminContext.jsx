@@ -345,22 +345,22 @@ export function AdminProvider({ children }) {
   const adminSeries = [
     {
       name: "Accounts",
-      color: "#7AB2D3",
+      color: "#309255",
       dataPoints: users,
     },
     {
       name: "Courses",
-      color: "#4A628A",
+      color: "#212832",
       dataPoints: courses,
     },
     {
       name: "Enrollments",
-      color: "#5B93B5",
+      color: "#48BB78",
       dataPoints: studentsProgress,
     },
     {
       name: "Articles",
-      color: "#94C8CD",
+      color: "#10B981",
       dataPoints: blogs,
     },
   ];

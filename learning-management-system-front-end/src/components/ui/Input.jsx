@@ -47,10 +47,10 @@ export function Input({
           disabled={disabled}
           required={required}
           placeholder={placeholder}
-          className={`w-full rounded-lg border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted/60 transition-colors focus:border-secondary focus:ring-2 focus:ring-secondary/20 focus:outline-none disabled:bg-surface disabled:cursor-not-allowed ${
-            Icon ? "pl-10" : ""
-          } ${showPasswordToggle || rightElement ? "pr-10" : ""} ${
-            error ? "border-red-500 focus:border-red-500 focus:ring-red-200" : "border-border"
+          className={`w-full rounded-xl border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted/60 transition-all duration-200 focus:border-[#309255] focus:ring-2 focus:ring-[#309255]/20 focus:outline-none disabled:bg-surface disabled:cursor-not-allowed ${
+            Icon ? "pl-11" : ""
+          } ${showPasswordToggle || rightElement ? "pr-11" : ""} ${
+            error ? "border-red-500 focus:border-red-500 focus:ring-red-200" : "border-border hover:border-border/80"
           } ${className}`}
           {...props}
         />

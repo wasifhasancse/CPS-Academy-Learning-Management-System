@@ -151,16 +151,21 @@ export default function ManagerCurriculumPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Lessons List */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-base">
+            <CardHeader className="flex flex-row items-center justify-between gap-4 pb-4 border-b border-border">
+              <div className="min-w-0">
+                <CardTitle className="text-base font-extrabold tracking-tight">
                   Video Lessons ({currentCourseLessons.length})
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs text-muted mt-0.5 truncate">
                   Curriculum videos for {currentCourse.title}
                 </CardDescription>
               </div>
-              <Button variant="primary" size="sm" onClick={handleOpenAddLesson}>
+              <Button
+                variant="primary"
+                size="sm"
+                className="shrink-0 text-xs font-bold px-3 py-1.5 whitespace-nowrap shadow-1"
+                onClick={handleOpenAddLesson}
+              >
                 + Add Lesson
               </Button>
             </CardHeader>
@@ -180,13 +185,7 @@ export default function ManagerCurriculumPage() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={1.5}
-                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
                       />
                     </svg>
                   }
@@ -196,6 +195,7 @@ export default function ManagerCurriculumPage() {
                     <Button
                       variant="primary"
                       size="sm"
+                      className="text-xs font-bold px-3 py-1.5 whitespace-nowrap"
                       onClick={handleOpenAddLesson}
                     >
                       + Add First Lesson
@@ -207,24 +207,21 @@ export default function ManagerCurriculumPage() {
                   {currentCourseLessons.map((lesson, idx) => (
                     <div
                       key={lesson.documentId || lesson.id}
-                      className="p-3 rounded-lg border border-border bg-surface flex items-center justify-between gap-3"
+                      className="p-3.5 rounded-xl border border-border bg-surface hover:border-[#309255]/40 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-6 h-6 rounded-full bg-card border border-border flex items-center justify-center text-xs font-bold text-muted flex-shrink-0">
+                        <span className="w-7 h-7 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] border border-[#309255]/25 flex items-center justify-center text-xs font-black shrink-0 shadow-2xs">
                           {idx + 1}
                         </span>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-semibold text-xs text-foreground truncate">
+                            <h4 className="font-bold text-xs sm:text-sm text-foreground truncate">
                               {lesson.title}
                             </h4>
                             {lesson.isFreePreview && (
-                              <Badge
-                                variant="highlight"
-                                className="text-[10px] py-0"
-                              >
+                              <span className="px-2 py-0.5 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] border border-[#309255]/30 text-[10px] font-bold shrink-0">
                                 Free Preview
-                              </Badge>
+                              </span>
                             )}
                           </div>
                           <p className="text-[11px] text-muted truncate mt-0.5">
@@ -233,10 +230,11 @@ export default function ManagerCurriculumPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         <Button
-                          variant="secondary"
+                          variant="outline"
                           size="sm"
+                          className="text-xs font-semibold px-2.5 py-1.5 whitespace-nowrap border-[#309255]/30 text-[#309255] hover:bg-[#E7F8EE]/40"
                           onClick={() => handleOpenEditLesson(lesson)}
                         >
                           Edit
@@ -244,6 +242,7 @@ export default function ManagerCurriculumPage() {
                         <Button
                           variant="danger"
                           size="sm"
+                          className="text-xs font-semibold px-2.5 py-1.5 whitespace-nowrap"
                           onClick={() => handleOpenDeleteLessonModal(lesson)}
                         >
                           Delete
@@ -258,16 +257,21 @@ export default function ManagerCurriculumPage() {
 
           {/* Right: Quizzes List */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-base">
+            <CardHeader className="flex flex-row items-center justify-between gap-4 pb-4 border-b border-border">
+              <div className="min-w-0">
+                <CardTitle className="text-base font-extrabold tracking-tight">
                   MCQ Quizzes ({currentCourseQuizzes.length})
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs text-muted mt-0.5 truncate">
                   Graded assessments for {currentCourse.title}
                 </CardDescription>
               </div>
-              <Button variant="secondary" size="sm" onClick={handleOpenAddQuiz}>
+              <Button
+                variant="primary"
+                size="sm"
+                className="shrink-0 text-xs font-bold px-3 py-1.5 whitespace-nowrap shadow-1"
+                onClick={handleOpenAddQuiz}
+              >
                 + Add Quiz
               </Button>
             </CardHeader>
@@ -295,8 +299,9 @@ export default function ManagerCurriculumPage() {
                   description={`Add MCQ assessments to grade students taking "${currentCourse.title}".`}
                   action={
                     <Button
-                      variant="secondary"
+                      variant="primary"
                       size="sm"
+                      className="text-xs font-bold px-3 py-1.5 whitespace-nowrap"
                       onClick={handleOpenAddQuiz}
                     >
                       + Add First Quiz
@@ -308,30 +313,36 @@ export default function ManagerCurriculumPage() {
                   {currentCourseQuizzes.map((quiz) => (
                     <div
                       key={quiz.documentId || quiz.id}
-                      className="p-3.5 rounded-lg border border-border bg-surface flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="p-4 rounded-xl border border-border bg-surface hover:border-[#309255]/40 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs"
                     >
-                      <div>
-                        <h4 className="font-semibold text-xs text-foreground">
+                      <div className="min-w-0 space-y-1">
+                        <h4 className="font-bold text-xs sm:text-sm text-foreground leading-snug">
                           {quiz.title}
                         </h4>
-                        <p className="text-[11px] text-muted mt-0.5">
-                          Total Score: {quiz.totalScore || 100} pts • Time:{" "}
-                          {quiz.timeLimitMinutes || 20}m • Questions:{" "}
-                          {quiz.questions?.length || 0}
-                        </p>
+                        <div className="flex items-center gap-2 text-[11px] text-muted flex-wrap">
+                          <span className="inline-flex items-center gap-1 font-semibold text-foreground">
+                            🏆 {quiz.totalScore || 100} pts
+                          </span>
+                          <span>•</span>
+                          <span>⏱ {quiz.timeLimitMinutes || 20}m</span>
+                          <span>•</span>
+                          <span>📝 {quiz.questions?.length || 0} Questions</span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
                         <Button
                           variant="primary"
                           size="sm"
+                          className="text-xs font-bold px-3 py-1.5 whitespace-nowrap shadow-2xs"
                           onClick={() => handleOpenManageQuestions(quiz)}
                         >
                           Manage Questions ({quiz.questions?.length || 0})
                         </Button>
                         <Button
-                          variant="secondary"
+                          variant="outline"
                           size="sm"
+                          className="text-xs font-semibold px-2.5 py-1.5 whitespace-nowrap border-[#309255]/30 text-[#309255] hover:bg-[#E7F8EE]/40"
                           onClick={() => handleOpenEditQuiz(quiz)}
                         >
                           Edit
@@ -339,6 +350,7 @@ export default function ManagerCurriculumPage() {
                         <Button
                           variant="danger"
                           size="sm"
+                          className="text-xs font-semibold px-2.5 py-1.5 whitespace-nowrap"
                           onClick={() => handleOpenDeleteQuizModal(quiz)}
                         >
                           Delete

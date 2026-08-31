@@ -92,7 +92,7 @@ export default function Home() {
       {/* 2. FEATURED CATEGORIES */}
       {categories.length > 0 && (
         <section className="py-16 md:py-20 bg-background border-b border-border">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
               <div>
                 <Badge variant="highlight" size="sm" className="mb-2">
@@ -113,31 +113,34 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {categories.map((category) => (
-                <Card key={category.documentId || category.id} hoverable className="flex flex-col justify-between p-6 bg-surface border-border">
-                  <div className="space-y-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary dark:bg-highlight/20 dark:text-highlight font-black flex items-center justify-center text-sm">
+                <div
+                  key={category.documentId || category.id}
+                  className="rounded-2xl border border-border bg-surface hover:bg-card p-6 flex flex-col justify-between transition-all duration-300 transform hover:-translate-y-0.5 shadow-1 hover:shadow-1 hover:border-[#309255] group cursor-pointer"
+                >
+                  <div className="space-y-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-[#E7F8EE] dark:bg-[#E7F8EE]/15 text-[#309255] dark:text-[#E7F8EE] font-black flex items-center justify-center text-lg border border-[#309255]/20 shadow-xs group-hover:scale-[1.02] group-hover:bg-[#309255] group-hover:text-white transition-all duration-300">
                       {category.name?.charAt(0) || "C"}
                     </div>
-                    <CardTitle as="h3" className="text-base font-bold text-foreground">
+                    <h3 className="text-base font-extrabold text-foreground group-hover:text-[#309255] transition-colors">
                       {category.name}
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted leading-relaxed">
+                    </h3>
+                    <p className="text-xs text-muted leading-relaxed line-clamp-2">
                       {category.description || "Structured learning paths, live problem sets, and checkpoints."}
-                    </CardDescription>
+                    </p>
                   </div>
                   <div className="pt-4 mt-4 border-t border-border flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-secondary">
-                      Active Curriculum
+                    <span className="text-[11px] font-bold text-[#309255] dark:text-[#E7F8EE] px-2 py-0.5 rounded-md bg-[#E7F8EE] dark:bg-[#E7F8EE]/15">
+                      Curriculum Track
                     </span>
                     <Link
                       href={`/courses?category=${category.slug || category.documentId || category.id}`}
-                      className="text-xs font-bold text-primary dark:text-highlight hover:underline inline-flex items-center gap-1"
+                      className="text-xs font-bold text-[#309255] hover:text-[#212832] dark:hover:text-white inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
                     >
                       <span>Explore</span>
-                      <HiOutlineArrowRight className="w-3 h-3" />
+                      <HiOutlineArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
           </div>
@@ -146,7 +149,7 @@ export default function Home() {
 
       {/* 3. FEATURED & TRENDING COURSES */}
       <section className="py-16 md:py-24 bg-surface border-b border-border">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-2">
               <Badge variant="highlight" size="sm">
@@ -160,7 +163,7 @@ export default function Home() {
               </p>
             </div>
 
-            <Button href="/courses" variant="outline" size="sm" className="shrink-0 text-xs font-bold gap-1.5">
+            <Button href="/courses" variant="outline" size="sm" className="shrink-0 text-xs font-bold gap-1.5 hover:border-[#309255]">
               <span>View All Courses</span>
               <HiOutlineArrowRight className="w-3.5 h-3.5" />
             </Button>
@@ -172,10 +175,10 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setSelectedCourseCat("all")}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                   selectedCourseCat === "all"
-                    ? "bg-primary text-white shadow-sm"
-                    : "bg-card border border-border text-muted hover:text-foreground"
+                    ? "bg-[#309255] text-white shadow-sm"
+                    : "bg-card border border-border text-muted hover:text-[#309255] hover:bg-[#E7F8EE]/30"
                 }`}
               >
                 All Courses ({featuredCourses.length})
@@ -185,10 +188,10 @@ export default function Home() {
                   key={cat.documentId || cat.id}
                   type="button"
                   onClick={() => setSelectedCourseCat(cat.slug || cat.name)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                     selectedCourseCat === (cat.slug || cat.name)
-                      ? "bg-primary text-white shadow-sm"
-                      : "bg-card border border-border text-muted hover:text-foreground"
+                      ? "bg-[#309255] text-white shadow-sm"
+                      : "bg-card border border-border text-muted hover:text-[#309255] hover:bg-[#E7F8EE]/30"
                   }`}
                 >
                   {cat.name}
@@ -236,25 +239,28 @@ export default function Home() {
 
       {/* 11. INSTRUCTOR INVITATION CTA */}
       <section className="py-16 md:py-24 bg-surface border-b border-border">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-primary text-white border border-secondary/30 rounded-3xl p-8 sm:p-14 flex flex-col md:flex-row items-center justify-between gap-8 shadow-md">
-            <div className="max-w-xl space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-bold text-white">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#212832] text-white border border-[#2E3846] rounded-3xl p-8 sm:p-14 flex flex-col md:flex-row items-center justify-between gap-8 shadow-1 relative overflow-hidden">
+            {/* Background Decorative Pill */}
+            <div className="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-[#309255]/15 pointer-events-none" />
+
+            <div className="max-w-xl space-y-4 relative z-10">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#309255]/20 border border-[#309255]/40 text-xs font-bold text-[#E7F8EE] shadow-2xs">
                 <HiOutlineAcademicCap className="w-4 h-4" />
                 <span>Educators & Competitive Programmers</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight">
                 Share Your Knowledge with Thousands of Learners
               </h2>
               <p className="text-sm sm:text-base text-white/80 leading-relaxed">
                 Upload courses, organize video & text lessons, author diagnostic quiz question banks, and track enrolled students with universal live progress synchronization.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3.5 w-full md:w-auto shrink-0">
-              <Button href="/auth/register" variant="highlight" size="lg" className="font-bold text-xs sm:text-sm px-6 py-3.5">
+            <div className="flex flex-col sm:flex-row gap-3.5 w-full md:w-auto shrink-0 relative z-10">
+              <Button href="/auth/register" variant="primary" size="lg" className="font-bold text-xs sm:text-sm px-6 py-3.5 shadow-1">
                 Join as Instructor
               </Button>
-              <Button href="/about" variant="outlineSecondary" size="lg" className="text-white border-white/40 hover:bg-white/10 dark:text-white dark:border-white/40 dark:hover:bg-white/10 font-bold text-xs sm:text-sm px-6 py-3.5">
+              <Button href="/about" variant="outline" size="lg" className="text-white border-white/30 hover:bg-white/10 dark:text-white dark:border-white/30 dark:hover:bg-white/10 font-bold text-xs sm:text-sm px-6 py-3.5">
                 Learn More
               </Button>
             </div>

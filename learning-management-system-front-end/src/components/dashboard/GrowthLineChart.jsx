@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 
 const DEFAULT_COLORS = [
-  "#7AB2D3", // Sky Steel Blue
-  "#4A628A", // Deep Slate Blue
-  "#5B93B5", // Slate Cyan
-  "#94C8CD", // Soft Pale Teal
+  "#309255", // Emerald Green
+  "#212832", // Charcoal Slate
+  "#48BB78", // Vibrant Mint Green
+  "#10B981", // Forest Emerald
 ];
 
 export function GrowthLineChart({
@@ -157,7 +157,7 @@ export function GrowthLineChart({
   const selectedIdx = hoveredIdx !== null ? hoveredIdx : months.length - 1;
 
   return (
-    <div className={`p-5 sm:p-6 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-xs ${className}`}>
+    <div className={`p-5 sm:p-6 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-1 ${className}`}>
       {/* Header with Title and Single-line Horizontally Scrollable Legend Pills */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="shrink-0">

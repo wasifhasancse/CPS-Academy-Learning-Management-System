@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/Badge";
 import { ProfileDropdown } from "@/components/layout/ProfileDropdown";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
+import { Logo } from "@/components/layout/Logo";
+
 export function Header() {
   const router = useRouter();
   const pathname = usePathname();
@@ -34,17 +36,10 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background border-b border-border transition-colors">
-      <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4 lg:gap-6">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4 lg:gap-6">
         {/* Left: Brand Logo & Search Box */}
         <div className="flex items-center gap-4 lg:gap-6 flex-1 max-w-md">
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-9 h-9 rounded-lg bg-primary text-white dark:bg-highlight dark:text-primary flex items-center justify-center font-black text-base shadow-sm group-hover:bg-secondary transition-colors">
-              CPS
-            </div>
-            <span className="font-extrabold text-lg text-foreground tracking-tight hidden sm:inline-block">
-              CPS <span className="text-secondary font-semibold">Academy</span>
-            </span>
-          </Link>
+          <Logo />
 
           {/* Left-Aligned Navbar Search Box */}
           <div className="w-full max-w-xs hidden md:block">
@@ -81,7 +76,7 @@ export function Header() {
         </div>
 
         {/* Center / Nav Items */}
-        <nav className="hidden lg:flex items-center gap-1" aria-label="Main Navigation">
+        <nav className="hidden lg:flex items-center gap-1.5" aria-label="Main Navigation">
           {navLinks.map((link) => {
             const isActive =
               link.href === "/"
@@ -92,10 +87,11 @@ export function Header() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`text-xs font-semibold px-3 py-2 rounded-lg transition-colors ${isActive
-                    ? "bg-surface text-primary dark:text-highlight font-bold"
-                    : "text-foreground/80 hover:text-foreground hover:bg-surface"
-                  }`}
+                className={`text-xs font-semibold px-3.5 py-2 rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] font-bold shadow-2xs"
+                    : "text-foreground/80 hover:text-[#309255] hover:bg-[#E7F8EE]/50 dark:hover:bg-surface dark:hover:text-[#E7F8EE]"
+                }`}
               >
                 {link.name}
               </Link>

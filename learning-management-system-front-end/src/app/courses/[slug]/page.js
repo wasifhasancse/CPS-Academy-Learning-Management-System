@@ -370,8 +370,8 @@ export default function CourseDetailPage({ params }) {
         </div>
       </section>
 
-      {/* 2. MAIN CONTENT & STICKY SIDEBAR */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 2. MAIN CONTENT      {/* Main Course Layout */}
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           {/* Left Column: Course Overview, What You'll Learn, Curriculum, and Quizzes */}
           <div className="lg:col-span-8 space-y-8">
@@ -634,7 +634,7 @@ export default function CourseDetailPage({ params }) {
           {/* Right Column: Sticky Enrollment Card */}
           <div className="lg:col-span-4">
             <div className="sticky top-24 space-y-4">
-              <Card className="p-6 bg-card border-2 border-border space-y-6 shadow-md rounded-3xl">
+              <Card className="p-6 bg-card border-2 border-border space-y-6 shadow-1 rounded-3xl">
                 {/* Thumbnail Image */}
                 {course.thumbnailUrl && (
                   <div className="w-full h-48 rounded-2xl overflow-hidden border border-border bg-surface relative">
@@ -809,7 +809,7 @@ export default function CourseDetailPage({ params }) {
 
       {/* 3. RECOMMENDED COURSES HORIZONTAL SECTION AT BOTTOM */}
       {recommendedCourses.length > 0 && (
-        <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-10 border-t border-border space-y-8">
+        <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-10 border-t border-border space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <Badge variant="highlight" size="sm" className="mb-2">

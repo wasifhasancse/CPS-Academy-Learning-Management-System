@@ -30,43 +30,54 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-background">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <Badge variant="surface" size="sm">
-            Account Recovery
-          </Badge>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-            Reset Password
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-background">
+      {/* Page Banner */}
+      <section className="relative w-full py-12 md:py-16 bg-[#E7F8EE] dark:bg-[#181E27] border-b border-border transition-colors">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+          <nav className="flex items-center justify-center gap-2 text-xs font-semibold text-muted">
+            <Link href="/" className="hover:text-[#309255] transition-colors">
+              Home
+            </Link>
+            <span>/</span>
+            <span className="text-[#309255] font-bold">Forgot Password</span>
+          </nav>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight">
+            Account <span className="text-[#309255]">Recovery</span>
           </h1>
-          <p className="text-sm text-muted">
-            Enter the email associated with your account to receive a reset link.
+          <p className="text-xs sm:text-sm text-muted max-w-md mx-auto">
+            Enter the email address associated with your CPS Academy account.
           </p>
         </div>
+      </section>
 
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle as="h2" className="text-lg">
-              Password Recovery
-            </CardTitle>
-            <CardDescription>
-              We will send you secure instructions to reset your password.
-            </CardDescription>
-          </CardHeader>
+      {/* Form Card Container */}
+      <section className="py-12 md:py-16 flex-1 flex items-center justify-center">
+        <div className="w-full max-w-md mx-auto px-4 sm:px-6">
+          <div className="rounded-3xl bg-card border border-border p-8 sm:p-10 shadow-1 space-y-6">
+            <div>
+              <h2 className="text-2xl font-black text-foreground tracking-tight">
+                Reset <span className="text-[#309255]">Password</span>
+              </h2>
+              <p className="text-xs text-muted mt-1">
+                We will send you secure instructions to reset your password.
+              </p>
+            </div>
 
-          <CardContent>
             {error && (
               <div
                 role="alert"
-                className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-medium"
+                className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-semibold"
               >
                 {error}
               </div>
             )}
 
             {isSent ? (
-              <div className="p-4 rounded-lg bg-secondary/10 border border-secondary/30 space-y-2 text-center">
-                <p className="text-sm font-semibold text-foreground">
+              <div className="p-5 rounded-2xl bg-[#E7F8EE] dark:bg-[#181E27] border border-[#309255]/30 space-y-2 text-center">
+                <div className="w-10 h-10 mx-auto rounded-full bg-[#309255] text-white flex items-center justify-center text-lg font-bold">
+                  ✓
+                </div>
+                <p className="text-sm font-bold text-foreground">
                   Reset link dispatched!
                 </p>
                 <p className="text-xs text-muted leading-relaxed">
@@ -87,26 +98,27 @@ export default function ForgotPasswordPage() {
                 <Button
                   type="submit"
                   variant="primary"
-                  className="w-full"
+                  size="lg"
+                  className="w-full mt-2 font-bold text-sm py-3.5 shadow-sm"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Sending reset link..." : "Send Reset Link"}
                 </Button>
               </form>
             )}
-          </CardContent>
 
-          <CardFooter className="justify-center text-xs text-muted">
-            Remember your password?{" "}
-            <Link
-              href="/auth/login"
-              className="ml-1.5 font-semibold text-secondary hover:text-foreground transition-colors"
-            >
-              Back to Sign In
-            </Link>
-          </CardFooter>
-        </Card>
-      </div>
+            <div className="pt-4 border-t border-border text-center text-xs text-muted">
+              Remember your password?{" "}
+              <Link
+                href="/auth/login"
+                className="font-bold text-[#309255] hover:underline transition-colors ml-1"
+              >
+                Back to Sign In
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -101,7 +101,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto space-y-16 sm:space-y-20">
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto space-y-16 sm:space-y-20">
       {/* 1. HERO BANNER */}
       <section className="text-center max-w-3xl mx-auto space-y-5">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary dark:text-highlight">
@@ -294,21 +294,39 @@ export default function AboutPage() {
       </section>
 
       {/* 7. CALL TO ACTION BANNER */}
-      <section className="p-8 sm:p-14 rounded-3xl bg-primary text-white border border-secondary/30 text-center space-y-5 max-w-4xl mx-auto shadow-md">
-        <div className="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center mx-auto shadow-xs">
+      <section className="relative overflow-hidden p-8 sm:p-14 rounded-3xl bg-[#212832] text-white border border-[#2E3846] text-center space-y-6 max-w-4xl mx-auto shadow-1">
+        {/* Subtle Background Decorative Glow */}
+        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#309255]/20 blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-[#309255]/15 blur-2xl pointer-events-none" />
+
+        <div className="w-12 h-12 rounded-2xl bg-[#309255]/20 text-[#E7F8EE] border border-[#309255]/40 flex items-center justify-center mx-auto shadow-1 relative z-10">
           <HiOutlineAcademicCap className="w-6 h-6" />
         </div>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
-          Ready to Accelerate Your Problem Solving Journey?
-        </h2>
-        <p className="text-xs sm:text-sm text-white/80 max-w-xl mx-auto leading-relaxed">
-          Join thousands of learners solving algorithmic problems, acing tech interviews, and building scalable software.
-        </p>
-        <div className="pt-2 flex flex-wrap justify-center gap-3">
-          <Button href="/auth/register" variant="highlight" size="md" className="font-bold text-xs sm:text-sm px-6 py-3">
+
+        <div className="space-y-2 relative z-10">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight tracking-tight">
+            Ready to Accelerate Your <span className="text-[#309255]">Problem Solving</span> Journey?
+          </h2>
+          <p className="text-xs sm:text-sm text-white/80 max-w-xl mx-auto leading-relaxed">
+            Join thousands of learners solving algorithmic problems, acing tech interviews, and building scalable software.
+          </p>
+        </div>
+
+        <div className="pt-2 flex flex-wrap justify-center items-center gap-3.5 relative z-10">
+          <Button
+            href="/auth/register"
+            variant="primary"
+            size="lg"
+            className="font-bold text-xs sm:text-sm px-6 py-3.5 shadow-1 transition-all duration-200 hover:-translate-y-0.5"
+          >
             Create Free Account
           </Button>
-          <Button href="/courses" variant="outlineSecondary" size="md" className="text-white border-white/40 hover:bg-white/10 dark:text-white dark:border-white/40 dark:hover:bg-white/10 font-bold text-xs sm:text-sm px-6 py-3">
+          <Button
+            href="/courses"
+            variant="outline"
+            size="lg"
+            className="text-white border-white/40 hover:bg-white/10 dark:text-white dark:border-white/40 dark:hover:bg-white/10 font-bold text-xs sm:text-sm px-6 py-3.5 transition-all duration-200 hover:-translate-y-0.5"
+          >
             Explore Courses
           </Button>
         </div>

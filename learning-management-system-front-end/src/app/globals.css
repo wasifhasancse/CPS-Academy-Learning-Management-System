@@ -6,39 +6,39 @@
 :root {
   --font-roboto: 'Roboto', sans-serif;
 
-  /* Official 4-Color Brand Palette */
-  --primary: #4A628A;
-  --secondary: #7AB2D3;
-  --highlight: #B9E5E8;
-  --light-neutral: #DFF2EB;
+  /* Edule-Inspired Modern Brand Palette */
+  --primary: #309255;
+  --secondary: #212832;
+  --highlight: #E7F8EE;
+  --light-neutral: #F8FAF9;
 
   /* Base Light Theme */
-  --background: #DFF2EB;
-  --foreground: #4A628A;
+  --background: #F8FAF9;
+  --foreground: #212832;
   --surface: #FFFFFF;
   --card: #FFFFFF;
-  --card-foreground: #4A628A;
-  --border: #B9E5E8;
-  --muted: #5A7BA0;
+  --card-foreground: #212832;
+  --border: #E2ECE6;
+  --muted: #52565B;
 
   /* Footer Colors */
-  --footer-bg: #4A628A;
-  --footer-fg: #DFF2EB;
+  --footer-bg: #212832;
+  --footer-fg: #F8FAF9;
 }
 
 .dark {
   /* Base Dark Theme */
-  --background: #1E2A3A;
-  --foreground: #DFF2EB;
-  --surface: #2A3D5A;
-  --card: #2A3D5A;
-  --card-foreground: #DFF2EB;
-  --border: #7AB2D3;
-  --muted: #B9E5E8;
+  --background: #181E27;
+  --foreground: #F5FBF7;
+  --surface: #212832;
+  --card: #212832;
+  --card-foreground: #F5FBF7;
+  --border: #2E3846;
+  --muted: #9BA4B4;
 
   /* Footer Colors (Dark Mode) */
-  --footer-bg: #151E2E;
-  --footer-fg: #DFF2EB;
+  --footer-bg: #11161D;
+  --footer-fg: #F5FBF7;
 }
 
 @theme inline {
@@ -55,6 +55,8 @@
 
   --color-footer-bg: var(--footer-bg);
   --color-footer-fg: var(--footer-fg);
+
+  --shadow-1: 0 2px 6px rgba(0, 0, 0, 0.06);
 
   --font-sans: var(--font-roboto);
 }

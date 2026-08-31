@@ -132,7 +132,7 @@ function CoursesCatalogContent() {
   };
 
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto space-y-10">
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto space-y-10">
       {/* Header Banner */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary dark:text-highlight">

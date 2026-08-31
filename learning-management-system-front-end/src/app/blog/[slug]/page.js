@@ -231,7 +231,7 @@ export default function SingleBlogPostPage({ params }) {
       </section>
 
       {/* 2. MAIN CONTENT & STICKY SIDEBAR */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           {/* Left Column: Article Body, Excerpt, Cover & Bio */}
           <div className="lg:col-span-8 space-y-8">
@@ -425,7 +425,7 @@ export default function SingleBlogPostPage({ params }) {
 
       {/* 3. RECOMMENDED COURSES HORIZONTAL SECTION AT BOTTOM */}
       {recommendedCourses.length > 0 && (
-        <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-6 border-t border-border">
+        <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-6 border-t border-border">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary dark:text-highlight mb-2">

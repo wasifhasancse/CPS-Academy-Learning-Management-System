@@ -843,7 +843,7 @@ export default function CoursePlayerPage({ params }) {
               /* 16:9 Video Player */
               <div
                 key={`video-${youtubeVideoId}`}
-                className="w-full aspect-video rounded-3xl overflow-hidden bg-black border-2 border-border shadow-md"
+                className="w-full aspect-video rounded-3xl overflow-hidden bg-black border-2 border-border shadow-1"
               >
                 <iframe
                   key={youtubeVideoId}
@@ -1555,7 +1555,7 @@ export default function CoursePlayerPage({ params }) {
       {/* Decorated Certificate Modal */}
       {showCertificateModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-card border border-border p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-full max-w-lg rounded-2xl bg-card border border-border p-6 shadow-1 space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2">
                 <HiOutlineTrophy className="w-5 h-5 text-secondary" />

@@ -20,17 +20,17 @@ export function DashboardStatsGrid({ stats = [] }) {
         return (
           <div
             key={idx}
-            className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between shadow-xs ${
+            className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between shadow-1 transform hover:-translate-y-0.5 hover:shadow-1 ${
               isAlert
                 ? "bg-red-500/10 border-red-500/30 text-foreground"
-                : "bg-card border-border text-foreground hover:border-primary/40"
+                : "bg-card border-border text-foreground hover:border-[#309255]"
             }`}
           >
             {/* Top Bar: Label + Top-right Icon Badge */}
             <div className="flex items-start justify-between gap-2 mb-3">
-              <div>
+              <div className="space-y-1">
                 <span
-                  className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider block ${
+                  className={`text-xs font-bold uppercase tracking-wider block ${
                     isAlert ? "text-red-500" : "text-muted"
                   }`}
                 >
@@ -38,10 +38,10 @@ export function DashboardStatsGrid({ stats = [] }) {
                 </span>
                 {stat.badge && (
                   <span
-                    className={`inline-block mt-1 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${
+                    className={`inline-block text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                       isAlert
                         ? "bg-red-500/20 text-red-500 border border-red-500/30"
-                        : "bg-primary/10 text-primary dark:text-highlight border border-primary/20 font-bold"
+                        : "bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] border border-[#309255]/20 font-bold"
                     }`}
                   >
                     {stat.badge}
@@ -51,10 +51,10 @@ export function DashboardStatsGrid({ stats = [] }) {
 
               {stat.icon && (
                 <div
-                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs ${
                     isAlert
                       ? "bg-red-500/15 text-red-500 border border-red-500/20"
-                      : "bg-surface text-primary dark:text-highlight border border-border"
+                      : "bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/10 dark:text-[#E7F8EE] border border-[#309255]/20"
                   }`}
                 >
                   {stat.icon}
@@ -70,7 +70,7 @@ export function DashboardStatsGrid({ stats = [] }) {
 
               {/* Subtitle description */}
               {stat.subtitle && (
-                <div className="text-[11px] font-medium text-muted leading-tight">
+                <div className="text-xs font-medium text-muted leading-tight">
                   {stat.subtitle}
                 </div>
               )}

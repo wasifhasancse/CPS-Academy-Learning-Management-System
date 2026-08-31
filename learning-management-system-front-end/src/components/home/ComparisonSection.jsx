@@ -57,7 +57,7 @@ const COMPARISON_ROWS = [
 export function ComparisonSection() {
   return (
     <section className="py-16 md:py-24 bg-background border-b border-border">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <Badge variant="highlight" size="sm">
@@ -80,9 +80,9 @@ export function ComparisonSection() {
                   <th className="py-5 px-6 text-xs font-extrabold text-foreground uppercase tracking-wider w-2/5">
                     Learning Feature
                   </th>
-                  <th className="py-5 px-6 text-xs font-extrabold text-secondary uppercase tracking-wider w-3/10 bg-secondary/10">
+                  <th className="py-5 px-6 text-xs font-extrabold text-[#309255] uppercase tracking-wider w-3/10 bg-[#E7F8EE] dark:bg-[#E7F8EE]/10">
                     <div className="flex items-center gap-2">
-                      <HiOutlineSparkles className="w-4 h-4 text-secondary" />
+                      <HiOutlineSparkles className="w-4 h-4 text-[#309255]" />
                       <span>CPS Academy System</span>
                     </div>
                   </th>
@@ -97,9 +97,9 @@ export function ComparisonSection() {
                     <td className="py-4.5 px-6 font-bold text-foreground">
                       {row.feature}
                     </td>
-                    <td className="py-4.5 px-6 bg-secondary/5 font-semibold text-foreground">
+                    <td className="py-4.5 px-6 bg-[#E7F8EE]/30 dark:bg-[#E7F8EE]/5 font-semibold text-foreground">
                       <div className="flex items-start gap-2.5">
-                        <HiOutlineCheckCircle className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+                        <HiOutlineCheckCircle className="w-5 h-5 text-[#309255] shrink-0 mt-0.5" />
                         <span>{row.cps}</span>
                       </div>
                     </td>

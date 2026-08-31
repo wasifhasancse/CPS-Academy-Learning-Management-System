@@ -67,11 +67,11 @@ export function QuizPreviewSection() {
 
   return (
     <section className="py-16 md:py-24 bg-surface border-b border-border">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Left Column: Explanatory Copy */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/15 border border-secondary/30 text-xs font-bold text-secondary">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E7F8EE] border border-[#309255]/30 text-xs font-bold text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE]">
               <HiOutlineAcademicCap className="w-4 h-4" />
               <span>Interactive Quiz Engine</span>
             </div>
@@ -86,7 +86,7 @@ export function QuizPreviewSection() {
 
             <div className="space-y-3 pt-2">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] flex items-center justify-center font-bold text-xs shrink-0 border border-[#309255]/20">
                   ✓
                 </div>
                 <div className="text-xs sm:text-sm font-semibold text-foreground">
@@ -95,7 +95,7 @@ export function QuizPreviewSection() {
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] flex items-center justify-center font-bold text-xs shrink-0 border border-[#309255]/20">
                   ✓
                 </div>
                 <div className="text-xs sm:text-sm font-semibold text-foreground">
@@ -104,7 +104,7 @@ export function QuizPreviewSection() {
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] flex items-center justify-center font-bold text-xs shrink-0 border border-[#309255]/20">
                   ✓
                 </div>
                 <div className="text-xs sm:text-sm font-semibold text-foreground">
@@ -123,7 +123,7 @@ export function QuizPreviewSection() {
 
           {/* Right Column: Live Interactive Quiz Preview Widget */}
           <div className="lg:col-span-7">
-            <Card className="bg-card border-2 border-border shadow-lg overflow-hidden">
+            <Card className="bg-card border-2 border-border shadow-1 overflow-hidden">
               {/* Card Header */}
               <CardHeader className="bg-surface/80 border-b border-border py-4 px-6">
                 <div className="flex items-center justify-between gap-4">
@@ -135,7 +135,7 @@ export function QuizPreviewSection() {
                       {currentQ.category}
                     </span>
                   </div>
-                  <span className="text-xs font-mono font-bold text-secondary">
+                  <span className="text-xs font-mono font-bold text-[#309255]">
                     Q 0{qIndex + 1} of 0{SAMPLE_QUESTIONS.length}
                   </span>
                 </div>
@@ -151,18 +151,18 @@ export function QuizPreviewSection() {
                 {/* Options List */}
                 <div className="space-y-2.5">
                   {currentQ.options.map((opt, optIdx) => {
-                    let optionStyles = "bg-surface border-border text-foreground hover:border-primary/50";
+                    let optionStyles = "bg-surface border-border text-foreground hover:border-[#309255]/50 hover:bg-[#E7F8EE]/30";
 
                     if (isSubmitted) {
                       if (optIdx === currentQ.correctIndex) {
-                        optionStyles = "bg-secondary/15 border-secondary text-secondary font-bold";
+                        optionStyles = "bg-[#E7F8EE] border-[#309255] text-[#309255] font-bold";
                       } else if (selectedOption === optIdx) {
                         optionStyles = "bg-red-500/15 border-red-500 text-red-500 font-bold";
                       } else {
                         optionStyles = "bg-surface/50 border-border text-muted opacity-60";
                       }
                     } else if (selectedOption === optIdx) {
-                      optionStyles = "bg-primary/10 border-primary text-primary dark:text-highlight font-bold shadow-xs";
+                      optionStyles = "bg-[#E7F8EE] border-[#309255] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] font-bold shadow-xs";
                     }
 
                     return (
@@ -170,7 +170,7 @@ export function QuizPreviewSection() {
                         key={optIdx}
                         type="button"
                         onClick={() => handleOptionSelect(optIdx)}
-                        className={`w-full p-3.5 rounded-xl text-left text-xs sm:text-sm transition-all border flex items-center justify-between gap-3 cursor-pointer ${optionStyles}`}
+                        className={`w-full p-3.5 rounded-xl text-left text-xs sm:text-sm transition-all duration-200 border flex items-center justify-between gap-3 cursor-pointer ${optionStyles}`}
                       >
                         <div className="flex items-center gap-3">
                           <span className="w-6 h-6 rounded-lg bg-card border border-border flex items-center justify-center font-mono font-bold text-xs shrink-0">
@@ -180,7 +180,7 @@ export function QuizPreviewSection() {
                         </div>
 
                         {isSubmitted && optIdx === currentQ.correctIndex && (
-                          <HiOutlineCheckCircle className="w-5 h-5 text-secondary shrink-0" />
+                          <HiOutlineCheckCircle className="w-5 h-5 text-[#309255] shrink-0" />
                         )}
                         {isSubmitted && selectedOption === optIdx && optIdx !== currentQ.correctIndex && (
                           <HiOutlineXCircle className="w-5 h-5 text-red-500 shrink-0" />
@@ -195,13 +195,13 @@ export function QuizPreviewSection() {
                   <div
                     className={`p-4 rounded-xl border text-xs space-y-1.5 ${
                       isCorrect
-                        ? "bg-secondary/10 border-secondary/30 text-foreground"
+                        ? "bg-[#E7F8EE] border-[#309255]/30 text-foreground"
                         : "bg-red-500/10 border-red-500/30 text-foreground"
                     }`}
                   >
                     <div className="flex items-center gap-2 font-bold">
                       {isCorrect ? (
-                        <span className="text-secondary">✓ Correct Solution!</span>
+                        <span className="text-[#309255]">✓ Correct Solution!</span>
                       ) : (
                         <span className="text-red-500">✕ Incorrect Choice</span>
                       )}

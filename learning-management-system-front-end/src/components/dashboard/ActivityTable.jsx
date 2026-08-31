@@ -25,10 +25,10 @@ export function ActivityTable({
       case "ACTIVE":
       case "PUBLISHED":
       case "PASSED":
-        return "bg-primary/15 text-primary dark:text-highlight border border-primary/30";
+        return "bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] border border-[#309255]/30";
       case "IN PROGRESS":
       case "REVIEWING":
-        return "bg-[#7AB2D3]/20 text-[#4A628A] dark:text-[#B9E5E8] border border-[#7AB2D3]/30";
+        return "bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] border border-[#309255]/30";
       case "DRAFT":
       default:
         return "bg-surface text-muted border border-border";
@@ -38,10 +38,10 @@ export function ActivityTable({
   const getCategoryBadge = (cat) => {
     const c = (cat || "").toUpperCase();
     if (c.includes("ADMIN")) {
-      return "bg-primary/15 text-primary dark:text-highlight border border-primary/30";
+      return "bg-[#309255] text-white font-semibold";
     }
     if (c.includes("INSTRUCTOR") || c.includes("MANAGER")) {
-      return "bg-[#7AB2D3]/20 text-[#4A628A] dark:text-[#B9E5E8] border border-[#7AB2D3]/30";
+      return "bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] border border-[#309255]/30 font-semibold";
     }
     if (c.includes("STUDENT") || c.includes("ENROLLMENT") || c.includes("COURSE")) {
       return "bg-surface text-foreground border border-border";
@@ -50,12 +50,12 @@ export function ActivityTable({
   };
 
   return (
-    <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-xs">
+    <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-1">
       {/* Table Header */}
       <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           {icon && (
-            <div className="w-8 h-8 rounded-xl bg-surface border border-border flex items-center justify-center text-primary dark:text-highlight shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#E7F8EE] dark:bg-[#E7F8EE]/10 border border-[#309255]/20 flex items-center justify-center text-[#309255] dark:text-[#E7F8EE] shrink-0 shadow-2xs">
               {icon}
             </div>
           )}
@@ -71,7 +71,7 @@ export function ActivityTable({
           <button
             type="button"
             onClick={onViewAll}
-            className="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-border text-foreground text-xs font-semibold border border-border transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-border/60 text-foreground text-xs font-bold border border-border transition-colors cursor-pointer shadow-2xs"
           >
             {viewAllLabel}
           </button>
@@ -82,12 +82,12 @@ export function ActivityTable({
       <div className="overflow-x-auto">
         <div className="max-h-[384px] overflow-y-auto scrollbar-thin">
           <table className="w-full text-left border-collapse text-xs">
-            <thead className="sticky top-0 z-10 bg-surface shadow-xs">
-              <tr className="border-b border-border">
+            <thead className="sticky top-0 z-10 bg-surface border-b border-border shadow-2xs">
+              <tr>
                 {columns.map((col, idx) => (
                   <th
                     key={idx}
-                    className={`py-3.5 px-4 font-bold text-[11px] uppercase tracking-wider text-muted ${
+                    className={`py-3 px-4 font-extrabold text-[10.5px] uppercase tracking-wider text-muted ${
                       idx === columns.length - 1 ? "text-right" : ""
                     }`}
                   >
@@ -99,7 +99,7 @@ export function ActivityTable({
             <tbody className="divide-y divide-border">
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="py-12 text-center text-muted">
+                  <td colSpan={columns.length} className="py-12 text-center text-muted font-medium">
                     {emptyMessage}
                   </td>
                 </tr>
@@ -107,16 +107,16 @@ export function ActivityTable({
                 data.map((row, idx) => (
                   <tr
                     key={row.id || idx}
-                    className="hover:bg-surface/50 transition-colors"
+                    className="hover:bg-surface/60 transition-colors"
                   >
                     <td className="py-3 px-4 font-bold text-foreground max-w-[260px] truncate">
                       {row.item}
                     </td>
                     <td className="py-3 px-4 text-muted font-mono text-[11px] whitespace-nowrap">{row.user}</td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 whitespace-nowrap">
                       {row.category && (
                         <span
-                          className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${getCategoryBadge(
+                          className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap ${getCategoryBadge(
                             row.category
                           )}`}
                         >
@@ -124,9 +124,9 @@ export function ActivityTable({
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 whitespace-nowrap">
                       <span
-                        className={`inline-block px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${getStatusBadge(
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase whitespace-nowrap ${getStatusBadge(
                           row.status
                         )}`}
                       >
@@ -139,7 +139,7 @@ export function ActivityTable({
                       ) : row.href ? (
                         <Link
                           href={row.href}
-                          className="px-3 py-1 rounded-md bg-surface hover:bg-border text-foreground text-[11px] font-semibold border border-border transition-colors inline-block cursor-pointer"
+                          className="px-3 py-1 rounded-lg bg-surface hover:bg-border text-foreground text-[11px] font-semibold border border-border transition-colors inline-block cursor-pointer"
                         >
                           {row.actionLabel || "View"}
                         </Link>
@@ -147,7 +147,7 @@ export function ActivityTable({
                         <button
                           type="button"
                           onClick={row.onAction}
-                          className="px-3 py-1 rounded-md bg-surface hover:bg-border text-foreground text-[11px] font-semibold border border-border transition-colors cursor-pointer"
+                          className="px-3 py-1 rounded-lg bg-surface hover:bg-border text-foreground text-[11px] font-semibold border border-border transition-colors cursor-pointer"
                         >
                           {row.actionLabel || "View"}
                         </button>

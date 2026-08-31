@@ -74,17 +74,17 @@ export default function StudentOrdersPage() {
           }
         />
       ) : (
-        <Card className="bg-card border-border overflow-hidden">
+        <Card className="bg-card border-border shadow-1 overflow-hidden">
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="border-0 shadow-none rounded-none">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order #</TableHead>
-                  <TableHead>Course</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead className="w-[120px] min-w-[100px]">Order #</TableHead>
+                  <TableHead className="min-w-[240px]">Course</TableHead>
+                  <TableHead className="w-[140px] min-w-[120px]">Amount</TableHead>
+                  <TableHead className="w-[140px] min-w-[120px]">Status</TableHead>
+                  <TableHead className="w-[140px] min-w-[120px]">Date</TableHead>
+                  <TableHead className="w-[120px] min-w-[100px] text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -108,7 +108,7 @@ export default function StudentOrdersPage() {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-0.5">
-                          <div className="font-semibold text-xs text-foreground line-clamp-1">
+                          <div className="font-bold text-xs sm:text-sm text-foreground line-clamp-1">
                             {course.title || "Course"}
                           </div>
                           {order.stripeSessionId && (
@@ -118,19 +118,23 @@ export default function StudentOrdersPage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="font-bold text-xs text-foreground">
+                      <TableCell className="font-bold text-xs text-foreground whitespace-nowrap">
                         {(order.currency || "usd").toUpperCase()} {order.amount}
                       </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={isPaid ? "success" : order.status === "pending" ? "surface" : "danger"}
-                          size="sm"
-                          className="capitalize"
-                        >
-                          {order.status || "pending"}
-                        </Badge>
+                      <TableCell className="whitespace-nowrap">
+                        {isPaid ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#309255] text-white font-bold text-xs shadow-2xs whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0"></span>
+                            <span>Paid</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] border border-[#309255]/25 font-bold text-xs whitespace-nowrap capitalize">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#309255] shrink-0"></span>
+                            <span>{order.status || "Pending"}</span>
+                          </span>
+                        )}
                       </TableCell>
-                      <TableCell className="text-xs text-muted">{dateStr}</TableCell>
+                      <TableCell className="text-xs text-muted whitespace-nowrap">{dateStr}</TableCell>
                       <TableCell className="text-right">
                         {courseSlug && (
                           <Button

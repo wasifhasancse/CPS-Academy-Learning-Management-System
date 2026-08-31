@@ -285,17 +285,17 @@ export function ManagerProvider({ children }) {
   const managerSeries = [
     {
       name: "Courses",
-      color: "#7AB2D3",
+      color: "#309255",
       dataPoints: courses,
     },
     {
       name: "Articles",
-      color: "#4A628A",
+      color: "#212832",
       dataPoints: blogs,
     },
     {
       name: "Enrollments",
-      color: "#5B93B5",
+      color: "#48BB78",
       dataPoints: studentsProgress,
     },
   ];

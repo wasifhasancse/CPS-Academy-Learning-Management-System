@@ -60,11 +60,11 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 - **Framework**: Next.js 16 App Router with React 19.
 - **Typography**: Roboto (`@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');`).
 - **Color Palette & Theme Tokens** (Tailwind CSS v4):
-  - Primary: `#285A48` (Forest Emerald Green)
-  - Secondary: `#408A71` (Sage Pine Green)
-  - Highlight / Accent: `#B0E4CC` (Mint Highlight)
-  - Dark / Base: `#091413` (Obsidian Forest)
-  - Surface / Neutral: `#F0F7F4` (Light clean mint surface)
+  - Primary: `#309255` (Emerald Green)
+  - Secondary: `#212832` (Charcoal Slate)
+  - Highlight / Accent: `#E7F8EE` (Soft Mint Highlight)
+  - Dark / Base: `#181E27` (Deep Obsidian Base)
+  - Surface / Neutral: `#F8FAF9` (Light clean mint canvas)
 - **Styling & Component Rules**:
   - **NO gradients anywhere in the project**; use clean, solid flat colors.
   - Always use semantic HTML tags (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<aside>`, `<footer>`) and semantic class names.
@@ -190,13 +190,15 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 - **Issue**: Running Strapi in containerized/cloud environments (Render, Railway, Docker, AWS ALB) behind an HTTPS reverse proxy triggers `warn: You are using a third party provider for login. Make sure to set an absolute url in config/server.js` and crashes with `Error: Cannot send secure cookie over unencrypted connection` on `/api/connect/google` because Koa receives internal plain HTTP (`0.0.0.0:8080`), disregards `X-Forwarded-Proto: https` if `proxy.koa` is not set, and defaults `strapi::session` cookie `secure: true` in production which fails when internal connection is unencrypted.
 - **Prevention Rule**: In `config/server.js`, configure `url: env('PUBLIC_URL', env('URL', ''))` and `proxy: { koa: env.bool('IS_PROXIED', true) }`. In `config/middlewares.js`, explicitly configure `strapi::session` with `{ secure: false, sameSite: 'lax' }` and dynamically include `FRONTEND_URL` and `PUBLIC_URL` under `strapi::cors` so proxy headers and OAuth session cookies work reliably across all cloud reverse proxy environments.
 
-### 22. Strict 4-Color Design System Compliance
-- **Rule**: All UI styling, theme tokens, and component designs must strictly follow [`design.md`](file:///d:/CPS%20Academy/design.md) using only the 4 official project colors:
-  - `#4A628A` (Deep Slate Blue / Dark Base & Headings)
-  - `#7AB2D3` (Sky Steel Blue / Primary Interactive & CTAs)
-  - `#B9E5E8` (Pale Teal / Secondary Surface & Border)
-  - `#DFF2EB` (Soft Mint Neutral / Base Light Canvas & Text)
+### 22. Modern Edule Design System & Color Palette
+- **Rule**: All UI styling, theme tokens, and component designs must strictly follow [`design.md`](file:///d:/CPS%20Academy/design.md) using the official project colors:
+  - `#309255` (Emerald Green / Primary Interactive & CTAs)
+  - `#212832` (Charcoal Slate / Dark Base & Secondary Action)
+  - `#E7F8EE` (Soft Mint / Highlight Surface & Badges)
+  - `#F8FAF9` (Clean Neutral / Base Light Canvas)
+  - `#E2ECE6` / `#2E3846` (Border Dividers)
 - **Constraint**: Never introduce external hex colors or gradients outside this official palette (except standard semantic alerts when necessary). Always update and reference [`design.md`](file:///d:/CPS%20Academy/design.md) for any visual changes.
+- **Card & Button Interactions**: Apply smooth hover lift (`hover:-translate-y-1.5 hover:shadow-xl hover:border-[#309255] transition-all duration-300`) on cards and interactive elements.
 
 ### 23. Modal Viewport Centering & Height Bounding
 - **Issue**: Centering modal cards with pure `items-center` on an unbounded container pushes top portions of tall modals (e.g. blog creation, quiz question management) into negative viewport coordinates above `top: 0`, cutting off the header, title, and close button.
@@ -217,4 +219,8 @@ CPS Academy is a comprehensive Learning Management System built for students, in
 ### 27. Undeclared Prop Identifiers & Handler References After Route Extraction
 - **Issue**: Retaining legacy child component prop fallback patterns (e.g. `onClick={onOpenAddQuiz || handleOpenAddQuiz}`) when converting dashboard tabs into standalone App Router page routes causes runtime `ReferenceError: <identifier> is not defined` because the prop variable `onOpenAddQuiz` is not in lexical scope.
 - **Prevention Rule**: When converting or creating standalone Next.js App Router page routes from child components, always bind event handlers directly to the context action methods (e.g. `onClick={handleOpenAddQuiz}`) and eliminate all references to undeclared prop identifiers.
+
+### 28. Table Column Sizing & Status Badge Single-Line Layout
+- **Issue**: Omitting explicit column min-widths (`min-w-[...]`) and `whitespace-nowrap shrink-0` on table headers, cells, and status badges causes narrow columns to wrap text into awkward multi-line capsules (such as "In" over "Progress") and causes table layouts to compress disproportionately on medium screens.
+- **Prevention Rule**: Always define explicit column widths on `<TableHead>` and `<TableCell>` (e.g. `w-[260px] min-w-[220px]`, `w-[160px] min-w-[140px]`), enforce `whitespace-nowrap shrink-0` on status indicators and primitive `<Badge>` components, and style live status pills using clean soft mint badges (`bg-[#E7F8EE] text-[#309255] border border-[#309255]/25 font-bold text-xs`) with dot indicators.
 

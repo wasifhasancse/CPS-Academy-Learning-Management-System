@@ -266,12 +266,12 @@ export function InstructorProvider({ children }) {
   const instructorSeries = [
     {
       name: "Enrollments",
-      color: "#7AB2D3",
+      color: "#309255",
       dataPoints: studentsProgress,
     },
     {
       name: "Curricula",
-      color: "#4A628A",
+      color: "#212832",
       dataPoints: courses,
     },
   ];

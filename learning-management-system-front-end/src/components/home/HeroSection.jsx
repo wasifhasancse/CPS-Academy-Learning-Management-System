@@ -82,19 +82,25 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full bg-surface border-b border-border py-12 md:py-20 lg:py-24 overflow-hidden">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Background Ambient Glow Accents */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-full max-w-[1600px] h-full pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-10 w-96 h-96 bg-[#E7F8EE] dark:bg-[#309255]/10 rounded-full blur-3xl opacity-70 -z-10" />
+        <div className="absolute bottom-10 left-10 w-80 h-80 bg-[#309255]/10 dark:bg-[#309255]/5 rounded-full blur-3xl opacity-50 -z-10" />
+      </div>
+
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left Column: Hero Typography & CTA */}
           <div className="lg:col-span-6 space-y-6 sm:space-y-8">
             {/* Top Brand Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary dark:text-highlight">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E7F8EE] border border-[#309255]/30 text-xs font-bold text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] shadow-1">
               <HiOutlineSparkles className="w-4 h-4" />
-              <span>CPS Academy • The Premier Computer Science Platform</span>
+              <span>CPS Academy • Leading Computer Science Platform</span>
             </div>
 
             {/* Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-extrabold text-foreground tracking-tight leading-[1.12]">
-              Master <span className="text-primary dark:text-highlight">Problem Solving</span> & Software Engineering
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-black text-foreground tracking-tight leading-[1.12]">
+              Master <span className="text-[#309255] dark:text-[#E7F8EE]">Problem Solving</span> & Software Engineering
             </h1>
 
             {/* Subtext */}
@@ -104,7 +110,7 @@ export function HeroSection() {
 
             {/* Primary Action Buttons */}
             <div className="flex flex-wrap items-center gap-3.5 pt-1">
-              <Button href="/courses" variant="primary" size="lg" className="font-bold text-xs sm:text-sm px-6 py-3.5 shadow-sm">
+              <Button href="/courses" variant="primary" size="lg" className="font-bold text-xs sm:text-sm px-6 py-3.5 shadow-1">
                 <span>Explore All Courses</span>
                 <HiOutlineArrowRight className="w-4 h-4 ml-1.5" />
               </Button>
@@ -116,28 +122,28 @@ export function HeroSection() {
             {/* Platform Feature Metrics Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-border/80">
               <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-primary dark:text-highlight font-black text-xl sm:text-2xl">
+                <div className="flex items-center gap-1.5 text-[#309255] dark:text-[#E7F8EE] font-black text-xl sm:text-2xl">
                   <span>100%</span>
                 </div>
                 <div className="text-xs font-semibold text-muted">Curated Tracks</div>
               </div>
 
               <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-primary dark:text-highlight font-black text-xl sm:text-2xl">
+                <div className="flex items-center gap-1.5 text-[#309255] dark:text-[#E7F8EE] font-black text-xl sm:text-2xl">
                   <span>Live</span>
                 </div>
                 <div className="text-xs font-semibold text-muted">Quiz Engine</div>
               </div>
 
               <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-primary dark:text-highlight font-black text-xl sm:text-2xl">
+                <div className="flex items-center gap-1.5 text-[#309255] dark:text-[#E7F8EE] font-black text-xl sm:text-2xl">
                   <span>Expert</span>
                 </div>
                 <div className="text-xs font-semibold text-muted">Instructors</div>
               </div>
 
               <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-primary dark:text-highlight font-black text-xl sm:text-2xl">
+                <div className="flex items-center gap-1.5 text-[#309255] dark:text-[#E7F8EE] font-black text-xl sm:text-2xl">
                   <span>Verified</span>
                 </div>
                 <div className="text-xs font-semibold text-muted">Certificates</div>
@@ -151,10 +157,31 @@ export function HeroSection() {
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
+            {/* Top-Right Floating Trust Badge */}
+            <div className="hidden sm:flex absolute -top-4 -right-2 z-30 items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-card border border-border shadow-1">
+              <div className="w-7 h-7 rounded-xl bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] flex items-center justify-center font-black text-xs">
+                ★
+              </div>
+              <div className="text-left">
+                <span className="block text-xs font-black text-foreground leading-tight">4.9 / 5.0 Rating</span>
+                <span className="block text-[10px] font-semibold text-muted">15k+ Active Students</span>
+              </div>
+            </div>
+
+            {/* Bottom-Left Floating Verified Checkpoint Badge */}
+            <div className="hidden sm:flex absolute -bottom-3 -left-3 z-30 items-center gap-2 px-3.5 py-2 rounded-2xl bg-card border border-border shadow-1">
+              <div className="w-6 h-6 rounded-lg bg-[#309255] text-white flex items-center justify-center font-bold text-xs">
+                ✓
+              </div>
+              <span className="text-[11px] font-bold text-foreground">
+                Verified Algorithmic Tracks
+              </span>
+            </div>
+
             {/* Slider Container Box */}
-            <div className="relative rounded-3xl overflow-hidden border-2 border-border bg-card shadow-xl group">
+            <div className="relative rounded-3xl overflow-hidden border-2 border-border bg-card shadow-1 group">
               {/* Slide Media Area */}
-              <div className="relative h-72 sm:h-96 md:h-[420px] w-full overflow-hidden bg-black">
+              <div className="relative h-72 sm:h-96 md:h-[420px] w-full overflow-hidden bg-[#212832]">
                 {SLIDES.map((slide, idx) => (
                   <div
                     key={slide.id}
@@ -171,14 +198,14 @@ export function HeroSection() {
                     />
 
                     {/* Dark Vignette Overlay for Readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#212832]/95 via-[#212832]/50 to-transparent" />
 
                     {/* Top Floating Badge */}
                     <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
-                      <span className="px-3 py-1 rounded-full bg-primary text-white text-[11px] font-extrabold tracking-wide shadow-sm">
+                      <span className="px-3 py-1 rounded-full bg-[#309255] text-white text-[11px] font-extrabold tracking-wide shadow-1">
                         {slide.badge}
                       </span>
-                      <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white/90 text-[11px] font-medium border border-white/20">
+                      <span className="px-3 py-1 rounded-full bg-[#212832]/80 backdrop-blur-md text-white text-[11px] font-semibold border border-white/20">
                         {slide.category}
                       </span>
                     </div>
@@ -188,13 +215,13 @@ export function HeroSection() {
                       <h3 className="text-xl sm:text-2xl font-black leading-tight tracking-tight drop-shadow-sm">
                         {slide.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-white/80 line-clamp-2 leading-relaxed max-w-lg drop-shadow-sm">
+                      <p className="text-xs sm:text-sm text-white/85 line-clamp-2 leading-relaxed max-w-lg drop-shadow-sm">
                         {slide.description}
                       </p>
                       <div className="pt-2">
                         <Link
                           href={slide.link}
-                          className="inline-flex items-center gap-1.5 text-xs font-bold text-highlight hover:underline"
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#E7F8EE] hover:text-white hover:underline transition-colors"
                         >
                           <span>Explore Track Details</span>
                           <HiOutlineArrowRight className="w-3.5 h-3.5" />
@@ -217,7 +244,7 @@ export function HeroSection() {
                       aria-label={`Go to slide ${idx + 1}`}
                       className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                         idx === currentSlide
-                          ? "w-8 bg-primary dark:bg-highlight"
+                          ? "w-8 bg-[#309255]"
                           : "w-2 bg-border hover:bg-muted"
                       }`}
                     />
@@ -235,7 +262,7 @@ export function HeroSection() {
                       type="button"
                       onClick={prevSlide}
                       aria-label="Previous slide"
-                      className="w-8 h-8 rounded-lg bg-surface border border-border flex items-center justify-center text-foreground hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-xl bg-surface border border-border flex items-center justify-center text-foreground hover:bg-[#309255] hover:text-white hover:border-[#309255] transition-colors cursor-pointer"
                     >
                       <HiOutlineChevronLeft className="w-4 h-4" />
                     </button>
@@ -243,7 +270,7 @@ export function HeroSection() {
                       type="button"
                       onClick={nextSlide}
                       aria-label="Next slide"
-                      className="w-8 h-8 rounded-lg bg-surface border border-border flex items-center justify-center text-foreground hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-xl bg-surface border border-border flex items-center justify-center text-foreground hover:bg-[#309255] hover:text-white hover:border-[#309255] transition-colors cursor-pointer"
                     >
                       <HiOutlineChevronRight className="w-4 h-4" />
                     </button>

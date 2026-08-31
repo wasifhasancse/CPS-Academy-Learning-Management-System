@@ -247,7 +247,7 @@ export function ProfileDropdown() {
 
       {/* Floating Dropdown Card */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-card border border-border shadow-xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-card border border-border shadow-1 p-3 z-50 animate-in fade-in zoom-in-95 duration-150">
           {/* Header User Card */}
           <div className="flex items-center gap-3 p-2.5 rounded-xl bg-surface border border-border/60">
             <div className="w-10 h-10 rounded-full bg-primary/20 text-primary dark:bg-highlight/20 dark:text-highlight flex items-center justify-center font-bold text-sm overflow-hidden shrink-0 border border-border">

@@ -72,16 +72,16 @@ export default function InstructorProgressPage() {
           }
         />
       ) : (
-        <Card>
+        <Card className="shadow-1 overflow-hidden">
           <CardContent className="p-0">
-            <Table>
+            <Table className="border-0 shadow-none rounded-none">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Course Track</TableHead>
-                  <TableHead>Progress</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Enrolled Date</TableHead>
+                  <TableHead className="w-[260px] min-w-[220px]">Student</TableHead>
+                  <TableHead className="min-w-[260px]">Course Track</TableHead>
+                  <TableHead className="w-[220px] min-w-[180px]">Progress</TableHead>
+                  <TableHead className="w-[160px] min-w-[140px]">Status</TableHead>
+                  <TableHead className="w-[140px] min-w-[120px] text-right">Enrolled Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -94,39 +94,47 @@ export default function InstructorProgressPage() {
                   return (
                     <TableRow key={enrollment.documentId || enrollment.id}>
                       <TableCell>
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-primary/20 text-primary dark:text-highlight flex items-center justify-center font-bold text-xs">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] flex items-center justify-center font-bold text-xs border border-[#309255]/25 shrink-0 shadow-2xs">
                             {student?.username?.[0]?.toUpperCase() || "S"}
                           </div>
                           <div>
-                            <div className="font-semibold text-foreground text-xs">
+                            <div className="font-bold text-foreground text-xs leading-tight">
                               {student?.username || "Unknown Student"}
                             </div>
-                            <div className="text-[10px] text-muted">
+                            <div className="text-[10px] text-muted font-medium mt-0.5">
                               {student?.email || "No email"}
                             </div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="font-semibold text-xs text-foreground">
+                        <span className="font-bold text-xs sm:text-sm text-foreground">
                           {course?.title || "CPS Course Track"}
                         </span>
                       </TableCell>
-                      <TableCell className="w-44">
+                      <TableCell className="w-48">
                         <div className="flex items-center gap-3">
                           <ProgressBar progress={progressPct} className="flex-1" />
-                          <span className="text-xs font-bold text-muted w-9 text-right">
+                          <span className="text-xs font-bold text-foreground w-10 text-right shrink-0">
                             {progressPct}%
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant={isCompleted ? "highlight" : "secondary"}>
-                          {isCompleted ? "Completed" : "In Progress"}
-                        </Badge>
+                      <TableCell className="whitespace-nowrap">
+                        {isCompleted ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#309255] text-white font-bold text-xs shadow-2xs whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0"></span>
+                            <span>Completed</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/15 dark:text-[#E7F8EE] border border-[#309255]/25 font-bold text-xs whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#309255] shrink-0"></span>
+                            <span>In Progress</span>
+                          </span>
+                        )}
                       </TableCell>
-                      <TableCell className="text-xs text-muted text-right">
+                      <TableCell className="text-xs text-muted font-medium text-right whitespace-nowrap">
                         {enrollment.createdAt
                           ? new Date(enrollment.createdAt).toLocaleDateString()
                           : "Recent"}

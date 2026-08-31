@@ -29,12 +29,11 @@ export function ProgressBar({
           <span>{percentage}%</span>
         </div>
       )}
-      <div className={`w-full rounded-full bg-surface border border-border overflow-hidden ${sizeClasses[size] || sizeClasses.md}`}>
+      <div className={`w-full rounded-full bg-[#E2ECE6] dark:bg-[#2E3846] overflow-hidden ${sizeClasses[size] || sizeClasses.md}`}>
         <div
-          className="h-full bg-secondary transition-all duration-500 rounded-full"
+          className="h-full bg-[#309255] transition-all duration-500 rounded-full"
           style={{
             width: `${percentage}%`,
-            backgroundColor: "#408A71",
           }}
           role="progressbar"
           aria-valuenow={numericVal}
