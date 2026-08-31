@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 
 export function ActivityTable({
@@ -43,7 +42,11 @@ export function ActivityTable({
     if (c.includes("INSTRUCTOR") || c.includes("MANAGER")) {
       return "bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] border border-[#309255]/30 font-semibold";
     }
-    if (c.includes("STUDENT") || c.includes("ENROLLMENT") || c.includes("COURSE")) {
+    if (
+      c.includes("STUDENT") ||
+      c.includes("ENROLLMENT") ||
+      c.includes("COURSE")
+    ) {
       return "bg-surface text-foreground border border-border";
     }
     return "bg-surface text-muted border border-border";
@@ -63,7 +66,9 @@ export function ActivityTable({
             <h3 className="text-base font-extrabold text-foreground tracking-tight">
               {title}
             </h3>
-            {subtitle && <p className="text-xs text-muted mt-0.5">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-xs text-muted mt-0.5">{subtitle}</p>
+            )}
           </div>
         </div>
 
@@ -99,7 +104,10 @@ export function ActivityTable({
             <tbody className="divide-y divide-border">
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="py-12 text-center text-muted font-medium">
+                  <td
+                    colSpan={columns.length}
+                    className="py-12 text-center text-muted font-medium"
+                  >
                     {emptyMessage}
                   </td>
                 </tr>
@@ -112,12 +120,14 @@ export function ActivityTable({
                     <td className="py-3 px-4 font-bold text-foreground max-w-[260px] truncate">
                       {row.item}
                     </td>
-                    <td className="py-3 px-4 text-muted font-mono text-[11px] whitespace-nowrap">{row.user}</td>
+                    <td className="py-3 px-4 text-muted font-mono text-[11px] whitespace-nowrap">
+                      {row.user}
+                    </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {row.category && (
                         <span
                           className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap ${getCategoryBadge(
-                            row.category
+                            row.category,
                           )}`}
                         >
                           {row.category}
@@ -127,7 +137,7 @@ export function ActivityTable({
                     <td className="py-3 px-4 whitespace-nowrap">
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase whitespace-nowrap ${getStatusBadge(
-                          row.status
+                          row.status,
                         )}`}
                       >
                         {row.status}

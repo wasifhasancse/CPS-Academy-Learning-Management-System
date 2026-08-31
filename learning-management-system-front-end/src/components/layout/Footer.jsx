@@ -3,6 +3,11 @@
 import { Logo } from "@/components/layout/Logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FaCcMastercard, FaCcVisa, FaStripe } from "react-icons/fa6";
+import { HiOutlineEnvelope, HiOutlineGlobeAlt } from "react-icons/hi2";
+
+const footerLinkClass =
+  "inline-flex items-center rounded-md text-footer-fg/80 transition-all duration-200 hover:translate-x-1 hover:text-[#E7F8EE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#309255] focus-visible:ring-offset-2 focus-visible:ring-offset-footer-bg";
 
 export function Footer() {
   const pathname = usePathname();
@@ -14,8 +19,8 @@ export function Footer() {
 
   return (
     <footer className="bg-footer-bg text-footer-fg border-t border-border transition-colors">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-10">
           {/* Brand Col */}
           <div className="space-y-3">
             <Logo variant="footer" />
@@ -33,68 +38,47 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link
-                  href="/"
-                  className="text-footer-fg/80 hover:text-[#E7F8EE] transition-colors"
-                >
+                <Link href="/" className={footerLinkClass}>
                   Home
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/courses"
-                  className="text-footer-fg/80 hover:text-[#E7F8EE] transition-colors"
-                >
+                <Link href="/courses" className={footerLinkClass}>
                   All Courses
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/blog"
-                  className="text-footer-fg/80 hover:text-[#E7F8EE] transition-colors"
-                >
+                <Link href="/blog" className={footerLinkClass}>
                   Engineering Blog
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/success-story"
-                  className="text-footer-fg/80 hover:text-[#E7F8EE] transition-colors"
-                >
+                <Link href="/success-story" className={footerLinkClass}>
                   Success Stories
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Instructors */}
+          {/* Learning Resources */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-highlight mb-3">
-              Teach & Lead
+              Learn & Grow
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link
-                  href="/auth/register"
-                  className="text-footer-fg/80 hover:text-highlight transition-colors"
-                >
-                  Become an Instructor
+                <Link href="/auth/register" className={footerLinkClass}>
+                  Create an Account
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/dashboard/instructor"
-                  className="text-footer-fg/80 hover:text-highlight transition-colors"
-                >
-                  Instructor Dashboard
+                <Link href="/courses" className={footerLinkClass}>
+                  Browse Courses
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/about"
-                  className="text-footer-fg/80 hover:text-highlight transition-colors"
-                >
-                  Curriculum Standards
+                <Link href="/about" className={footerLinkClass}>
+                  Learning Approach
                 </Link>
               </li>
             </ul>
@@ -107,19 +91,13 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link
-                  href="/about"
-                  className="text-footer-fg/80 hover:text-highlight transition-colors"
-                >
+                <Link href="/about" className={footerLinkClass}>
                   About Us
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/auth/login"
-                  className="text-footer-fg/80 hover:text-highlight transition-colors"
-                >
-                  Student Portal
+                <Link href="/auth/login" className={footerLinkClass}>
+                  Log In
                 </Link>
               </li>
               <li>
@@ -127,14 +105,47 @@ export function Footer() {
               </li>
             </ul>
           </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-highlight mb-3">
+              Contact
+            </h4>
+            <address className="space-y-2 text-xs not-italic">
+              <a
+                href="mailto:support@cpsacademy.com"
+                className={footerLinkClass}
+              >
+                <HiOutlineEnvelope className="w-4 h-4 mr-2 shrink-0" />
+                support@cpsacademy.com
+              </a>
+              <Link href="/about" className={footerLinkClass}>
+                <HiOutlineGlobeAlt className="w-4 h-4 mr-2 shrink-0" />
+                Learn about CPS Academy
+              </Link>
+            </address>
+          </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between text-xs text-footer-fg/60 gap-4">
+        <div className="pt-6 border-t border-border flex flex-col lg:flex-row items-center justify-between text-xs text-footer-fg/60 gap-4">
           <p>© {new Date().getFullYear()} CPS Academy. All rights reserved.</p>
-          <p className="flex items-center gap-4">
-            <span>Built with Next.js 16 & Strapi v5</span>
-          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
+            <span className="text-footer-fg/70">
+              Secure card payments via Stripe
+            </span>
+            <span className="h-4 w-px bg-border" aria-hidden="true" />
+            <FaStripe
+              className="h-5 w-auto text-[#E7F8EE]"
+              aria-label="Stripe"
+            />
+            <FaCcVisa className="h-5 w-auto text-[#E7F8EE]" aria-label="Visa" />
+            <FaCcMastercard
+              className="h-5 w-auto text-[#E7F8EE]"
+              aria-label="Mastercard"
+            />
+          </div>
+          <span>Built with Next.js 16 & Strapi v5</span>
         </div>
       </div>
     </footer>

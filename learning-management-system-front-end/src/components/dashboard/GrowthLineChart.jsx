@@ -2,11 +2,7 @@
 
 import React, { useState } from "react";
 
-const DEFAULT_COLORS = [
-  "#309255",
-  "#E7F8EE",
-  "#F8FAF9",
-];
+const DEFAULT_COLORS = ["#309255", "#E7F8EE", "#F8FAF9"];
 
 export function GrowthLineChart({
   title = "Activity Trend",
@@ -45,7 +41,10 @@ export function GrowthLineChart({
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       const label = d.toLocaleString("default", { month: "short" });
-      const fullLabel = d.toLocaleString("default", { month: "long", year: "numeric" });
+      const fullLabel = d.toLocaleString("default", {
+        month: "long",
+        year: "numeric",
+      });
       buckets[key] = { label, fullLabel, seriesCounts: {} };
     }
     return buckets;
@@ -60,7 +59,12 @@ export function GrowthLineChart({
       const monthlyCounts = monthKeys.map((key) => {
         let count = 0;
         (s.dataPoints || []).forEach((pt) => {
-          const rawDate = pt.dateObj || pt.createdAt || pt.updatedAt || pt.submittedAt || pt.timestamp;
+          const rawDate =
+            pt.dateObj ||
+            pt.createdAt ||
+            pt.updatedAt ||
+            pt.submittedAt ||
+            pt.timestamp;
           if (!rawDate) return;
           const d = new Date(rawDate);
           if (isNaN(d.getTime())) return;
@@ -88,11 +92,10 @@ export function GrowthLineChart({
   }, [resolvedSeries, monthKeys]);
 
   // Determine global max across visible series for uniform scale
-  const visibleSeries = computedSeries.filter((s) => activeSeries[s.id] !== false);
-  const globalMax = Math.max(
-    ...visibleSeries.flatMap((s) => s.cumulative),
-    1
+  const visibleSeries = computedSeries.filter(
+    (s) => activeSeries[s.id] !== false,
   );
+  const globalMax = Math.max(...visibleSeries.flatMap((s) => s.cumulative), 1);
 
   const width = 600;
   const height = 240;
@@ -127,7 +130,11 @@ export function GrowthLineChart({
   // Build points for each visible series
   const renderedSeries = visibleSeries.map((s) => {
     const pts = s.cumulative.map((val, idx) => {
-      const x = paddingX + (months.length > 1 ? (idx / (months.length - 1)) * chartWidth : chartWidth / 2);
+      const x =
+        paddingX +
+        (months.length > 1
+          ? (idx / (months.length - 1)) * chartWidth
+          : chartWidth / 2);
       const y = height - paddingY - (val / globalMax) * chartHeight;
       return { x, y, val, month: months[idx] };
     });
@@ -141,7 +148,7 @@ export function GrowthLineChart({
 
   const yTickCount = 4;
   const yTicks = Array.from({ length: yTickCount + 1 }, (_, i) =>
-    Math.round((globalMax / yTickCount) * (yTickCount - i))
+    Math.round((globalMax / yTickCount) * (yTickCount - i)),
   );
 
   const hasData = visibleSeries.some((s) => s.cumulative.some((v) => v > 0));
@@ -156,7 +163,9 @@ export function GrowthLineChart({
   const selectedIdx = hoveredIdx !== null ? hoveredIdx : months.length - 1;
 
   return (
-    <div className={`p-5 sm:p-6 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-1 ${className}`}>
+    <div
+      className={`p-5 sm:p-6 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-1 ${className}`}
+    >
       {/* Header with Title and Single-line Horizontally Scrollable Legend Pills */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="shrink-0">
@@ -196,12 +205,26 @@ export function GrowthLineChart({
       {!hasData ? (
         <div className="flex flex-col items-center justify-center py-12 text-center my-auto">
           <div className="w-12 h-12 rounded-xl bg-surface border border-border flex items-center justify-center text-muted mb-3">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
+              />
             </svg>
           </div>
-          <p className="text-xs font-bold text-foreground">No activity data recorded</p>
-          <p className="text-[11px] text-muted mt-1">Timeline will populate dynamically as platform activity occurs</p>
+          <p className="text-xs font-bold text-foreground">
+            No activity data recorded
+          </p>
+          <p className="text-[11px] text-muted mt-1">
+            Timeline will populate dynamically as platform activity occurs
+          </p>
         </div>
       ) : (
         <div className="w-full overflow-x-auto flex-1 flex flex-col justify-between">
@@ -276,12 +299,16 @@ export function GrowthLineChart({
                   onClick={() => setHoveredIdx(idx)}
                   onMouseEnter={() => setHoveredIdx(idx)}
                 />
-              ))
+              )),
             )}
 
             {/* X Axis Month Labels */}
             {months.map((m, idx) => {
-              const x = paddingX + (months.length > 1 ? (idx / (months.length - 1)) * chartWidth : chartWidth / 2);
+              const x =
+                paddingX +
+                (months.length > 1
+                  ? (idx / (months.length - 1)) * chartWidth
+                  : chartWidth / 2);
               return (
                 <g key={m + idx}>
                   <rect
@@ -316,15 +343,21 @@ export function GrowthLineChart({
           {/* Always Visible Multi-Series Metric Summary Tray */}
           <div className="mt-2.5 p-3 rounded-xl bg-surface border border-border flex flex-wrap items-center justify-between gap-2.5 text-xs">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase font-bold text-muted tracking-wider">Metrics:</span>
+              <span className="text-[10px] uppercase font-bold text-muted tracking-wider">
+                Metrics:
+              </span>
               <span className="font-bold text-foreground font-mono">
-                {Object.values(monthBuckets)[selectedIdx]?.fullLabel || months[selectedIdx]}
+                {Object.values(monthBuckets)[selectedIdx]?.fullLabel ||
+                  months[selectedIdx]}
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               {renderedSeries.map((s) => (
                 <div key={s.id} className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: s.color }}
+                  />
                   <span className="text-muted text-[11px]">{s.name}:</span>
                   <span className="font-bold text-foreground font-mono">
                     {s.cumulative[selectedIdx]}

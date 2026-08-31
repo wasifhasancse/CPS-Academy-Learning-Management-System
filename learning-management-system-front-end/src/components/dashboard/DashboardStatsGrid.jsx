@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 
 export function DashboardStatsGrid({ stats = [] }) {
   if (!stats || stats.length === 0) return null;
@@ -9,8 +8,8 @@ export function DashboardStatsGrid({ stats = [] }) {
     stats.length === 5
       ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5"
       : stats.length === 3
-      ? "grid-cols-1 sm:grid-cols-3"
-      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+        ? "grid-cols-1 sm:grid-cols-3"
+        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
 
   return (
     <div className={`grid ${colsClass} gap-4`}>
