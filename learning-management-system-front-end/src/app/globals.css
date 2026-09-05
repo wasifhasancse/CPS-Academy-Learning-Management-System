@@ -1,44 +1,66 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
-@variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --font-roboto: 'Roboto', sans-serif;
+  --font-roboto: "Roboto", sans-serif;
 
-  /* Official 4-Color Brand Palette */
-  --primary: #4A628A;
-  --secondary: #7AB2D3;
-  --highlight: #B9E5E8;
-  --light-neutral: #DFF2EB;
+  /* Edule-Inspired Modern Brand Palette */
+  --primary: #309255;
+  --secondary: #212832;
+  --highlight: #e7f8ee;
+  --light-neutral: #f8faf9;
 
   /* Base Light Theme */
-  --background: #DFF2EB;
-  --foreground: #4A628A;
-  --surface: #FFFFFF;
-  --card: #FFFFFF;
-  --card-foreground: #4A628A;
-  --border: #B9E5E8;
-  --muted: #5A7BA0;
+  --background: #f8faf9;
+  --foreground: #212832;
+  --surface: #ffffff;
+  --surface-hover: #e7f8ee;
+  --card: #ffffff;
+  --card-foreground: #212832;
+  --border: #e2ece6;
+  --muted: #52565b;
+
+  /* Dashboard Data Visualization */
+  --chart-grid: #e2ece6;
+  --chart-track: #e2ece6;
+  --chart-point: #ffffff;
+  --chart-data-primary: #309255;
+  --chart-data-secondary: #212832;
+  --chart-data-tertiary: #52565b;
 
   /* Footer Colors */
-  --footer-bg: #4A628A;
-  --footer-fg: #DFF2EB;
+  --footer-bg: #212832;
+  --footer-fg: #f8faf9;
 }
 
 .dark {
   /* Base Dark Theme */
-  --background: #1E2A3A;
-  --foreground: #DFF2EB;
-  --surface: #2A3D5A;
-  --card: #2A3D5A;
-  --card-foreground: #DFF2EB;
-  --border: #7AB2D3;
-  --muted: #B9E5E8;
+  --background: #181e27;
+  --foreground: #f5fbf7;
+  --surface: #212832;
+  --surface-hover: #2e3846;
+  --card: #212832;
+  --card-foreground: #f5fbf7;
+  --border: #2e3846;
+  --muted: #9ba4b4;
+
+  /* Dashboard Data Visualization */
+  --chart-grid: #2e3846;
+  --chart-track: #2e3846;
+  --chart-point: #212832;
+  --chart-data-primary: #309255;
+  --chart-data-secondary: #e7f8ee;
+  --chart-data-tertiary: #9ba4b4;
 
   /* Footer Colors (Dark Mode) */
-  --footer-bg: #151E2E;
-  --footer-fg: #DFF2EB;
+  --footer-bg: #11161d;
+  --footer-fg: #f5fbf7;
+}
+
+.dark {
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -46,15 +68,21 @@
   --color-secondary: var(--secondary);
   --color-highlight: var(--highlight);
   --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-border: var(--border);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-track: var(--chart-track);
+  --color-chart-point: var(--chart-point);
 
   --color-footer-bg: var(--footer-bg);
   --color-footer-fg: var(--footer-fg);
+
+  --shadow-1: 0 2px 6px rgba(0, 0, 0, 0.06);
 
   --font-sans: var(--font-roboto);
 }
@@ -72,4 +100,37 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+input,
+select,
+textarea {
+  caret-color: var(--primary);
+}
+
+.dashboard-shell select {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--foreground);
+  transition: background-color 200ms, border-color 200ms, box-shadow 200ms;
+}
+
+.dashboard-shell select:hover {
+  border-color: color-mix(in srgb, var(--primary) 60%, var(--border));
+}
+
+.dashboard-shell select:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent);
+  outline: none;
+}
+
+.dashboard-shell option {
+  background-color: var(--surface);
+  color: var(--foreground);
 }

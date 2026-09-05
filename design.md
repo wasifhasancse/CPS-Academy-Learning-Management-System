@@ -1,17 +1,19 @@
 # CPS Academy — Design System & Color Guide
 
-This document establishes the official design specification and color palette for the CPS Academy Learning Management System. **All styling, theme tokens, and component designs must strictly follow these rules and use only the 4 specified brand colors.**
+This document establishes the official design specification and color palette for the CPS Academy Learning Management System, inspired by the clean, modern aesthetics of Edule eLearning.
 
 ---
 
-## 1. Official 4-Color Palette
+## 1. Official Palette
 
 | Token / Role | Hex Code | Color Name | Visual Role & Usage |
 |---|:---:|---|---|
-| **Primary Dark / Deep Slate Blue** | `#4A628A` | Deep Slate Blue | Primary header/footer base, primary brand dark background, high-contrast text in light mode, primary dark surface. |
-| **Primary Interactive / Sky Steel Blue** | `#7AB2D3` | Sky Steel Blue | Primary buttons, active navigation indicators, CTAs, interactive highlights, key progress bars. |
-| **Secondary Accent / Pale Teal** | `#B9E5E8` | Pale Teal | Secondary buttons, borders, sub-headings, icons, dark mode highlights, subtle badge outlines. |
-| **Base Light / Soft Mint Canvas** | `#DFF2EB` | Soft Mint Canvas | Light mode background canvas, card surfaces, highlight badges, high-contrast text on dark backgrounds. |
+| **Primary Brand / Interactive** | `#309255` | Emerald Green | Primary buttons, active navigation indicators, CTAs, interactive highlights, key progress bars, hover accents. |
+| **Dark Base / Secondary Action** | `#212832` | Charcoal Slate | Secondary buttons, headers/footers, high-contrast dark backgrounds, headings, dark mode surfaces. |
+| **Accent Mint Surface** | `#E7F8EE` | Soft Mint | Highlight badges, icon backgrounds, soft interactive hover pills, active tab backgrounds. |
+| **Base Light Canvas** | `#F8FAF9` | Clean Canvas | Light mode background canvas, card surfaces. |
+| **Border / Divider** | `#E2ECE6` / `#2E3846` | Soft Neutral Border | Subtle card borders, dividers, table lines. |
+| **Muted Text** | `#52565B` / `#9BA4B4` | Muted Gray | Subtitles, body descriptions, timestamps, metadata. |
 
 ---
 
@@ -21,62 +23,66 @@ This document establishes the official design specification and color palette fo
 
 ```css
 :root {
-  /* Official 4-Color Brand Palette */
-  --primary: #4A628A;
-  --secondary: #7AB2D3;
-  --highlight: #B9E5E8;
-  --light-neutral: #DFF2EB;
+  /* Edule-Inspired Brand Palette */
+  --primary: #309255;
+  --secondary: #212832;
+  --highlight: #E7F8EE;
+  --light-neutral: #F8FAF9;
 
   /* Base Light Theme */
-  --background: #DFF2EB;
-  --foreground: #4A628A;
+  --background: #F8FAF9;
+  --foreground: #212832;
   --surface: #FFFFFF;
   --card: #FFFFFF;
-  --card-foreground: #4A628A;
-  --border: #B9E5E8;
-  --muted: #5A7BA0;
+  --card-foreground: #212832;
+  --border: #E2ECE6;
+  --muted: #52565B;
 
   /* Footer Colors */
-  --footer-bg: #4A628A;
-  --footer-fg: #DFF2EB;
+  --footer-bg: #212832;
+  --footer-fg: #F8FAF9;
 }
 
 .dark {
   /* Base Dark Theme */
-  --background: #1E2A3A;
-  --foreground: #DFF2EB;
-  --surface: #2A3D5A;
-  --card: #2A3D5A;
-  --card-foreground: #DFF2EB;
-  --border: #7AB2D3;
-  --muted: #B9E5E8;
+  --background: #181E27;
+  --foreground: #F5FBF7;
+  --surface: #212832;
+  --card: #212832;
+  --card-foreground: #F5FBF7;
+  --border: #2E3846;
+  --muted: #9BA4B4;
 
   /* Footer Colors (Dark Mode) */
-  --footer-bg: #151E2E;
-  --footer-fg: #DFF2EB;
+  --footer-bg: #11161D;
+  --footer-fg: #F5FBF7;
 }
 ```
 
 ---
 
-## 3. Strict Color Application Rules
+## 3. Component & Interaction Guidelines
 
-1. **Four-Color Invariant**:
-   - Every component, background, border, text, badge, and icon must strictly use one of the 4 defined palette colors (`#4A628A`, `#7AB2D3`, `#B9E5E8`, `#DFF2EB`) or their opacity variants.
-   - Never introduce any random external hex colors outside this 4-color palette (except semantic error indicators when required).
+1. **Card Elevation & Hover Lift**:
+   - Class: `transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-xl hover:border-[#309255]`
+   - Image Zoom: `overflow-hidden` with `group-hover:scale-105 transition-transform duration-500`
 
-2. **No Gradients**:
-   - Use clean, solid flat colors with crisp borders and rounded corners (`rounded-2xl`, `rounded-3xl`, `rounded-xl`).
+### Shadow & Elevation Rules
+- **Rule**: Never use heavy drop shadows (`shadow-xl`, `shadow-2xl`, `shadow-lg`, `shadow-md`).
+- **Standard Token**: Strictly use `shadow-1` (`0 2px 6px rgba(0, 0, 0, 0.06)`) or `shadow-xs` / `shadow-2xs` for subtle, clean elevation across all cards, buttons, modals, and dropdowns.
+- **Slight Hover Micro-Interactions**: Use subtle, slight micro-lift `hover:-translate-y-0.5` (avoid heavy jumps) combined with `hover:shadow-1` and `duration-300`. For images/thumbnails, use slight zoom `group-hover:scale-[1.02]`.
 
 3. **Buttons & Interactivity**:
-   - **Primary Action**: `bg-[#7AB2D3] text-white hover:bg-[#4A628A] dark:bg-[#7AB2D3] dark:text-[#1E2A3A] dark:hover:bg-[#B9E5E8] font-bold`
-   - **Secondary Action**: `bg-[#4A628A] text-[#DFF2EB] hover:bg-[#5A7BA0] dark:bg-[#5A7BA0] dark:hover:bg-[#7AB2D3]`
-   - **Outline**: `border border-[#7AB2D3] text-[#7AB2D3] hover:bg-[#7AB2D3]/10 dark:border-[#B9E5E8] dark:text-[#B9E5E8]`
-   - **Highlight Pill / Badges**: `bg-[#B9E5E8]/30 text-[#4A628A] dark:bg-[#B9E5E8]/20 dark:text-[#B9E5E8] border border-[#B9E5E8]/60 font-bold`
+   - **Primary Action**: `bg-[#309255] text-white hover:bg-[#212832] transition-all duration-300 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md active:translate-y-0 font-bold`
+   - **Secondary Action**: `bg-[#212832] text-white hover:bg-[#309255] transition-all duration-300 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md`
+   - **Highlight / Mint Action**: `bg-[#E7F8EE] text-[#309255] border border-[#309255]/20 hover:bg-[#309255] hover:text-white transition-all duration-300 font-bold`
+   - **Outline**: `border-2 border-[#309255] text-[#309255] hover:bg-[#309255] hover:text-white transition-all duration-300 font-bold`
+
+4. **Badges**:
+   - **Highlight / Mint**: `bg-[#E7F8EE] text-[#309255] border border-[#309255]/20 font-bold`
+   - **Primary**: `bg-[#309255] text-white font-bold`
+   - **Secondary**: `bg-[#212832] text-white font-bold`
 
 4. **Typography**:
    - Font Family: **Roboto** (`var(--font-roboto)`).
-   - High contrast headings and body text (`text-[#4A628A]` in light mode, `text-[#DFF2EB]` in dark mode).
-
-5. **Logo & Emblem**:
-   - Uses `HiCommandLine` (`>_` from `react-icons/hi2`) inside `#4A628A` / `#7AB2D3` emblem container.
+   - High contrast headings (`text-[#212832]` in light mode, `text-[#F5FBF7]` in dark mode).
