@@ -11,7 +11,8 @@ export function ThemeToggle() {
     const storedTheme = localStorage.getItem("theme");
     if (
       storedTheme === "dark" ||
-      (!storedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      (!storedTheme &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
     ) {
       setTheme("dark");
       document.documentElement.classList.add("dark");
@@ -44,37 +45,37 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-      className="w-8 h-8 sm:w-9 sm:h-9 rounded-full hover:bg-surface border border-transparent hover:border-border text-foreground flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none"
+      className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface hover:bg-surface-hover border border-border/80 hover:border-[#309255]/40 text-foreground flex items-center justify-center transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#309255]/30"
     >
       {theme === "light" ? (
         /* Moon Icon for Light -> Dark switch */
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
+          width="17"
+          height="17"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-foreground/80 hover:text-foreground"
+          className="text-foreground/80 hover:text-foreground transition-transform duration-200 hover:rotate-12"
         >
           <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
         </svg>
       ) : (
-        /* Sun Icon for Dark -> Light switch (glowing amber) */
+        /* Sun Icon for Dark -> Light switch */
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
+          width="17"
+          height="17"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-amber-400"
+          className="text-amber-400 transition-transform duration-200 hover:rotate-45"
         >
           <circle cx="12" cy="12" r="4" fill="currentColor" fillOpacity="0.2" />
           <path d="M12 2v2" />
