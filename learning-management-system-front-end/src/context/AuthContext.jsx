@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { useToast } from "@/context/ToastContext";
 
 const AuthContext = createContext(null);
 
@@ -29,6 +30,7 @@ export function getRoleDashboardPath(roleName) {
 
 export function AuthProvider({ children }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,6 +64,7 @@ export function AuthProvider({ children }) {
           };
           localStorage.setItem("cps_user", JSON.stringify(resolvedUser));
           setUser(resolvedUser);
+          toast.success(`Welcome, ${resolvedUser.username || "Student"}!`, "Signed In");
           window.history.replaceState({}, document.title, window.location.pathname);
           const target = getRoleDashboardPath(resolvedUser.roleName);
           router.replace(target);
@@ -187,13 +190,15 @@ export function AuthProvider({ children }) {
         setUser(resolvedUser);
         setIsLoading(false);
 
+        toast.success(`Welcome back, ${resolvedUser.username || "Student"}!`, "Logged In");
+
         const target = getRoleDashboardPath(resolvedUser.roleName);
         router.push(target);
         return resolvedUser;
       }
       throw new Error("Invalid response received from authentication server.");
     },
-    [router]
+    [router, toast]
   );
 
   const register = useCallback(
@@ -230,13 +235,15 @@ export function AuthProvider({ children }) {
         setUser(resolvedUser);
         setIsLoading(false);
 
+        toast.success("Account created successfully! Welcome to CPS Academy.", "Registration Complete");
+
         const target = getRoleDashboardPath(resolvedUser.roleName);
         router.push(target);
         return resolvedUser;
       }
       throw new Error("Registration could not be completed.");
     },
-    [router]
+    [router, toast]
   );
 
   const setAuthData = useCallback(
@@ -272,8 +279,9 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("cps_user");
     setToken(null);
     setUser(null);
+    toast.info("You have been successfully signed out.", "Signed Out");
     router.push("/auth/login");
-  }, [router]);
+  }, [router, toast]);
 
   const value = {
     user,
