@@ -37,7 +37,7 @@ const TESTIMONIALS = [
 export function TestimonialsSection() {
   return (
     <section className="py-16 md:py-24 bg-background border-b border-border">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <Badge variant="highlight" size="sm">
@@ -56,7 +56,7 @@ export function TestimonialsSection() {
           {TESTIMONIALS.map((t, idx) => (
             <div
               key={idx}
-              className="p-6 sm:p-8 rounded-3xl bg-surface border border-border hover:border-primary transition-all flex flex-col justify-between space-y-6 shadow-xs group"
+              className="p-6 sm:p-8 rounded-3xl bg-surface border border-border hover:border-[#309255] hover:-translate-y-0.5 shadow-1 hover:shadow-1 transition-all duration-300 flex flex-col justify-between space-y-6 group"
             >
               <div className="space-y-4">
                 {/* Rating Stars */}
@@ -74,7 +74,7 @@ export function TestimonialsSection() {
 
               {/* Author Footer */}
               <div className="pt-4 border-t border-border/80 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+                <div className="w-10 h-10 rounded-full bg-[#309255] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
                   {t.avatar}
                 </div>
                 <div className="min-w-0">
@@ -82,12 +82,12 @@ export function TestimonialsSection() {
                     <span className="font-bold text-xs sm:text-sm text-foreground truncate">
                       {t.name}
                     </span>
-                    <HiOutlineCheckBadge className="w-4 h-4 text-secondary shrink-0" />
+                    <HiOutlineCheckBadge className="w-4 h-4 text-[#309255] shrink-0" />
                   </div>
                   <div className="text-[11px] text-muted truncate">
                     {t.role}
                   </div>
-                  <div className="text-[10px] font-semibold text-secondary truncate mt-0.5">
+                  <div className="text-[10px] font-semibold text-[#309255] truncate mt-0.5">
                     Enrolled in {t.course}
                   </div>
                 </div>

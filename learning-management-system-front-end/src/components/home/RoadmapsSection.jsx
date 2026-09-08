@@ -143,8 +143,8 @@ export function RoadmapsSection() {
   const currentRoadmap = ROADMAPS.find((r) => r.id === activeTab) || ROADMAPS[0];
 
   return (
-    <section className="py-16 md:py-24 bg-background border-b border-border">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <section className="py-16 md:py-24 bg-surface border-b border-border">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <Badge variant="highlight" size="sm">
@@ -169,8 +169,8 @@ export function RoadmapsSection() {
                 onClick={() => setActiveTab(roadmap.id)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-primary text-white shadow-sm"
-                    : "text-muted hover:text-foreground hover:bg-surface/80"
+                    ? "bg-[#309255] text-white shadow-1"
+                    : "text-muted hover:text-[#309255] hover:bg-[#E7F8EE]/30"
                 }`}
               >
                 {roadmap.icon}
@@ -181,7 +181,7 @@ export function RoadmapsSection() {
         </div>
 
         {/* Active Roadmap Timeline Card */}
-        <div className="p-6 sm:p-10 rounded-3xl bg-surface border border-border shadow-xs space-y-8">
+        <div className="p-6 sm:p-10 rounded-3xl bg-surface border border-border shadow-1 space-y-8">
           {/* Header Info */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
             <div className="space-y-1.5">
@@ -202,7 +202,7 @@ export function RoadmapsSection() {
               </p>
             </div>
 
-            <Button href="/courses" variant="primary" size="sm" className="shrink-0 text-xs font-bold">
+            <Button href="/courses" variant="primary" size="sm" className="shrink-0 text-xs font-bold shadow-1">
               <span>View All Courses in Track</span>
               <HiOutlineArrowRight className="w-3.5 h-3.5 ml-1" />
             </Button>
@@ -213,18 +213,18 @@ export function RoadmapsSection() {
             {currentRoadmap.steps.map((step, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-2xl bg-card border border-border hover:border-primary transition-all flex flex-col justify-between space-y-3 group"
+                className="p-5 rounded-2xl bg-card border border-border hover:border-[#309255] shadow-1 hover:shadow-1 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between space-y-3 group"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-black text-secondary font-mono">
+                    <span className="text-xl font-black text-[#309255] font-mono">
                       {step.step}
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface border border-border text-muted">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E7F8EE] dark:bg-[#E7F8EE]/10 border border-[#309255]/20 text-[#309255] dark:text-[#E7F8EE]">
                       {step.problems}
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
+                  <h4 className="text-sm font-bold text-foreground leading-snug group-hover:text-[#309255] transition-colors">
                     {step.title}
                   </h4>
                   <p className="text-xs text-muted leading-relaxed">
@@ -232,7 +232,7 @@ export function RoadmapsSection() {
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-border/60 flex items-center gap-1.5 text-[11px] font-semibold text-secondary">
+                <div className="pt-2 border-t border-border/60 flex items-center gap-1.5 text-[11px] font-semibold text-[#309255] dark:text-[#E7F8EE]">
                   <HiOutlineCheckCircle className="w-3.5 h-3.5" />
                   <span>Verified Curriculum</span>
                 </div>
