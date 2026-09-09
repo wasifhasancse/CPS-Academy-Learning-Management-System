@@ -47,86 +47,88 @@ export function CourseCard({ course }) {
         : 0;
 
   return (
-    <div className="group rounded-3xl border border-border bg-card overflow-hidden flex flex-col justify-between hover:border-[#7AB2D3] transition-all duration-200 shadow-xs">
-      {/* 1. Top Image & Badge Section */}
-      <div className="relative w-full h-48 bg-surface border-b border-border overflow-hidden flex items-center justify-center">
+    <div className="group rounded-2xl border border-border bg-card overflow-hidden flex flex-col justify-between hover:border-[#309255] transition-all duration-300 transform hover:-translate-y-0.5 shadow-1 hover:shadow-1">
+      {/* 1. Top Image & Badges Section */}
+      <div className="relative w-full h-44 sm:h-48 bg-surface border-b border-border overflow-hidden flex items-center justify-center">
         {thumbnailUrl ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={thumbnailUrl}
               alt={title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
             />
           </>
         ) : (
-          <div className="w-full h-full bg-[#DFF2EB] dark:bg-[#1E2A3A] flex flex-col items-center justify-center p-6 text-center space-y-2">
-            <HiOutlineBookOpen className="w-10 h-10 text-[#7AB2D3] opacity-80" />
-            <span className="text-[11px] font-black text-[#7AB2D3] uppercase tracking-widest block">
+          <div className="w-full h-full bg-[#E7F8EE] dark:bg-[#181E27] flex flex-col items-center justify-center p-5 text-center space-y-1.5">
+            <HiOutlineBookOpen className="w-9 h-9 text-[#309255] opacity-80" />
+            <span className="text-[11px] font-bold text-[#309255] uppercase tracking-wider block">
               {categoryName}
             </span>
           </div>
         )}
 
-        {/* Top Right Corner Badge */}
-        <div className="absolute top-3 right-3 z-10">
-          <Badge variant="highlight" size="sm" className="shadow-xs font-bold text-[10px] tracking-wide">
+        {/* Top Left Category Badge */}
+        <div className="absolute top-3 left-3 z-10">
+          <span className="px-3 py-1 rounded-full bg-[#309255] text-white font-bold text-[11px] tracking-wide shadow-1 border border-white/20">
             {categoryName}
-          </Badge>
+          </span>
         </div>
 
-        {/* Top Left Difficulty Tag */}
-        <div className="absolute top-3 left-3 z-10">
-          <span className="px-2.5 py-1 rounded-full bg-[#4A628A]/80 backdrop-blur-md text-[#DFF2EB] font-bold text-[10px] border border-[#B9E5E8]/40">
+        {/* Top Right Difficulty Tag */}
+        <div className="absolute top-3 right-3 z-10">
+          <span className="px-2.5 py-1 rounded-full bg-[#212832]/85 backdrop-blur-md text-white font-medium text-[11px] border border-white/20 shadow-1">
             {difficulty}
           </span>
         </div>
       </div>
 
       {/* 2. Middle Content Section */}
-      <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+      <div className="p-4.5 sm:p-5 flex-1 flex flex-col justify-between space-y-3.5">
         <div className="space-y-2.5">
-          {/* Level, Lessons Count & Quizzes Header */}
-          <div className="flex items-center justify-between text-xs text-muted font-medium">
-            <span className="flex items-center gap-1">
-              <HiOutlineBookOpen className="w-3.5 h-3.5 text-[#7AB2D3]" />
+          {/* Lessons Count & Quizzes Metadata Chips */}
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#E7F8EE] dark:bg-[#E7F8EE]/10 text-[#309255] dark:text-[#E7F8EE] border border-[#309255]/20 text-[11px] font-semibold">
+              <HiOutlineBookOpen className="w-3.5 h-3.5" />
               <span>{lessonsCount} Lessons</span>
             </span>
-            <span className="flex items-center gap-1">
-              <HiOutlineAcademicCap className="w-3.5 h-3.5 text-[#7AB2D3]" />
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface border border-border text-muted text-[11px] font-semibold">
+              <HiOutlineAcademicCap className="w-3.5 h-3.5 text-[#309255]" />
               <span>{quizzesCount} {quizzesCount === 1 ? "Quiz" : "Quizzes"}</span>
             </span>
           </div>
 
           {/* Course Title */}
-          <Link href={`/courses/${slug}`}>
-            <h3 className="text-base font-bold text-foreground leading-snug group-hover:text-[#7AB2D3] transition-colors line-clamp-2">
+          <Link href={`/courses/${slug}`} className="block">
+            <h3 className="text-[15px] sm:text-base font-bold text-foreground leading-snug group-hover:text-[#309255] transition-colors line-clamp-2">
               {title}
             </h3>
           </Link>
 
           {/* Instructor Attribution */}
-          <div className="pt-1">
-            <div className="flex items-center gap-2 text-xs text-muted">
-              <div className="w-5 h-5 rounded-full bg-[#7AB2D3]/15 text-[#4A628A] dark:text-[#B9E5E8] flex items-center justify-center font-bold text-[10px] shrink-0">
-                {instructorName.charAt(0).toUpperCase()}
-              </div>
-              <span className="truncate">
-                By <strong className="font-semibold text-foreground">{instructorName}</strong>
-              </span>
+          <div className="flex items-center gap-2 text-xs text-muted pt-0.5">
+            <div className="w-6 h-6 rounded-full bg-[#E7F8EE] text-[#309255] dark:bg-[#E7F8EE]/20 dark:text-[#E7F8EE] flex items-center justify-center font-bold text-[10px] shrink-0 border border-[#309255]/25">
+              {instructorName.charAt(0).toUpperCase()}
             </div>
+            <span className="truncate">
+              By <strong className="font-semibold text-foreground">{instructorName}</strong>
+            </span>
           </div>
         </div>
 
         {/* 3. Bottom Row: Price & Action CTA */}
-        <div className="pt-3.5 border-t border-border flex items-center justify-between gap-3">
+        <div className="pt-3 border-t border-border flex items-center justify-between gap-3">
           <div className="flex flex-col">
-            <span className="text-[10px] text-muted font-bold uppercase tracking-wider">Tuition</span>
-            <span className="text-base sm:text-lg font-black text-foreground">
-              {price === 0 ? "Free Track" : `৳${price.toLocaleString()}`}
+            <span className="text-[9.5px] text-muted font-bold uppercase tracking-wider">Tuition</span>
+            <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">
+              {price === 0 ? (
+                <span className="text-[#309255] dark:text-[#E7F8EE]">Free Track</span>
+              ) : (
+                `৳${price.toLocaleString()}`
+              )}
             </span>
           </div>
 
@@ -134,10 +136,10 @@ export function CourseCard({ course }) {
             href={`/courses/${slug}`}
             variant="primary"
             size="sm"
-            className="text-xs font-bold px-4 py-2 gap-1"
+            className="text-xs font-bold px-3.5 py-1.5 rounded-lg gap-1 shadow-1"
           >
             <span>View Details</span>
-            <HiOutlineArrowRight className="w-3.5 h-3.5" />
+            <HiOutlineArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Button>
         </div>
       </div>
