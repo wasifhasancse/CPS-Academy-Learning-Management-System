@@ -113,15 +113,15 @@ export function ProfileTab() {
   return (
     <div className="space-y-6">
       {/* 1. Profile Overview Hero Card */}
-      <Card className="bg-card dark:bg-[#0D1C19] border-border p-6 rounded-2xl">
+      <Card className="bg-card border-border p-6 rounded-2xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#285A48] text-white flex items-center justify-center font-black text-2xl border-2 border-[#1E3A33] shrink-0 shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-[#309255] text-white flex items-center justify-center font-black text-2xl border-2 border-[#309255]/40 shrink-0 shadow-sm">
               {userInitial}
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h2 className="text-xl font-extrabold text-foreground dark:text-white">
+                <h2 className="text-xl font-extrabold text-foreground">
                   {user?.username || "User"}
                 </h2>
                 <Badge variant="highlight" size="sm">
@@ -142,7 +142,7 @@ export function ProfileTab() {
       {/* 2. Grid: Personal Details & Password Settings */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Personal Details Form */}
-        <Card className="bg-card dark:bg-[#0D1C19] border-border rounded-2xl">
+        <Card className="bg-card border-border rounded-2xl">
           <CardHeader>
             <CardTitle className="text-base">Personal Information</CardTitle>
             <CardDescription className="text-xs">
@@ -182,7 +182,7 @@ export function ProfileTab() {
                 <Input
                   value={email}
                   disabled
-                  className="text-xs opacity-70 bg-surface dark:bg-[#122421] cursor-not-allowed"
+                  className="text-xs opacity-70 bg-surface cursor-not-allowed"
                 />
                 <span className="text-[10px] text-muted block mt-1">
                   Email address is linked to your authentication account.
@@ -196,7 +196,7 @@ export function ProfileTab() {
                 <Input
                   value={displayRole}
                   disabled
-                  className="text-xs opacity-70 bg-surface dark:bg-[#122421] cursor-not-allowed font-bold"
+                  className="text-xs opacity-70 bg-surface cursor-not-allowed font-bold"
                 />
               </div>
 
@@ -216,7 +216,7 @@ export function ProfileTab() {
         </Card>
 
         {/* Security & Password Form */}
-        <Card className="bg-card dark:bg-[#0D1C19] border-border rounded-2xl">
+        <Card className="bg-card border-border rounded-2xl">
           <CardHeader>
             <CardTitle className="text-base">Security & Password</CardTitle>
             <CardDescription className="text-xs">
@@ -295,16 +295,16 @@ export function ProfileTab() {
       </div>
 
       {/* 3. Account Identity Details */}
-      <Card className="bg-card dark:bg-[#0D1C19] border-border rounded-2xl p-5">
+      <Card className="bg-card border-border rounded-2xl p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-muted">
           <div>
-            <span className="font-bold text-foreground dark:text-white">Account ID:</span>{" "}
-            <code className="px-2 py-0.5 rounded bg-surface dark:bg-[#122421] text-foreground font-mono text-[11px]">
+            <span className="font-bold text-foreground">Account ID:</span>{" "}
+            <code className="px-2 py-0.5 rounded bg-surface text-foreground font-mono text-[11px]">
               {user?.documentId || user?.id || "N/A"}
             </code>
           </div>
           <div>
-            <span className="font-bold text-foreground dark:text-white">Authentication Provider:</span>{" "}
+            <span className="font-bold text-foreground">Authentication Provider:</span>{" "}
             <span className="text-foreground capitalize">{user?.provider || "Local / Email"}</span>
           </div>
         </div>

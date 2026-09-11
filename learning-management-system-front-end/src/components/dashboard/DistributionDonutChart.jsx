@@ -1,16 +1,10 @@
 "use client";
 
-import React from "react";
 
 const SEGMENT_COLORS = [
-  "#4A628A",
-  "#7AB2D3",
-  "#5A88A8",
-  "#3A5272",
-  "#B9E5E8",
-  "#88C2C9",
-  "#2E415E",
-  "#6299B8",
+  "var(--chart-data-primary)",
+  "var(--chart-data-secondary)",
+  "var(--chart-data-tertiary)",
 ];
 
 export function DistributionDonutChart({
@@ -36,11 +30,13 @@ export function DistributionDonutChart({
     distributionMap[groupKey] += 1;
   });
 
-  const segments = Object.entries(distributionMap).map(([label, value], idx) => ({
-    label,
-    value,
-    color: SEGMENT_COLORS[idx % SEGMENT_COLORS.length],
-  }));
+  const segments = Object.entries(distributionMap).map(
+    ([label, value], idx) => ({
+      label,
+      value,
+      color: SEGMENT_COLORS[idx % SEGMENT_COLORS.length],
+    }),
+  );
 
   const totalValue = segments.reduce((acc, s) => acc + s.value, 0);
 
@@ -66,7 +62,9 @@ export function DistributionDonutChart({
   const hasData = totalValue > 0;
 
   return (
-    <div className={`p-5 sm:p-6 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-xs ${className}`}>
+    <div
+      className={`p-5 sm:p-6 rounded-2xl bg-card border border-border flex flex-col justify-between shadow-1 ${className}`}
+    >
       {/* Header */}
       <div className="mb-3">
         <h3 className="text-base font-extrabold text-foreground tracking-tight">
@@ -78,13 +76,31 @@ export function DistributionDonutChart({
       {!hasData ? (
         <div className="flex flex-col items-center justify-center py-10 text-center my-auto">
           <div className="w-12 h-12 rounded-xl bg-surface border border-border flex items-center justify-center text-muted mb-3">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z"
+              />
             </svg>
           </div>
-          <p className="text-xs font-bold text-foreground">No distribution data</p>
-          <p className="text-[11px] text-muted mt-1">Categories and records will appear as content is added</p>
+          <p className="text-xs font-bold text-foreground">
+            No distribution data
+          </p>
+          <p className="text-[11px] text-muted mt-1">
+            Categories and records will appear as content is added
+          </p>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-4 my-auto">
@@ -102,8 +118,8 @@ export function DistributionDonutChart({
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="currentColor"
-                strokeOpacity="0.06"
+                stroke="var(--chart-track)"
+                strokeOpacity="1"
                 strokeWidth={strokeWidth}
               />
 
@@ -129,7 +145,9 @@ export function DistributionDonutChart({
               <span className="text-2xl font-black text-foreground leading-none">
                 {totalValue}
               </span>
-              <span className="text-[10px] uppercase font-bold text-muted mt-1">Total</span>
+              <span className="text-[10px] uppercase font-bold text-muted mt-1">
+                Total
+              </span>
             </div>
           </div>
 
@@ -138,19 +156,25 @@ export function DistributionDonutChart({
             {computed.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between text-xs py-1 px-1.5 rounded-lg hover:bg-surface transition-colors"
+                className="flex items-center justify-between text-xs py-1 px-1.5 rounded-lg hover:bg-surface-hover transition-colors"
               >
                 <div className="flex items-center gap-2 max-w-[70%]">
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="text-muted font-medium truncate" title={item.label}>
+                  <span
+                    className="text-muted font-medium truncate"
+                    title={item.label}
+                  >
                     {item.label}
                   </span>
                 </div>
                 <span className="font-bold text-foreground font-mono shrink-0">
-                  {item.value} <span className="text-[10px] text-muted font-normal">({item.percent}%)</span>
+                  {item.value}{" "}
+                  <span className="text-[10px] text-muted font-normal">
+                    ({item.percent}%)
+                  </span>
                 </span>
               </div>
             ))}
