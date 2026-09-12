@@ -58,7 +58,7 @@ export default function StudentCoursesPage() {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
                     <Badge variant="outline">{course.category?.name || "Track"}</Badge>
-                    <Badge variant={isFinished ? "highlight" : "secondary"}>
+                    <Badge variant={isFinished ? "primary" : "highlight"}>
                       {isFinished ? "✓ Completed" : "In Progress"}
                     </Badge>
                   </div>

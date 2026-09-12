@@ -242,12 +242,12 @@ export function StudentProvider({ children }) {
   const studentSeries = [
     {
       name: "Enrollments",
-      color: "#7AB2D3",
+      color: "#309255",
       dataPoints: enrollments,
     },
     {
       name: "Quiz Checkpoints",
-      color: "#4A628A",
+      color: "#212832",
       dataPoints: quizAttempts,
     },
   ];
