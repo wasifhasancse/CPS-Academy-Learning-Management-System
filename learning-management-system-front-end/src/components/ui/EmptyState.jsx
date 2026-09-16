@@ -40,7 +40,7 @@ export function EmptyState({
 
   return (
     <div
-      className={`w-full flex flex-col items-center justify-center text-center bg-card dark:bg-[#0D1C19] border border-border rounded-2xl ${sizeStyles[size] || sizeStyles.md} ${className}`}
+      className={`w-full flex flex-col items-center justify-center text-center bg-card border border-border rounded-2xl ${sizeStyles[size] || sizeStyles.md} ${className}`}
     >
       <div
         className={`${iconSizes[size] || iconSizes.md} rounded-2xl bg-primary/10 dark:bg-primary/20 text-primary dark:text-highlight flex items-center justify-center mb-4 shrink-0 shadow-xs`}

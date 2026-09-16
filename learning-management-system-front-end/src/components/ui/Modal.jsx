@@ -52,7 +52,7 @@ export function Modal({
         <div
           role="dialog"
           aria-modal="true"
-          className={`relative w-full ${widthClass} rounded-2xl bg-card border border-border p-5 sm:p-6 shadow-2xl z-10 text-left my-auto flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-4rem)] transition-all`}
+          className={`relative w-full ${widthClass} rounded-2xl bg-card border border-border p-5 sm:p-6 shadow-1 z-10 text-left my-auto flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-4rem)] transition-all`}
         >
           {/* Pinned Header */}
           <div className="flex items-start justify-between gap-4 border-b border-border pb-3.5 shrink-0">

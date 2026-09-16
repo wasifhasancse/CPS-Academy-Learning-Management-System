@@ -10,7 +10,7 @@ export function Skeleton({ className = "", ...props }) {
   return (
     <div
       aria-hidden="true"
-      className={`animate-pulse rounded-lg bg-surface/90 dark:bg-[#393E46]/80 border border-border/30 ${className}`}
+      className={`animate-pulse rounded-lg bg-surface-hover border border-border/60 ${className}`}
       {...props}
     />
   );
