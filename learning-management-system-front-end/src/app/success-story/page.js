@@ -90,7 +90,7 @@ export default function SuccessStoryPage() {
   });
 
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-11/12 mx-auto space-y-12">
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto space-y-12">
       {/* Hero Header */}
       <section className="text-center max-w-3xl mx-auto space-y-4">
         <Badge variant="highlight">Proven Track Record</Badge>
