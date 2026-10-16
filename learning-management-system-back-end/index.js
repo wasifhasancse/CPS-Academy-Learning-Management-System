@@ -1,8 +1,26 @@
 'use strict';
 
+const path = require('path');
+const fs = require('fs');
 const strapi = require('@strapi/strapi');
 
 let instance;
+
+// Determine absolute application directory across Vercel Lambda and standalone environments
+const appDir = fs.existsSync(path.join(__dirname, 'package.json'))
+  ? __dirname
+  : path.join(process.cwd(), 'learning-management-system-back-end');
+
+const distDir = appDir;
+
+// Synchronize process.cwd() so internal file lookups resolve to backend root
+if (process.cwd() !== appDir) {
+  try {
+    process.chdir(appDir);
+  } catch (err) {
+    console.warn('[Strapi] Failed to chdir to appDir:', err);
+  }
+}
 
 /**
  * Serverless request handler for Vercel deployment.
@@ -12,8 +30,9 @@ let instance;
 async function getStrapiInstance() {
   if (!instance) {
     instance = await strapi.createStrapi({
-      appDir: process.cwd(),
-      distDir: process.cwd(),
+      appDir,
+      distDir,
+      autoReload: false,
     }).load();
     await instance.server.mount();
   }
@@ -43,7 +62,7 @@ module.exports = async (req, res) => {
 // If executed directly (e.g. node index.js) in standalone Node environments
 if (require.main === module) {
   strapi.createStrapi({
-    appDir: process.cwd(),
-    distDir: process.cwd(),
+    appDir,
+    distDir,
   }).start();
 }
