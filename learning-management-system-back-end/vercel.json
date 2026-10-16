@@ -7,6 +7,7 @@
       "config": {
         "maxDuration": 60,
         "includeFiles": [
+          "node_modules/@strapi/**",
           "config/**",
           "src/**",
           "public/**",
